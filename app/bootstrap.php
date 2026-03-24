@@ -6,9 +6,14 @@ require_once __DIR__ . '/support/meeting_status.php';
 require_once __DIR__ . '/support/meeting_contract.php';
 
 $contract = validate_meeting_contract(require __DIR__ . '/data/meeting.php');
+$homeContent = require __DIR__ . '/content/home.php';
 
 if (!is_array($contract)) {
     throw new RuntimeException('O contrato da reunião deve retornar um array.');
+}
+
+if (!is_array($homeContent)) {
+    throw new RuntimeException('O conteudo da home deve retornar um array.');
 }
 
 $timezone = (string) $contract['timezone'];
@@ -26,4 +31,5 @@ return [
     'meeting' => $meeting,
     'meeting_status' => $status,
     'support_links' => $supportLinks,
+    'home_content' => $homeContent,
 ];

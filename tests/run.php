@@ -42,6 +42,7 @@ $assertTrue(isset($contract['meeting']['status']), 'O contrato deve incluir stat
 $assertTrue(array_key_exists('status_override', $contract['meeting']), 'O contrato deve incluir status_override.');
 $assertTrue(isset($contract['meeting']['updated_at']), 'O contrato deve incluir updated_at.');
 $assertTrue(array_key_exists('directory', $contract['support_links']), 'O contrato deve incluir o link de diretório.');
+ $assertTrue(is_file(dirname(__DIR__) . '/public/assets/css/home.css'), 'A home deve expor um CSS dedicado em public/assets/css.');
 
 $validatedContract = validate_meeting_contract($contract);
 $assertSame('America/Sao_Paulo', $validatedContract['timezone'], 'O contrato valido deve preservar o timezone oficial.');
@@ -107,11 +108,25 @@ $viewData = require dirname(__DIR__) . '/app/bootstrap.php';
 $assertTrue(isset($viewData['meeting_status']['label']), 'O bootstrap deve preparar o status da reunião.');
 $assertSame('America/Sao_Paulo', $viewData['site']['timezone'], 'O bootstrap deve propagar o timezone do contrato.');
 $assertSame('próxima reunião', $viewData['meeting_status']['label'], 'O bootstrap deve respeitar o status manual seedado.');
+$assertTrue(isset($viewData['home_content']['hero']['cta_label']), 'O bootstrap deve carregar o conteudo da home.');
 
 ob_start();
 require dirname(__DIR__) . '/public/index.php';
 $renderedHtml = (string) ob_get_clean();
-$assertTrue(str_contains($renderedHtml, '<h1>Reunião Online do Grupo QuarenteNA</h1>'), 'O smoke test deve renderizar a home pelo entrypoint público.');
+$assertTrue(str_contains($renderedHtml, '<h1 id="hero-title" class="hero__title">' . $contract['meeting']['title'] . '</h1>'), 'O h1 principal da home deve consumir meeting.title da fonte unica.');
+$assertTrue(str_contains($renderedHtml, 'class="skip-link"'), 'A home deve incluir skip link visivel ao foco.');
+$assertTrue(str_contains($renderedHtml, 'href="assets/css/home.css"'), 'A home deve carregar o CSS dedicado.');
+$assertTrue(str_contains($renderedHtml, 'id="main-content"'), 'A home deve expor landmark principal com id navegavel.');
+$assertSame(1, substr_count($renderedHtml, 'class="hero__cta"'), 'A home deve renderizar exatamente um CTA primario.');
+$assertTrue(str_contains($renderedHtml, 'href="' . $contract['meeting']['join_url'] . '"'), 'O CTA deve consumir o join_url vindo da fonte unica.');
+$assertTrue(str_contains($renderedHtml, $contract['meeting']['title']), 'O CTA e a home devem expor o titulo vindo da fonte unica.');
+$assertTrue(str_contains($renderedHtml, 'rel="noopener noreferrer"'), 'O CTA externo deve proteger a navegacao.');
+$assertTrue(!str_contains($renderedHtml, '<script'), 'A home nao deve depender de JavaScript obrigatorio.');
+
+$css = (string) file_get_contents(dirname(__DIR__) . '/public/assets/css/home.css');
+$assertTrue(str_contains($css, '--color-bg-deep'), 'O CSS da home deve declarar tokens visuais do MVP.');
+$assertTrue(str_contains($css, '--color-accent'), 'O CSS da home deve declarar o acento amarelo do CTA.');
+$assertTrue(str_contains($css, '.skip-link:focus-visible'), 'O CSS da home deve estilizar o estado de foco do skip link.');
 
 if ($failures > 0) {
     exit(1);
