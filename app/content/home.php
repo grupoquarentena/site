@@ -11,4 +11,9 @@ return [
         'surface_label' => 'Canal oficial do grupo',
         'surface_copy' => 'A reunião principal fica concentrada neste endereço. Os dados críticos continuam vindo de uma única fonte versionada.',
     ],
+    'support_links' => [
+        'eyebrow' => 'Apoio complementar',
+        'title' => 'Recursos externos aprovados',
+        'lead' => 'Se algum recurso externo estiver ausente, a reunião principal continua sendo o caminho prioritário aqui na home.',
+    ],
 ];

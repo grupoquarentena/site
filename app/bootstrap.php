@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/support/meeting_status.php';
 require_once __DIR__ . '/support/meeting_contract.php';
 require_once __DIR__ . '/support/meeting_presenter.php';
+require_once __DIR__ . '/support/external_links.php';
 
 $contract = validate_meeting_contract(require __DIR__ . '/data/meeting.php');
 $homeContent = require __DIR__ . '/content/home.php';
@@ -34,6 +35,7 @@ if (is_string($testNow) && trim($testNow) !== '') {
 
 $status = resolve_meeting_status($meeting, $timezone, $referenceNow);
 $meetingDisplay = present_meeting_details($meeting, $timezone, $status);
+$supportSection = present_support_links($supportLinks);
 
 return [
     'site' => [
@@ -45,5 +47,6 @@ return [
     'meeting_display' => $meetingDisplay,
     'meeting_status' => $status,
     'support_links' => $supportLinks,
+    'support_section' => $supportSection,
     'home_content' => $homeContent,
 ];

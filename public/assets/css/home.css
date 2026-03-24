@@ -267,6 +267,88 @@ a {
     font-size: 0.95rem;
 }
 
+.support-links {
+    margin-top: calc(var(--space-8) * -0.25);
+    padding: var(--space-6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: rgba(5, 20, 41, 0.68);
+    box-shadow: 0 1.2rem 3rem var(--color-shadow);
+}
+
+.support-links__copy {
+    max-width: 42rem;
+}
+
+.support-links__eyebrow {
+    margin: 0 0 var(--space-3);
+    color: var(--color-text-secondary);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.support-links__title {
+    margin: 0;
+    font-family: "Source Serif 4", "Iowan Old Style", serif;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    letter-spacing: -0.02em;
+}
+
+.support-links__lead {
+    margin: var(--space-3) 0 0;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
+.support-links__list {
+    display: grid;
+    gap: var(--space-3);
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.support-links__item {
+    margin: 0;
+}
+
+.support-links__link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-height: 3.5rem;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.025);
+    color: var(--color-text-primary);
+    text-decoration: none;
+    transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
+.support-links__label {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.support-links__description {
+    color: var(--color-text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.support-links__link:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 209, 92, 0.32);
+}
+
+.support-links__link:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 4px;
+}
+
 @media (min-width: 48rem) {
     .page-shell {
         width: min(100% - 3rem, 72rem);
@@ -285,6 +367,10 @@ a {
 
     .meeting-card {
         align-self: end;
+    }
+
+    .support-links__list {
+        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
     }
 }
 

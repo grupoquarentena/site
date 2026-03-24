@@ -16,6 +16,7 @@ $escape = static fn (mixed $value): string => htmlspecialchars((string) $value, 
     <a class="skip-link" href="#main-content">Pular para o conteudo principal</a>
     <main id="main-content" class="page-shell">
         <?php require __DIR__ . '/partials/hero_meeting_cta.php'; ?>
+        <?php require __DIR__ . '/partials/support_links.php'; ?>
     </main>
 </body>
 </html>
