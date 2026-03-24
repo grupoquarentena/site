@@ -332,6 +332,36 @@ a {
     line-height: 1.65;
 }
 
+.info-section--types {
+    margin-top: var(--space-4);
+}
+
+.meeting-types-grid {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+}
+
+.meeting-types-card {
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.meeting-types-card__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f7fbff;
+}
+
+.meeting-types-card__body {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
 .support-links {
     margin-top: calc(var(--space-8) * -0.25);
     padding: var(--space-6);
@@ -436,6 +466,10 @@ a {
 
     .support-links__list {
         grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    }
+
+    .meeting-types-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 

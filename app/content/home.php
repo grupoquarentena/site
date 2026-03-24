@@ -27,4 +27,13 @@ return [
         'title' => 'Um grupo virtual com reunioes regulares',
         'body' => 'O Grupo QuarenteNA e um grupo de Narcoticos Anonimos com reunioes online em agenda regular e um ponto oficial simples para acolher quem chega e facilitar o retorno a cada encontro.',
     ],
+    'meeting_types' => [
+        'eyebrow' => 'Aberta ou fechada',
+        'title' => 'Como entender o tipo da reuniao',
+        'lead' => 'O tipo da reuniao ajuda a saber quem pode participar naquele encontro.',
+        'open_title' => 'Reuniao aberta',
+        'open_body' => 'Pode receber qualquer pessoa interessada em conhecer NA, inclusive familiares e profissionais.',
+        'closed_title' => 'Reuniao fechada',
+        'closed_body' => 'E voltada a membros e a quem se identifica com problema com drogas e busca recuperacao.',
+    ],
 ];
