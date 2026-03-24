@@ -13,8 +13,8 @@ return [
         'type' => 'fechada',
         'starts_at' => '2026-03-24T19:30:00-03:00',
         'ends_at' => '2026-03-24T20:00:00-03:00',
-        'status' => 'próxima reunião',
-        'status_override' => 'próxima reunião',
+        'status' => null,
+        'status_override' => null,
         'updated_at' => '2026-03-24 05:05 BRT',
     ],
     'support_links' => [

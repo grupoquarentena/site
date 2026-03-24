@@ -203,6 +203,10 @@ a {
     background: rgba(255, 255, 255, 0.03);
 }
 
+.meeting-card__item--status {
+    gap: var(--space-2);
+}
+
 .meeting-card__term,
 .meeting-card__meta-label {
     color: var(--color-text-secondary);
@@ -226,6 +230,33 @@ a {
     color: var(--color-text-secondary);
     font-size: 0.82rem;
     font-weight: 400;
+}
+
+.meeting-status-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-pill);
+    font-size: 0.94rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+.meeting-status-pill--agora {
+    color: #8ff0a9;
+    background: rgba(68, 191, 102, 0.12);
+}
+
+.meeting-status-pill--mais-tarde-hoje {
+    color: #ffe18e;
+    background: rgba(255, 209, 92, 0.16);
+}
+
+.meeting-status-pill--proxima-reuniao {
+    color: #cbe4ff;
+    background: rgba(116, 163, 228, 0.14);
 }
 
 .meeting-card__meta {
