@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/app/support/meeting_status.php';
 require_once dirname(__DIR__) . '/app/support/meeting_contract.php';
 require_once dirname(__DIR__) . '/app/support/meeting_presenter.php';
+require_once dirname(__DIR__) . '/app/support/external_links.php';
 
 $failures = 0;
 $assertions = 0;
@@ -126,6 +127,41 @@ $manualFallbackStatus = resolve_meeting_status(
 );
 $assertSame('manual', $manualFallbackStatus['source'], 'Quando a agenda nao for suficiente, o fallback manual deve continuar valido.');
 
+$supportSectionWithoutLinks = present_support_links([
+    'whatsapp' => null,
+    'report' => null,
+    'directory' => null,
+]);
+$assertSame(false, $supportSectionWithoutLinks['has_items'], 'Sem links complementares validos, a secao secundaria deve poder ser ocultada.');
+$assertSame([], $supportSectionWithoutLinks['items'], 'Sem links complementares validos, nenhum item deve ser renderizado.');
+
+$supportSectionWithLinks = present_support_links([
+    'whatsapp' => null,
+    'report' => '',
+    'directory' => 'https://www.na.org.br/virtual/',
+]);
+$assertSame(true, $supportSectionWithLinks['has_items'], 'Com ao menos um link complementar valido, a secao secundaria deve ser preparada.');
+$assertSame('directory', $supportSectionWithLinks['items'][0]['key'], 'O helper de apoio deve preservar a chave do recurso complementar disponivel.');
+
+$supportSectionWithInvalidLink = present_support_links([
+    'whatsapp' => 'javascript:alert(1)',
+    'report' => null,
+    'directory' => null,
+]);
+$assertSame(false, $supportSectionWithInvalidLink['has_items'], 'Links complementares malformados devem ser ignorados para fail-soft.');
+
+$viewData = [
+    'support_section' => $supportSectionWithoutLinks,
+    'home_content' => [
+        'support_links' => [],
+    ],
+];
+$escape = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+ob_start();
+require dirname(__DIR__) . '/app/views/partials/support_links.php';
+$emptySupportHtml = trim((string) ob_get_clean());
+$assertSame('', $emptySupportHtml, 'Sem links validos, a partial complementar deve se ocultar sem quebrar o fluxo principal.');
+
 try {
     validate_meeting_contract([
         'timezone' => 'America/Sao_Paoloo',
@@ -160,6 +196,7 @@ $assertSame($meetingDisplay['schedule_label'], $viewData['meeting_display']['sch
 $assertSame('America/Sao_Paulo', $viewData['site']['timezone'], 'O bootstrap deve propagar o timezone do contrato.');
 $assertSame('agora', $viewData['meeting_status']['label'], 'O bootstrap deve resolver o status automaticamente no timezone oficial.');
 $assertTrue(isset($viewData['home_content']['hero']['cta_label']), 'O bootstrap deve carregar o conteudo da home.');
+$assertSame(true, $viewData['support_section']['has_items'], 'O bootstrap deve preparar a secao complementar quando houver link aprovado.');
 
 ob_start();
 require dirname(__DIR__) . '/public/index.php';
@@ -194,12 +231,28 @@ $assertTrue(str_contains($renderedHtml, '>Status</dt>'), 'O card deve rotular o 
 $assertTrue(str_contains($renderedHtml, 'class="meeting-status-pill meeting-status-pill--agora"'), 'O card deve exibir o estado atual com pill dedicada.');
 $assertTrue(str_contains($renderedHtml, 'agora'), 'A home deve exibir exatamente um estado visivel da reuniao no bloco principal.');
 
+// Story 1.5: Resiliencia a falhas externas
+$assertTrue(str_contains($renderedHtml, 'class="support-links"'), 'A home deve renderizar uma secao complementar secundaria quando houver recurso externo aprovado.');
+$assertTrue(str_contains($renderedHtml, 'Diretorio e outras reunioes'), 'A secao complementar deve expor o recurso externo disponivel sem competir com o CTA principal.');
+$assertTrue(str_contains($renderedHtml, 'data-event="support_directory_click"'), 'A secao complementar deve sinalizar o evento agregado do link de apoio.');
+
+$viewData = array_merge($viewData, [
+    'support_section' => $supportSectionWithoutLinks,
+]);
+ob_start();
+require dirname(__DIR__) . '/app/views/home.php';
+$renderedHtmlWithoutSupport = (string) ob_get_clean();
+$assertTrue(str_contains($renderedHtmlWithoutSupport, 'class="hero__cta"'), 'Mesmo sem links externos, o CTA principal deve continuar renderizado.');
+$assertTrue(str_contains($renderedHtmlWithoutSupport, 'class="meeting-card"'), 'Mesmo sem links externos, o card principal deve continuar renderizado.');
+$assertTrue(!str_contains($renderedHtmlWithoutSupport, 'class="support-links"'), 'Sem links externos validos, a secao complementar deve desaparecer sem quebrar a home.');
+
 $css = (string) file_get_contents(dirname(__DIR__) . '/public/assets/css/home.css');
 $assertTrue(str_contains($css, '--color-bg-deep'), 'O CSS da home deve declarar tokens visuais do MVP.');
 $assertTrue(str_contains($css, '--color-accent'), 'O CSS da home deve declarar o acento amarelo do CTA.');
 $assertTrue(str_contains($css, '.skip-link:focus-visible'), 'O CSS da home deve estilizar o estado de foco do skip link.');
 $assertTrue(str_contains($css, '.meeting-card__item'), 'O CSS da home deve estilizar o card de dados da reuniao.');
 $assertTrue(str_contains($css, '.meeting-status-pill'), 'O CSS da home deve estilizar a pill de status da reuniao.');
+$assertTrue(str_contains($css, '.support-links__link'), 'O CSS da home deve estilizar a secao complementar de apoio.');
 
 if ($failures > 0) {
     exit(1);
