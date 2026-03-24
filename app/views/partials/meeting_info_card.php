@@ -10,6 +10,17 @@ $meetingDisplay = $viewData['meeting_display'];
     <h2 id="meeting-card-title" class="meeting-card__title">Informacoes essenciais antes de entrar</h2>
 
     <dl class="meeting-card__list">
+        <div class="meeting-card__item meeting-card__item--status">
+            <dt class="meeting-card__term">Status</dt>
+            <dd class="meeting-card__description">
+                <span
+                    class="meeting-status-pill meeting-status-pill--<?= $escape($meetingDisplay['status_slug']) ?>"
+                    aria-label="<?= $escape($meetingDisplay['status_a11y_label']) ?>"
+                >
+                    <?= $escape($meetingDisplay['status_label']) ?>
+                </span>
+            </dd>
+        </div>
         <div class="meeting-card__item">
             <dt class="meeting-card__term">Horario</dt>
             <dd class="meeting-card__description"><?= $escape($meetingDisplay['schedule_label']) ?></dd>

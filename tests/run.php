@@ -39,7 +39,7 @@ $assertTrue(isset($contract['meeting']['password']), 'O contrato deve incluir a 
 $assertTrue(isset($contract['meeting']['type']), 'O contrato deve incluir o tipo da reunião.');
 $assertTrue(isset($contract['meeting']['starts_at']), 'O contrato deve incluir starts_at.');
 $assertTrue(isset($contract['meeting']['ends_at']), 'O contrato deve incluir ends_at.');
-$assertTrue(isset($contract['meeting']['status']), 'O contrato deve incluir status.');
+$assertTrue(array_key_exists('status', $contract['meeting']), 'O contrato deve incluir status.');
 $assertTrue(array_key_exists('status_override', $contract['meeting']), 'O contrato deve incluir status_override.');
 $assertTrue(isset($contract['meeting']['updated_at']), 'O contrato deve incluir updated_at.');
 $assertTrue(array_key_exists('directory', $contract['support_links']), 'O contrato deve incluir o link de diretório.');
@@ -47,9 +47,18 @@ $assertTrue(array_key_exists('directory', $contract['support_links']), 'O contra
 
 $validatedContract = validate_meeting_contract($contract);
 $assertSame('America/Sao_Paulo', $validatedContract['timezone'], 'O contrato valido deve preservar o timezone oficial.');
-$assertSame('próxima reunião', $validatedContract['meeting']['status'], 'O contrato validado deve preservar o status manual seedado.');
+$assertSame(null, $validatedContract['meeting']['status'], 'Sem override manual, o contrato validado deve permitir calculo automatico do status.');
 
-$meetingDisplay = present_meeting_details($validatedContract['meeting'], $validatedContract['timezone']);
+$meetingDisplay = present_meeting_details(
+    $validatedContract['meeting'],
+    $validatedContract['timezone'],
+    [
+        'label' => 'mais tarde hoje',
+        'slug' => 'mais-tarde-hoje',
+    ]
+);
+$assertSame('mais tarde hoje', $meetingDisplay['status_label'], 'A apresentacao da reuniao deve preservar o rotulo canonico do status para exibicao.');
+$assertSame('mais-tarde-hoje', $meetingDisplay['status_slug'], 'A apresentacao da reuniao deve propagar o slug do status.');
 $assertTrue($meetingDisplay['schedule_label'] !== '', 'A apresentacao da reuniao deve formatar o horario em um unico rotulo legivel.');
 $assertSame($validatedContract['meeting']['meeting_id'], $meetingDisplay['meeting_id_label'], 'A apresentacao da reuniao deve expor o ID vindo da fonte unica.');
 $assertSame($validatedContract['meeting']['password'], $meetingDisplay['password_label'], 'A apresentacao da reuniao deve expor a senha vinda da fonte unica.');
@@ -84,6 +93,39 @@ $automaticStatus = resolve_meeting_status(
 );
 $assertSame('mais tarde hoje', $automaticStatus['label'], 'O cálculo automático deve normalizar offsets para o timezone oficial.');
 
+$nextMeetingStatus = resolve_meeting_status(
+    [
+        'starts_at' => '2026-03-25T19:30:00-03:00',
+        'ends_at' => '2026-03-25T20:00:00-03:00',
+        'status_override' => null,
+    ],
+    'America/Sao_Paulo',
+    new DateTimeImmutable('2026-03-24T22:00:00-03:00')
+);
+$assertSame('próxima reunião', $nextMeetingStatus['label'], 'O cálculo automático deve cair para próxima reunião quando o proximo horario for em outro dia.');
+
+$liveStatus = resolve_meeting_status(
+    [
+        'starts_at' => '2026-03-24T19:30:00-03:00',
+        'ends_at' => '2026-03-24T20:00:00-03:00',
+        'status_override' => null,
+    ],
+    'America/Sao_Paulo',
+    new DateTimeImmutable('2026-03-24T19:45:00-03:00')
+);
+$assertSame('agora', $liveStatus['label'], 'O cálculo automático deve identificar quando a reuniao esta acontecendo agora.');
+
+$manualFallbackStatus = resolve_meeting_status(
+    [
+        'starts_at' => null,
+        'ends_at' => null,
+        'status_override' => 'próxima reunião',
+    ],
+    'America/Sao_Paulo',
+    new DateTimeImmutable('2026-03-24T09:00:00-03:00')
+);
+$assertSame('manual', $manualFallbackStatus['source'], 'Quando a agenda nao for suficiente, o fallback manual deve continuar valido.');
+
 try {
     validate_meeting_contract([
         'timezone' => 'America/Sao_Paoloo',
@@ -111,11 +153,12 @@ try {
     $assertTrue(true, 'Agenda parcial sem override deve disparar excecao.');
 }
 
+putenv('SITE_TEST_NOW=2026-03-24T19:45:00-03:00');
 $viewData = require dirname(__DIR__) . '/app/bootstrap.php';
 $assertTrue(isset($viewData['meeting_status']['label']), 'O bootstrap deve preparar o status da reunião.');
 $assertSame($meetingDisplay['schedule_label'], $viewData['meeting_display']['schedule_label'], 'O bootstrap deve propagar o horario formatado do card principal.');
 $assertSame('America/Sao_Paulo', $viewData['site']['timezone'], 'O bootstrap deve propagar o timezone do contrato.');
-$assertSame('próxima reunião', $viewData['meeting_status']['label'], 'O bootstrap deve respeitar o status manual seedado.');
+$assertSame('agora', $viewData['meeting_status']['label'], 'O bootstrap deve resolver o status automaticamente no timezone oficial.');
 $assertTrue(isset($viewData['home_content']['hero']['cta_label']), 'O bootstrap deve carregar o conteudo da home.');
 
 ob_start();
@@ -146,11 +189,17 @@ $assertTrue($meetingDisplay['type_description'] !== '', 'type_description nao de
 $assertTrue(str_contains($renderedHtml, 'class="meeting-card__type-note"'), 'O card deve exibir a nota explicativa do tipo.');
 $assertTrue(str_contains($renderedHtml, $meetingDisplay['type_description']), 'O card deve exibir o texto de elegibilidade do tipo.');
 
+// Story 1.4: Status da reuniao
+$assertTrue(str_contains($renderedHtml, '>Status</dt>'), 'O card deve rotular o status da reuniao.');
+$assertTrue(str_contains($renderedHtml, 'class="meeting-status-pill meeting-status-pill--agora"'), 'O card deve exibir o estado atual com pill dedicada.');
+$assertTrue(str_contains($renderedHtml, 'agora'), 'A home deve exibir exatamente um estado visivel da reuniao no bloco principal.');
+
 $css = (string) file_get_contents(dirname(__DIR__) . '/public/assets/css/home.css');
 $assertTrue(str_contains($css, '--color-bg-deep'), 'O CSS da home deve declarar tokens visuais do MVP.');
 $assertTrue(str_contains($css, '--color-accent'), 'O CSS da home deve declarar o acento amarelo do CTA.');
 $assertTrue(str_contains($css, '.skip-link:focus-visible'), 'O CSS da home deve estilizar o estado de foco do skip link.');
 $assertTrue(str_contains($css, '.meeting-card__item'), 'O CSS da home deve estilizar o card de dados da reuniao.');
+$assertTrue(str_contains($css, '.meeting-status-pill'), 'O CSS da home deve estilizar a pill de status da reuniao.');
 
 if ($failures > 0) {
     exit(1);
