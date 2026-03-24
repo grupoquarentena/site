@@ -313,6 +313,25 @@ a {
     line-height: 1.7;
 }
 
+.info-section--group {
+    margin-top: var(--space-4);
+    background: rgba(5, 20, 41, 0.46);
+    border-style: dashed;
+}
+
+.info-section--group .info-section__eyebrow {
+    color: #ffe18e;
+}
+
+.info-section--group .info-section__title {
+    font-size: clamp(1.28rem, 3vw, 1.7rem);
+}
+
+.info-section--group .info-section__lead {
+    color: var(--color-text-secondary);
+    line-height: 1.65;
+}
+
 .support-links {
     margin-top: calc(var(--space-8) * -0.25);
     padding: var(--space-6);

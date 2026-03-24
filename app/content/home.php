@@ -22,4 +22,9 @@ return [
         'title' => 'Um espaco de apoio entre pessoas com o mesmo problema',
         'body' => 'Narcoticos Anonimos e uma irmandade onde pessoas com problemas com drogas se apoiam em recuperacao, com reunioes regulares e linguagem simples.',
     ],
+    'about_group' => [
+        'eyebrow' => 'Sobre o Grupo QuarenteNA',
+        'title' => 'Um grupo virtual com reunioes regulares',
+        'body' => 'O Grupo QuarenteNA e um grupo de Narcoticos Anonimos com reunioes online em agenda regular e um ponto oficial simples para acolher quem chega e facilitar o retorno a cada encontro.',
+    ],
 ];

@@ -249,6 +249,15 @@ $assertTrue(str_contains($renderedHtml, 'class="info-section"'), 'A home deve re
 $assertTrue(str_contains($renderedHtml, $viewData['home_content']['about_na']['title']), 'O bloco O que e NA deve consumir o titulo vindo do conteudo da home.');
 $assertTrue(str_contains($renderedHtml, $viewData['home_content']['about_na']['body']), 'O bloco O que e NA deve consumir a copy curta vinda do conteudo da home.');
 
+// Story 2.3: Sobre o Grupo QuarenteNA
+$assertTrue(isset($viewData['home_content']['about_group']['body']), 'O bootstrap deve expor a copy do bloco sobre o grupo.');
+$assertTrue(str_contains(strtolower($viewData['home_content']['about_group']['body']), 'reunioes'), 'O bloco sobre o grupo deve comunicar frequencia regular.');
+$assertTrue(str_contains(strtolower($viewData['home_content']['about_group']['body']), 'narcoticos anonimos'), 'O bloco sobre o grupo deve explicar a relacao com NA.');
+$assertTrue(!str_contains($viewData['home_content']['about_group']['body'], 'Ciro'), 'O bloco sobre o grupo nao deve expor identidades pessoais.');
+$assertTrue(str_contains($renderedHtml, 'info-section info-section--group'), 'A home deve renderizar o bloco sobre o grupo abaixo do contexto inicial sobre NA.');
+$assertTrue(str_contains($renderedHtml, $viewData['home_content']['about_group']['title']), 'O bloco sobre o grupo deve consumir o titulo vindo do conteudo da home.');
+$assertTrue(str_contains($renderedHtml, $viewData['home_content']['about_group']['body']), 'O bloco sobre o grupo deve consumir a copy aprovada da home.');
+
 $viewData = array_merge($viewData, [
     'support_section' => $supportSectionWithoutLinks,
 ]);
@@ -268,6 +277,7 @@ $assertTrue(str_contains($css, '.meeting-status-pill'), 'O CSS da home deve esti
 $assertTrue(str_contains($css, '.support-links__link'), 'O CSS da home deve estilizar a secao complementar de apoio.');
 $assertTrue(str_contains($css, '.hero__welcome'), 'O CSS da home deve estilizar o bloco curto de acolhimento.');
 $assertTrue(str_contains($css, '.info-section'), 'O CSS da home deve estilizar o bloco O que e NA.');
+$assertTrue(str_contains($css, '.info-section--group'), 'O CSS da home deve estilizar o bloco sobre o grupo.');
 
 if ($failures > 0) {
     exit(1);
