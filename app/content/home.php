@@ -17,4 +17,9 @@ return [
         'title' => 'Recursos externos aprovados',
         'lead' => 'Se algum recurso externo estiver ausente, a reunião principal continua sendo o caminho prioritário aqui na home.',
     ],
+    'about_na' => [
+        'eyebrow' => 'O que e NA',
+        'title' => 'Um espaco de apoio entre pessoas com o mesmo problema',
+        'body' => 'Narcoticos Anonimos e uma irmandade onde pessoas com problemas com drogas se apoiam em recuperacao, com reunioes regulares e linguagem simples.',
+    ],
 ];

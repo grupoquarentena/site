@@ -241,6 +241,14 @@ $assertTrue(isset($viewData['home_content']['hero']['welcome_message']), 'O boot
 $assertTrue(str_contains($renderedHtml, 'class="hero__welcome"'), 'A home deve renderizar um bloco curto de acolhimento perto do CTA principal.');
 $assertTrue(str_contains($renderedHtml, $viewData['home_content']['hero']['welcome_message']), 'A copy acolhedora deve vir do arquivo de conteudo da home.');
 
+// Story 2.2: Bloco O que e NA
+$assertTrue(isset($viewData['home_content']['about_na']['body']), 'O bootstrap deve expor a copy do bloco O que e NA.');
+$assertTrue(strlen($viewData['home_content']['about_na']['body']) < 180, 'A copy do bloco O que e NA deve permanecer curta.');
+$assertTrue(!str_contains(strtolower($viewData['home_content']['about_na']['body']), 'garantia'), 'O bloco O que e NA nao deve prometer resultados indevidos.');
+$assertTrue(str_contains($renderedHtml, 'class="info-section"'), 'A home deve renderizar um bloco institucional curto abaixo da dobra.');
+$assertTrue(str_contains($renderedHtml, $viewData['home_content']['about_na']['title']), 'O bloco O que e NA deve consumir o titulo vindo do conteudo da home.');
+$assertTrue(str_contains($renderedHtml, $viewData['home_content']['about_na']['body']), 'O bloco O que e NA deve consumir a copy curta vinda do conteudo da home.');
+
 $viewData = array_merge($viewData, [
     'support_section' => $supportSectionWithoutLinks,
 ]);
@@ -259,6 +267,7 @@ $assertTrue(str_contains($css, '.meeting-card__item'), 'O CSS da home deve estil
 $assertTrue(str_contains($css, '.meeting-status-pill'), 'O CSS da home deve estilizar a pill de status da reuniao.');
 $assertTrue(str_contains($css, '.support-links__link'), 'O CSS da home deve estilizar a secao complementar de apoio.');
 $assertTrue(str_contains($css, '.hero__welcome'), 'O CSS da home deve estilizar o bloco curto de acolhimento.');
+$assertTrue(str_contains($css, '.info-section'), 'O CSS da home deve estilizar o bloco O que e NA.');
 
 if ($failures > 0) {
     exit(1);
