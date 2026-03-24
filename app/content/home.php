@@ -6,6 +6,7 @@ return [
     'hero' => [
         'eyebrow' => 'Ponto oficial da reunião online',
         'lead' => 'O caminho principal do grupo começa aqui: uma home leve, direta e pronta para ser usada sem JavaScript obrigatório.',
+        'welcome_message' => 'Se voce chegou agora, pode entrar no seu tempo. Veja as informacoes da reuniao e participe quando se sentir pronto.',
         'cta_label' => 'Entrar na reunião',
         'trust_note' => 'Um único CTA dominante. Nenhum atalho paralelo. Nenhuma dependência de mensagem antiga.',
         'surface_label' => 'Canal oficial do grupo',

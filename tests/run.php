@@ -236,6 +236,11 @@ $assertTrue(str_contains($renderedHtml, 'class="support-links"'), 'A home deve r
 $assertTrue(str_contains($renderedHtml, 'Diretorio e outras reunioes'), 'A secao complementar deve expor o recurso externo disponivel sem competir com o CTA principal.');
 $assertTrue(str_contains($renderedHtml, 'data-event="support_directory_click"'), 'A secao complementar deve sinalizar o evento agregado do link de apoio.');
 
+// Story 2.1: Mensagem curta de acolhimento
+$assertTrue(isset($viewData['home_content']['hero']['welcome_message']), 'O bootstrap deve expor a mensagem curta de acolhimento.');
+$assertTrue(str_contains($renderedHtml, 'class="hero__welcome"'), 'A home deve renderizar um bloco curto de acolhimento perto do CTA principal.');
+$assertTrue(str_contains($renderedHtml, $viewData['home_content']['hero']['welcome_message']), 'A copy acolhedora deve vir do arquivo de conteudo da home.');
+
 $viewData = array_merge($viewData, [
     'support_section' => $supportSectionWithoutLinks,
 ]);
@@ -253,6 +258,7 @@ $assertTrue(str_contains($css, '.skip-link:focus-visible'), 'O CSS da home deve 
 $assertTrue(str_contains($css, '.meeting-card__item'), 'O CSS da home deve estilizar o card de dados da reuniao.');
 $assertTrue(str_contains($css, '.meeting-status-pill'), 'O CSS da home deve estilizar a pill de status da reuniao.');
 $assertTrue(str_contains($css, '.support-links__link'), 'O CSS da home deve estilizar a secao complementar de apoio.');
+$assertTrue(str_contains($css, '.hero__welcome'), 'O CSS da home deve estilizar o bloco curto de acolhimento.');
 
 if ($failures > 0) {
     exit(1);

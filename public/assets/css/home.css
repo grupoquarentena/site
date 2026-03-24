@@ -115,7 +115,8 @@ a {
 }
 
 .hero__lead,
-.hero__trust {
+.hero__trust,
+.hero__welcome {
     margin: 0;
     max-width: 34rem;
     line-height: 1.6;
@@ -125,6 +126,16 @@ a {
     margin-top: var(--space-6);
     font-size: 1.05rem;
     color: #e7f2ff;
+}
+
+.hero__welcome {
+    margin-top: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-left: 3px solid rgba(255, 209, 92, 0.72);
+    border-radius: 0 1rem 1rem 0;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--color-text-secondary);
+    font-size: 0.97rem;
 }
 
 .hero__cta {
