@@ -258,6 +258,29 @@ $assertTrue(str_contains($renderedHtml, 'info-section info-section--group'), 'A 
 $assertTrue(str_contains($renderedHtml, $viewData['home_content']['about_group']['title']), 'O bloco sobre o grupo deve consumir o titulo vindo do conteudo da home.');
 $assertTrue(str_contains($renderedHtml, $viewData['home_content']['about_group']['body']), 'O bloco sobre o grupo deve consumir a copy aprovada da home.');
 
+// Story 2.4: Explicacao aberta versus fechada
+$assertTrue(isset($viewData['home_content']['meeting_types']['open_body']), 'O bootstrap deve expor a copy de reuniao aberta.');
+$assertTrue(isset($viewData['home_content']['meeting_types']['closed_body']), 'O bootstrap deve expor a copy de reuniao fechada.');
+$assertTrue(str_contains($renderedHtml, 'info-section info-section--types'), 'A home deve renderizar um bloco dedicado para explicar aberta versus fechada.');
+$assertTrue(str_contains($renderedHtml, $viewData['home_content']['meeting_types']['open_title']), 'A explicacao de reuniao aberta deve vir do conteudo da home.');
+$assertTrue(str_contains($renderedHtml, $viewData['home_content']['meeting_types']['closed_title']), 'A explicacao de reuniao fechada deve vir do conteudo da home.');
+$assertTrue(str_contains($renderedHtml, $viewData['home_content']['meeting_types']['open_body']), 'A explicacao de reuniao aberta deve expor a descricao publica aprovada.');
+$assertTrue(str_contains($renderedHtml, $viewData['home_content']['meeting_types']['closed_body']), 'A explicacao de reuniao fechada deve expor a descricao publica aprovada.');
+$assertTrue(!str_contains(strtolower($viewData['home_content']['meeting_types']['open_body']), 'nome completo'), 'A copy de reuniao aberta deve permanecer compativel com as regras publicas.');
+$assertTrue(!str_contains(strtolower($viewData['home_content']['meeting_types']['closed_body']), 'nome completo'), 'A copy de reuniao fechada deve permanecer compativel com as regras publicas.');
+
+$heroPosition = strpos($renderedHtml, 'class="hero"');
+$meetingTypesPosition = strpos($renderedHtml, 'info-section info-section--types');
+$aboutNaPosition = strpos($renderedHtml, 'info-section" aria-labelledby="about-na-title"');
+$aboutGroupPosition = strpos($renderedHtml, 'info-section info-section--group');
+$assertTrue($heroPosition !== false, 'A home deve renderizar o bloco hero.');
+$assertTrue($meetingTypesPosition !== false, 'A home deve renderizar o bloco aberta versus fechada.');
+$assertTrue($aboutNaPosition !== false, 'A home deve renderizar o bloco O que e NA.');
+$assertTrue($aboutGroupPosition !== false, 'A home deve renderizar o bloco sobre o grupo.');
+$assertTrue($heroPosition < $meetingTypesPosition, 'O bloco aberta versus fechada deve aparecer depois do hero principal.');
+$assertTrue($meetingTypesPosition < $aboutNaPosition, 'O bloco aberta versus fechada deve aparecer antes do bloco O que e NA.');
+$assertTrue($meetingTypesPosition < $aboutGroupPosition, 'O bloco aberta versus fechada deve aparecer antes do bloco sobre o grupo.');
+
 $viewData = array_merge($viewData, [
     'support_section' => $supportSectionWithoutLinks,
 ]);
@@ -278,6 +301,7 @@ $assertTrue(str_contains($css, '.support-links__link'), 'O CSS da home deve esti
 $assertTrue(str_contains($css, '.hero__welcome'), 'O CSS da home deve estilizar o bloco curto de acolhimento.');
 $assertTrue(str_contains($css, '.info-section'), 'O CSS da home deve estilizar o bloco O que e NA.');
 $assertTrue(str_contains($css, '.info-section--group'), 'O CSS da home deve estilizar o bloco sobre o grupo.');
+$assertTrue(str_contains($css, '.meeting-types-grid'), 'O CSS da home deve estilizar o bloco aberta versus fechada.');
 
 if ($failures > 0) {
     exit(1);
