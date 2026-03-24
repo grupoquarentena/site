@@ -24,7 +24,10 @@ $meetingDisplay = $viewData['meeting_display'];
         </div>
         <div class="meeting-card__item">
             <dt class="meeting-card__term">Tipo</dt>
-            <dd class="meeting-card__description"><?= $escape($meetingDisplay['type_label']) ?></dd>
+            <dd class="meeting-card__description">
+                <?= $escape($meetingDisplay['type_label']) ?>
+                <span class="meeting-card__type-note"><?= $escape($meetingDisplay['type_description']) ?></span>
+            </dd>
         </div>
     </dl>
 

@@ -134,11 +134,17 @@ $assertTrue(str_contains($renderedHtml, '>Horario</dt>'), 'O card deve rotular o
 $assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['schedule_label'] . '</dd>'), 'O card deve exibir o horario formatado no mesmo bloco visual.');
 $assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['meeting_id_label'] . '</dd>'), 'O card deve exibir o meeting ID vindo da fonte unica.');
 $assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['password_label'] . '</dd>'), 'O card deve exibir a senha vinda da fonte unica.');
-$assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['type_label'] . '</dd>'), 'O card deve exibir o tipo da reuniao.');
+$assertTrue(str_contains($renderedHtml, $meetingDisplay['type_label']), 'O card deve exibir o tipo da reuniao.');
 $assertSame(1, substr_count($renderedHtml, '>' . $meetingDisplay['meeting_id_label'] . '<'), 'O meeting ID nao deve ser duplicado fora do bloco principal.');
 $assertSame(1, substr_count($renderedHtml, '>' . $meetingDisplay['password_label'] . '<'), 'A senha nao deve ser duplicada fora do bloco principal.');
 $assertTrue(str_contains($renderedHtml, 'rel="noopener noreferrer"'), 'O CTA externo deve proteger a navegacao.');
 $assertTrue(!str_contains($renderedHtml, '<script'), 'A home nao deve depender de JavaScript obrigatorio.');
+
+// Story 1.3: Tipo e elegibilidade
+$assertTrue(isset($meetingDisplay['type_description']), 'O presenter deve expor type_description.');
+$assertTrue($meetingDisplay['type_description'] !== '', 'type_description nao deve ser vazio.');
+$assertTrue(str_contains($renderedHtml, 'class="meeting-card__type-note"'), 'O card deve exibir a nota explicativa do tipo.');
+$assertTrue(str_contains($renderedHtml, $meetingDisplay['type_description']), 'O card deve exibir o texto de elegibilidade do tipo.');
 
 $css = (string) file_get_contents(dirname(__DIR__) . '/public/assets/css/home.css');
 $assertTrue(str_contains($css, '--color-bg-deep'), 'O CSS da home deve declarar tokens visuais do MVP.');

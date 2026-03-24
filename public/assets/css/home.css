@@ -220,6 +220,14 @@ a {
     font-weight: 700;
 }
 
+.meeting-card__type-note {
+    display: block;
+    margin-top: var(--space-1);
+    color: var(--color-text-secondary);
+    font-size: 0.82rem;
+    font-weight: 400;
+}
+
 .meeting-card__meta {
     display: grid;
     gap: var(--space-1);

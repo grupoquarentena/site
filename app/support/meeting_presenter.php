@@ -10,12 +10,14 @@ function present_meeting_details(array $meeting, string $timezone): array
     $tz = normalize_contract_timezone($timezone);
     $startsAt = parse_meeting_datetime($meeting['starts_at'] ?? null, $tz);
     $endsAt = parse_meeting_datetime($meeting['ends_at'] ?? null, $tz);
+    $type = $meeting['type'] ?? null;
 
     return [
         'schedule_label' => format_meeting_schedule($startsAt, $endsAt),
         'meeting_id_label' => trim((string) ($meeting['meeting_id'] ?? '')),
         'password_label' => trim((string) ($meeting['password'] ?? '')),
-        'type_label' => format_meeting_type_label($meeting['type'] ?? null),
+        'type_label' => format_meeting_type_label($type),
+        'type_description' => format_meeting_type_description($type),
         'updated_at_label' => trim((string) ($meeting['updated_at'] ?? '')),
     ];
 }
@@ -36,4 +38,13 @@ function format_meeting_schedule(?DateTimeImmutable $startsAt, ?DateTimeImmutabl
 function format_meeting_type_label(mixed $type): string
 {
     return $type === 'aberta' ? 'Aberta' : 'Fechada';
+}
+
+function format_meeting_type_description(mixed $type): string
+{
+    if ($type === 'aberta') {
+        return 'Aberta ao publico — qualquer pessoa pode participar.';
+    }
+
+    return 'Fechada — exclusiva para quem se identifica como dependente.';
 }
