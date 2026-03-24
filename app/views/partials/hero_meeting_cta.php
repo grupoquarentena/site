@@ -23,11 +23,5 @@ $meeting = $viewData['meeting'];
 
         <p class="hero__trust"><?= $escape($heroContent['trust_note'] ?? '') ?></p>
     </div>
-
-    <aside class="hero__surface" aria-label="Resumo oficial da home">
-        <p class="hero__surface-label"><?= $escape($heroContent['surface_label'] ?? '') ?></p>
-        <h2 class="hero__surface-title"><?= $escape($meeting['title']) ?></h2>
-        <p class="hero__surface-copy"><?= $escape($heroContent['surface_copy'] ?? '') ?></p>
-        <p class="hero__surface-meta">Atualizado em <?= $escape($meeting['updated_at']) ?></p>
-    </aside>
+    <?php require __DIR__ . '/meeting_info_card.php'; ?>
 </section>

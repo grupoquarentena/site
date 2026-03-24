@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/app/support/meeting_status.php';
 require_once dirname(__DIR__) . '/app/support/meeting_contract.php';
+require_once dirname(__DIR__) . '/app/support/meeting_presenter.php';
 
 $failures = 0;
 $assertions = 0;
@@ -47,6 +48,12 @@ $assertTrue(array_key_exists('directory', $contract['support_links']), 'O contra
 $validatedContract = validate_meeting_contract($contract);
 $assertSame('America/Sao_Paulo', $validatedContract['timezone'], 'O contrato valido deve preservar o timezone oficial.');
 $assertSame('próxima reunião', $validatedContract['meeting']['status'], 'O contrato validado deve preservar o status manual seedado.');
+
+$meetingDisplay = present_meeting_details($validatedContract['meeting'], $validatedContract['timezone']);
+$assertTrue($meetingDisplay['schedule_label'] !== '', 'A apresentacao da reuniao deve formatar o horario em um unico rotulo legivel.');
+$assertSame($validatedContract['meeting']['meeting_id'], $meetingDisplay['meeting_id_label'], 'A apresentacao da reuniao deve expor o ID vindo da fonte unica.');
+$assertSame($validatedContract['meeting']['password'], $meetingDisplay['password_label'], 'A apresentacao da reuniao deve expor a senha vinda da fonte unica.');
+$assertSame($validatedContract['meeting']['type'] === 'aberta' ? 'Aberta' : 'Fechada', $meetingDisplay['type_label'], 'A apresentacao da reuniao deve normalizar o tipo para exibicao.');
 
 $manualStatus = resolve_meeting_status(
     ['status_override' => 'agora'],
@@ -106,6 +113,7 @@ try {
 
 $viewData = require dirname(__DIR__) . '/app/bootstrap.php';
 $assertTrue(isset($viewData['meeting_status']['label']), 'O bootstrap deve preparar o status da reunião.');
+$assertSame($meetingDisplay['schedule_label'], $viewData['meeting_display']['schedule_label'], 'O bootstrap deve propagar o horario formatado do card principal.');
 $assertSame('America/Sao_Paulo', $viewData['site']['timezone'], 'O bootstrap deve propagar o timezone do contrato.');
 $assertSame('próxima reunião', $viewData['meeting_status']['label'], 'O bootstrap deve respeitar o status manual seedado.');
 $assertTrue(isset($viewData['home_content']['hero']['cta_label']), 'O bootstrap deve carregar o conteudo da home.');
@@ -120,6 +128,15 @@ $assertTrue(str_contains($renderedHtml, 'id="main-content"'), 'A home deve expor
 $assertSame(1, substr_count($renderedHtml, 'class="hero__cta"'), 'A home deve renderizar exatamente um CTA primario.');
 $assertTrue(str_contains($renderedHtml, 'href="' . $contract['meeting']['join_url'] . '"'), 'O CTA deve consumir o join_url vindo da fonte unica.');
 $assertTrue(str_contains($renderedHtml, $contract['meeting']['title']), 'O CTA e a home devem expor o titulo vindo da fonte unica.');
+$assertTrue(str_contains($renderedHtml, 'class="meeting-card"'), 'A home deve renderizar um card dedicado para os dados da reuniao.');
+$assertTrue(str_contains($renderedHtml, 'aria-labelledby="meeting-card-title"'), 'O card deve expor uma relacao semantica clara com seu titulo.');
+$assertTrue(str_contains($renderedHtml, '>Horario</dt>'), 'O card deve rotular o horario da reuniao.');
+$assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['schedule_label'] . '</dd>'), 'O card deve exibir o horario formatado no mesmo bloco visual.');
+$assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['meeting_id_label'] . '</dd>'), 'O card deve exibir o meeting ID vindo da fonte unica.');
+$assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['password_label'] . '</dd>'), 'O card deve exibir a senha vinda da fonte unica.');
+$assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['type_label'] . '</dd>'), 'O card deve exibir o tipo da reuniao.');
+$assertSame(1, substr_count($renderedHtml, '>' . $meetingDisplay['meeting_id_label'] . '<'), 'O meeting ID nao deve ser duplicado fora do bloco principal.');
+$assertSame(1, substr_count($renderedHtml, '>' . $meetingDisplay['password_label'] . '<'), 'A senha nao deve ser duplicada fora do bloco principal.');
 $assertTrue(str_contains($renderedHtml, 'rel="noopener noreferrer"'), 'O CTA externo deve proteger a navegacao.');
 $assertTrue(!str_contains($renderedHtml, '<script'), 'A home nao deve depender de JavaScript obrigatorio.');
 
@@ -127,6 +144,7 @@ $css = (string) file_get_contents(dirname(__DIR__) . '/public/assets/css/home.cs
 $assertTrue(str_contains($css, '--color-bg-deep'), 'O CSS da home deve declarar tokens visuais do MVP.');
 $assertTrue(str_contains($css, '--color-accent'), 'O CSS da home deve declarar o acento amarelo do CTA.');
 $assertTrue(str_contains($css, '.skip-link:focus-visible'), 'O CSS da home deve estilizar o estado de foco do skip link.');
+$assertTrue(str_contains($css, '.meeting-card__item'), 'O CSS da home deve estilizar o card de dados da reuniao.');
 
 if ($failures > 0) {
     exit(1);

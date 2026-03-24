@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/support/meeting_status.php';
 require_once __DIR__ . '/support/meeting_contract.php';
+require_once __DIR__ . '/support/meeting_presenter.php';
 
 $contract = validate_meeting_contract(require __DIR__ . '/data/meeting.php');
 $homeContent = require __DIR__ . '/content/home.php';
@@ -21,6 +22,7 @@ $meeting = $contract['meeting'];
 $supportLinks = $contract['support_links'];
 
 $status = resolve_meeting_status($meeting, $timezone);
+$meetingDisplay = present_meeting_details($meeting, $timezone);
 
 return [
     'site' => [
@@ -29,6 +31,7 @@ return [
         'timezone' => $timezone,
     ],
     'meeting' => $meeting,
+    'meeting_display' => $meetingDisplay,
     'meeting_status' => $status,
     'support_links' => $supportLinks,
     'home_content' => $homeContent,
