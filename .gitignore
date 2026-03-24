@@ -1,5 +1,7 @@
 # IA
 .agents
+.claude
+.tools
 
 #BMAD
 _bmad*
