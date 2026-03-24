@@ -10,6 +10,7 @@ $meeting = $viewData['meeting'];
         <p class="hero__eyebrow"><?= $escape($heroContent['eyebrow'] ?? '') ?></p>
         <h1 id="hero-title" class="hero__title"><?= $escape($meeting['title']) ?></h1>
         <p class="hero__lead"><?= $escape($heroContent['lead'] ?? '') ?></p>
+        <p class="hero__welcome"><?= $escape($heroContent['welcome_message'] ?? '') ?></p>
 
         <a
             class="hero__cta"
