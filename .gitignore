@@ -7,3 +7,6 @@
 _bmad*
 design*
 docs*
+
+#TMP
+tmp/
