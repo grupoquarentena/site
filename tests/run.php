@@ -317,6 +317,116 @@ $assertTrue(str_contains($css, '.info-section--group'), 'O CSS da home deve esti
 $assertTrue(str_contains($css, '.meeting-types-grid'), 'O CSS da home deve estilizar o bloco aberta versus fechada.');
 $assertTrue(str_contains($css, '.info-section--history'), 'O CSS da home deve estilizar o bloco de historia do grupo.');
 
+require_once dirname(__DIR__) . '/app/support/editorial_governance.php';
+
+// Story 4.2: Fluxo Manual de Atualizacao Operacional
+$updateGuide = operational_update_guide();
+$assertSame('Guia de Atualizacao Operacional', $updateGuide['title'], 'O guia de atualizacao deve expor o titulo esperado.');
+$assertSame('app/data/meeting.php', $updateGuide['single_source'], 'O guia deve declarar a unica fonte autorizada.');
+$assertSame(5, count($updateGuide['steps']), 'O guia deve listar os passos completos do fluxo manual.');
+$assertTrue(str_contains($updateGuide['rule'], 'app/data/meeting.php'), 'O guia deve reforcar que nenhuma edicao externa e permitida.');
+$assertTrue(str_contains($updateGuide['warning'], '/admin'), 'O guia deve alertar que o MVP nao possui painel administrativo.');
+
+$flowCheck = verify_update_flow($validatedContract);
+$assertTrue($flowCheck['passed'], 'O fluxo de atualizacao deve passar com um contrato valido.');
+$assertSame(7, count($flowCheck['checks']), 'O verificador deve inspecionar todos os campos criticos do contrato.');
+$assertSame('meeting.join_url', $flowCheck['checks'][0]['field'], 'O verificador deve inspecionar join_url imediatamente.');
+$assertTrue($flowCheck['checks'][0]['present'], 'O verificador deve confirmar que join_url esta preenchido.');
+
+$brokenContract = $validatedContract;
+$brokenContract['meeting']['join_url'] = '  ';
+$flowCheckBroken = verify_update_flow($brokenContract);
+$assertTrue(!$flowCheckBroken['checks'][0]['present'], 'Campo em branco deve ser reportado como ausente pelo verificador.');
+
+// Story 4.3: Checklist de Anonimato para Conteudo Publico
+$checklist = anonymity_checklist();
+$assertSame('Checklist de Anonimato para Publicacao', $checklist['title'], 'O checklist deve expor o titulo esperado.');
+$assertSame('MVP v1', $checklist['version'], 'O checklist deve registrar a versao do MVP.');
+$assertSame(5, count($checklist['items']), 'O checklist deve conter todos os itens de verificacao.');
+$assertSame('blocker', $checklist['items'][0]['severity'], 'Nome completo de membro deve ser um blocker.');
+$assertSame('ANON-02', $checklist['items'][1]['id'], 'Foto identificavel deve ter identificador unico.');
+
+$cleanScan = scan_content_block(['title' => 'Sobre o grupo', 'body' => 'Um grupo virtual de apoio mutuo, com reunioes regulares.'], 'about_group');
+$assertTrue($cleanScan['passed'], 'Conteudo institucional limpo deve passar no scanner de anonimato.');
+$assertSame([], $cleanScan['findings'], 'Conteudo limpo nao deve gerar achados no scanner.');
+
+$piiScan = scan_content_block([
+    'title' => 'Depoimento',
+    'body' => 'Carlos Eduardo da Silva compartilhou: minha historia de recuperacao comecou quando eu percebi que precisava de ajuda.',
+], 'testimonial');
+$assertTrue(!$piiScan['passed'], 'Conteudo com nome completo deve ser detectado pelo scanner de anonimato.');
+$assertTrue(count($piiScan['findings']) >= 1, 'Scanner deve reportar achados quando houver nome pessoal no conteudo.');
+
+$photoScan = scan_content_block([
+    'title' => 'Galeria',
+    'body' => 'Veja a foto dos membros da reuniao.',
+], 'gallery');
+$assertTrue(!$photoScan['passed'], 'Referencia a foto deve ser detectada pelo scanner de anonimato.');
+
+$emptyScan = scan_content_block([], 'empty');
+$assertTrue($emptyScan['passed'], 'Bloco vazio deve passar sem violacoes no scanner.');
+$assertSame([], $emptyScan['findings'], 'Bloco vazio nao deve produzir achados.');
+
+$fullCheck = run_full_anonymity_check([
+    'about_na' => ['title' => 'O que e NA', 'body' => 'Narcoticos Anonimos e uma irmandade de apoio mutuo.'],
+    'about_group' => ['title' => 'Sobre', 'body' => 'Grupo virtual com reunioes online regulares.'],
+]);
+$assertTrue($fullCheck['passed'], 'Blocos institucionais limpos devem passar na checagem completa de anonimato.');
+$assertSame(2, count($fullCheck['blocks']), 'A checagem completa deve inspecionar cada bloco individualmente.');
+$assertSame(5, count($fullCheck['checklist']), 'O relatorio completo deve incluir a lista de itens do checklist.');
+
+// Story 4.4: Regras Editoriais para Creditos e Responsaveis
+$rules = editorial_rules();
+$assertSame(5, count($rules), 'O registro de regras editoriais deve conter todas as regras do MVP.');
+$assertSame('EDT-01', $rules[0]['id'], 'A primeira regra deve tratar de creditos com primeiro nome ou apelido.');
+$assertSame('EDT-05', $rules[4]['id'], 'A ultima regra deve tratar do fluxo de conteudo institucional.');
+
+$validCredit = validate_editorial_credits('Cirino');
+$assertTrue($validCredit['valid'], 'Nome unico deve ser aceito como credito editorial valido.');
+$assertSame([], $validCredit['issues'], 'Apelido de palavra unica nao deve gerar violacoes.');
+
+$validNickname = validate_editorial_credits('Ciri');
+$assertTrue($validNickname['valid'], 'Apelido curto deve ser aceito como credito editorial valido.');
+
+$invalidCredit = validate_editorial_credits('Carlos Eduardo da Silva Santos');
+$assertTrue(!$invalidCredit['valid'], 'Nome com multiplas palavras deve ser rejeitado como credito editorial.');
+$assertTrue(count($invalidCredit['issues']) >= 1, 'Creditos com nome completo devem listar as violacoes.');
+
+$emailCredit = validate_editorial_credits('Contato: circulo@exemplo.com');
+$assertTrue(!$emailCredit['valid'], 'E-mail em credito deve ser rejeitado.');
+$assertTrue(count($emailCredit['issues']) >= 1, 'E-mail detectado deve gerar violacao explicita.');
+
+$phoneCredit = validate_editorial_credits('Tel: 71 99999 9999');
+$assertTrue(!$phoneCredit['valid'], 'Telefone em credito deve ser rejeitado.');
+$assertTrue(count($phoneCredit['issues']) >= 1, 'Credito com telefone deve gerar violacao.');
+
+$emptyCredit = validate_editorial_credits('');
+$assertTrue($emptyCredit['valid'], 'Credito vazio deve ser considerado valido.');
+$assertSame([], $emptyCredit['issues'], 'Credito vazio nao deve gerar violacoes.');
+
+$surnameCredit = validate_editorial_credits('Joao da Silva');
+$assertTrue(!$surnameCredit['valid'], 'Sobrenome comum deve ser detectado em credito editorial.');
+
+$contentValidation = validate_content_against_rules($viewData['home_content']);
+$assertTrue($contentValidation['valid'], 'O conteudo atual da home deve passar nas regras editoriais do MVP.');
+$assertSame(5, $contentValidation['rules_count'], 'A validacao deve reportar a contagem de regras registradas.');
+$assertSame([], $contentValidation['violations'], 'Conteudo aprovado nao deve produzir violacoes editoriais.');
+
+$contentWithCredits = ['footer' => ['credits' => 'Carlos Eduardo da Silva']];
+$creditsValidation = validate_content_against_rules($contentWithCredits);
+$assertTrue(!$creditsValidation['valid'], 'Campo de creditos com nome completo deve ser rejeitado.');
+$assertTrue(count($creditsValidation['violations']) >= 1, 'Credito com nome completo deve listar violacoes.');
+
+$contentWithNickname = ['footer' => ['credits' => 'Ciri']];
+$nicknameValidation = validate_content_against_rules($contentWithNickname);
+$assertTrue($nicknameValidation['valid'], 'Campo de creditos com apelido deve passar.');
+$assertSame([], $nicknameValidation['violations'], 'Apelido em campo de creditos nao deve gerar violacoes.');
+
+$contentWithPhone = ['contact' => ['phone' => '71999999999']];
+$phoneValidation = validate_content_against_rules($contentWithPhone);
+$assertTrue(!$phoneValidation['valid'], 'Sequencia numerica longa deve ser detectada como possivel telefone.');
+$assertTrue(count($phoneValidation['violations']) >= 1, 'Telefone detectado deve gerar violacao.');
+
 if ($failures > 0) {
     exit(1);
 }
