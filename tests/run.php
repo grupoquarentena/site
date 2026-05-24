@@ -478,6 +478,74 @@ $css = (string) file_get_contents(dirname(__DIR__) . '/public/assets/css/home.cs
 $assertTrue(str_contains($css, '.support-links__external-indicator'), 'O CSS deve estilizar o indicador de link externo.');
 $assertTrue(str_contains($css, '.support-links__member-context'), 'O CSS deve estilizar o bloco de contexto de membro.');
 
+require_once dirname(__DIR__) . '/app/support/analytics.php';
+
+// Story 5.1: SEO e Semantica da Home
+ob_start();
+require dirname(__DIR__) . '/public/index.php';
+$seoHtml = (string) ob_get_clean();
+$assertTrue(str_contains($seoHtml, '<meta name="description"'), 'A home deve incluir meta description para SEO.');
+$assertTrue(str_contains($seoHtml, '<meta property="og:title"'), 'A home deve incluir Open Graph title.');
+$assertTrue(str_contains($seoHtml, '<meta property="og:description"'), 'A home deve incluir Open Graph description.');
+$assertTrue(str_contains($seoHtml, '<meta property="og:type" content="website"'), 'A home deve declarar og:type website.');
+$assertTrue(str_contains($seoHtml, '<meta name="robots" content="index, follow"'), 'A home deve permitir indexacao por mecanismos de busca.');
+$assertTrue(str_contains($seoHtml, '<link rel="canonical"'), 'A home deve incluir link canonical.');
+$assertTrue(str_contains($seoHtml, '<title>'), 'A home deve ter title tag preenchido.');
+$assertSame(1, substr_count($seoHtml, '<title>'), 'A home deve ter exatamente um title tag.');
+
+// Story 5.2: Acessibilidade do Fluxo Principal
+$assertTrue(str_contains($seoHtml, 'class="skip-link"'), 'A home deve manter skip link acessivel.');
+$assertTrue(str_contains($seoHtml, 'id="main-content"'), 'O main deve manter id navegavel para skip link.');
+$assertTrue(str_contains($seoHtml, 'role="main"'), 'O main deve declarar role=main.');
+$assertTrue(str_contains($seoHtml, 'aria-label="Conteudo principal"'), 'O main deve ter aria-label descritivo.');
+$assertTrue(str_contains($seoHtml, '<html lang="pt-BR"'), 'A home deve declarar lang pt-BR no html.');
+$assertTrue(str_contains($seoHtml, 'charset="UTF-8"'), 'A home deve declarar charset UTF-8.');
+$assertTrue(str_contains($seoHtml, '<meta name="viewport"'), 'A home deve declarar viewport para responsividade mobile.');
+
+// Story 5.3: Analytics Agregado e Anonimo
+$storageFile = dirname(__DIR__) . '/tmp/analytics.json';
+if (is_file($storageFile)) {
+    unlink($storageFile);
+}
+
+track_event('meeting_cta_click');
+$assertTrue(is_file($storageFile), 'track_event deve criar o arquivo de analytics.');
+$data1 = json_decode((string) file_get_contents($storageFile), true);
+$assertSame(1, $data1['meeting_cta_click'] ?? 0, 'O primeiro clique deve incrementar o contador para 1.');
+
+track_event('meeting_cta_click');
+track_event('whatsapp_click');
+$data2 = json_decode((string) file_get_contents($storageFile), true);
+$assertSame(2, $data2['meeting_cta_click'] ?? 0, 'O segundo clique deve incrementar o contador para 2.');
+$assertSame(1, $data2['whatsapp_click'] ?? 0, 'WhatsApp click deve ter seu proprio contador independente.');
+
+track_event('evento_invalido');
+$data3 = json_decode((string) file_get_contents($storageFile), true);
+$assertTrue(!isset($data3['evento_invalido']), 'Eventos nao registrados devem ser ignorados.');
+$assertSame(2, $data3['meeting_cta_click'] ?? 0, 'Evento invalido nao deve afetar contadores validos.');
+
+$tracked = tracked_url('https://zoom.us/j/example', 'meeting_cta_click');
+$assertTrue(str_contains($tracked, 'track.php'), 'URL rastreada deve apontar para track.php.');
+$assertTrue(str_contains($tracked, 'event=meeting_cta_click'), 'URL rastreada deve incluir o parametro event.');
+$assertTrue(str_contains($tracked, 'redirect='), 'URL rastreada deve incluir o parametro redirect.');
+
+if (is_file($storageFile)) {
+    unlink($storageFile);
+}
+
+// Story 5.4: Checklist de Lancamento Tecnico do MVP
+$checklist = launch_checklist();
+$assertSame('Checklist de Lancamento Tecnico do MVP', $checklist['title'], 'O checklist deve expor o titulo esperado.');
+$assertSame('v1.0.0', $checklist['version'], 'O checklist deve declarar a versao do MVP.');
+$assertSame(12, count($checklist['items']), 'O checklist deve conter todos os itens de verificacao.');
+$assertTrue(count($checklist['categories']) >= 4, 'O checklist deve cobrir multiplas categorias de verificacao.');
+
+$readiness = validate_launch_readiness();
+$assertTrue($readiness['total'] > 0, 'A validacao de readiness deve inspecionar itens.');
+$assertTrue($readiness['ok'] >= 4, 'Pelo menos 4 itens devem ser validaveis automaticamente.');
+$assertTrue($readiness['ready'], 'Nenhum item automatico deve falhar no estado atual.');
+$assertTrue($readiness['manual'] > 0, 'Alguns itens devem exigir verificacao manual.');
+
 if ($failures > 0) {
     exit(1);
 }
