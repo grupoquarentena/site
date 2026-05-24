@@ -19,6 +19,7 @@ $escape = static fn (mixed $value): string => htmlspecialchars((string) $value, 
         <?php require __DIR__ . '/partials/meeting_types.php'; ?>
         <?php require __DIR__ . '/partials/about_na.php'; ?>
         <?php require __DIR__ . '/partials/about_group.php'; ?>
+        <?php require __DIR__ . '/partials/group_history.php'; ?>
         <?php require __DIR__ . '/partials/support_links.php'; ?>
     </main>
 </body>

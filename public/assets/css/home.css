@@ -332,6 +332,25 @@ a {
     line-height: 1.65;
 }
 
+.info-section--history {
+    margin-top: var(--space-4);
+    background: rgba(5, 20, 41, 0.46);
+    border-style: dashed;
+}
+
+.info-section--history .info-section__eyebrow {
+    color: #ffe18e;
+}
+
+.info-section--history .info-section__title {
+    font-size: clamp(1.28rem, 3vw, 1.7rem);
+}
+
+.info-section--history .info-section__lead {
+    color: var(--color-text-secondary);
+    line-height: 1.65;
+}
+
 .info-section--types {
     margin-top: var(--space-4);
 }

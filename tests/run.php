@@ -269,6 +269,15 @@ $assertTrue(str_contains($renderedHtml, $viewData['home_content']['meeting_types
 $assertTrue(!str_contains(strtolower($viewData['home_content']['meeting_types']['open_body']), 'nome completo'), 'A copy de reuniao aberta deve permanecer compativel com as regras publicas.');
 $assertTrue(!str_contains(strtolower($viewData['home_content']['meeting_types']['closed_body']), 'nome completo'), 'A copy de reuniao fechada deve permanecer compativel com as regras publicas.');
 
+// Story 2.5: Historia resumida do grupo
+$assertTrue(isset($viewData['home_content']['group_history']['body']), 'O bootstrap deve expor a copy do bloco de historia.');
+$assertTrue(str_contains(strtolower($viewData['home_content']['group_history']['body']), 'quarentena'), 'O bloco de historia deve mencionar a origem do nome QuarenteNA.');
+$assertTrue(!str_contains($viewData['home_content']['group_history']['body'], 'Ciro'), 'O bloco de historia nao deve expor identidades pessoais.');
+$assertTrue(str_contains($renderedHtml, 'info-section info-section--history'), 'A home deve renderizar o bloco de historia.');
+$assertTrue(str_contains($renderedHtml, $viewData['home_content']['group_history']['title']), 'O bloco de historia deve consumir o titulo vindo do conteudo da home.');
+$assertTrue(str_contains($renderedHtml, $viewData['home_content']['group_history']['body']), 'O bloco de historia deve consumir a copy aprovada da home.');
+$assertTrue(str_contains($renderedHtml, 'aria-labelledby="group-history-title"'), 'O bloco de historia deve expor uma relacao semantica clara com seu titulo.');
+
 $heroPosition = strpos($renderedHtml, 'class="hero"');
 $meetingTypesPosition = strpos($renderedHtml, 'info-section info-section--types');
 $aboutNaPosition = strpos($renderedHtml, 'info-section" aria-labelledby="about-na-title"');
@@ -280,6 +289,10 @@ $assertTrue($aboutGroupPosition !== false, 'A home deve renderizar o bloco sobre
 $assertTrue($heroPosition < $meetingTypesPosition, 'O bloco aberta versus fechada deve aparecer depois do hero principal.');
 $assertTrue($meetingTypesPosition < $aboutNaPosition, 'O bloco aberta versus fechada deve aparecer antes do bloco O que e NA.');
 $assertTrue($meetingTypesPosition < $aboutGroupPosition, 'O bloco aberta versus fechada deve aparecer antes do bloco sobre o grupo.');
+
+$groupHistoryPosition = strpos($renderedHtml, 'info-section info-section--history');
+$assertTrue($groupHistoryPosition !== false, 'A home deve renderizar o bloco de historia.');
+$assertTrue($aboutGroupPosition < $groupHistoryPosition, 'O bloco de historia deve aparecer depois do bloco sobre o grupo.');
 
 $viewData = array_merge($viewData, [
     'support_section' => $supportSectionWithoutLinks,
@@ -302,6 +315,7 @@ $assertTrue(str_contains($css, '.hero__welcome'), 'O CSS da home deve estilizar 
 $assertTrue(str_contains($css, '.info-section'), 'O CSS da home deve estilizar o bloco O que e NA.');
 $assertTrue(str_contains($css, '.info-section--group'), 'O CSS da home deve estilizar o bloco sobre o grupo.');
 $assertTrue(str_contains($css, '.meeting-types-grid'), 'O CSS da home deve estilizar o bloco aberta versus fechada.');
+$assertTrue(str_contains($css, '.info-section--history'), 'O CSS da home deve estilizar o bloco de historia do grupo.');
 
 if ($failures > 0) {
     exit(1);

@@ -36,4 +36,9 @@ return [
         'closed_title' => 'Reuniao fechada',
         'closed_body' => 'E voltada a membros e a quem se identifica com problema com drogas e busca recuperacao.',
     ],
+    'group_history' => [
+        'eyebrow' => 'Nossa historia',
+        'title' => 'Nascemos na pandemia para nao deixar ninguem so',
+        'body' => 'Na pandemia de COVID-19, com o fechamento das reunioes presenciais de NA em Salvador, companheiros de diferentes grupos se uniram para manter reunioes online. Em 20 de marco de 2020, nasceu o Grupo QuarenteNA — o nome faz referencia a quarentena. Hoje, com milhares de reunioes realizadas e centenas de visitas e ingressos acolhidos, o grupo segue ativo e acolhedor.',
+    ],
 ];
