@@ -7,6 +7,7 @@ require_once __DIR__ . '/support/meeting_contract.php';
 require_once __DIR__ . '/support/meeting_presenter.php';
 require_once __DIR__ . '/support/external_links.php';
 require_once __DIR__ . '/support/editorial_governance.php';
+require_once __DIR__ . '/support/analytics.php';
 
 $contract = validate_meeting_contract(require __DIR__ . '/data/meeting.php');
 $homeContent = require __DIR__ . '/content/home.php';
