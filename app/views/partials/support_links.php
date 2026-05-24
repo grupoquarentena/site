@@ -12,8 +12,8 @@ if (($supportSection['has_items'] ?? false) !== true) {
 <section class="support-links" aria-labelledby="support-links-title">
     <div class="support-links__copy">
         <p class="support-links__eyebrow"><?= $escape($supportContent['eyebrow'] ?? 'Apoio complementar') ?></p>
-        <h2 id="support-links-title" class="support-links__title"><?= $escape($supportContent['title'] ?? 'Recursos externos secundários') ?></h2>
-        <p class="support-links__lead"><?= $escape($supportContent['lead'] ?? 'Estes caminhos não substituem a reunião principal.') ?></p>
+        <h2 id="support-links-title" class="support-links__title"><?= $escape($supportContent['title'] ?? 'Recursos externos aprovados') ?></h2>
+        <p class="support-links__lead"><?= $escape($supportContent['lead'] ?? 'Estes caminhos nao substituem a reuniao principal.') ?></p>
     </div>
 
     <ul class="support-links__list">
@@ -25,8 +25,14 @@ if (($supportSection['has_items'] ?? false) !== true) {
                     rel="noopener noreferrer"
                     data-event="<?= $escape($item['event']) ?>"
                 >
-                    <span class="support-links__label"><?= $escape($item['label']) ?></span>
+                    <span class="support-links__label">
+                        <?= $escape($item['label']) ?>
+                        <span class="support-links__external-indicator" aria-hidden="true" title="<?= $escape($item['external_hint'] ?? 'Link externo') ?>"></span>
+                    </span>
                     <span class="support-links__description"><?= $escape($item['description']) ?></span>
+                    <?php if (!empty($item['member_context'])): ?>
+                        <span class="support-links__member-context"><?= $escape($item['member_context']) ?></span>
+                    <?php endif; ?>
                 </a>
             </li>
         <?php endforeach; ?>

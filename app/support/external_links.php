@@ -9,16 +9,20 @@ function present_support_links(array $supportLinks): array
             'label' => 'Diretorio e outras reunioes',
             'description' => 'Abrir recurso complementar de apoio',
             'event' => 'support_directory_click',
+            'external_hint' => 'Abre recurso externo do ecossistema NA',
         ],
         'report' => [
             'label' => 'Relatorio publico',
-            'description' => 'Abrir recurso complementar do grupo',
+            'description' => 'Abrir relatorio publico aprovado pelo grupo',
             'event' => 'report_click',
+            'external_hint' => 'Abre relatorio em ferramenta externa',
         ],
         'whatsapp' => [
             'label' => 'WhatsApp de membros',
-            'description' => 'Abrir recurso complementar para membros',
+            'description' => 'Abrir canal de comunicacao para participantes recorrentes',
             'event' => 'whatsapp_click',
+            'external_hint' => 'Abre WhatsApp Web ou aplicativo',
+            'member_context' => 'Link disponivel para membros e participantes regulares do grupo.',
         ],
     ];
 
@@ -42,7 +46,9 @@ function present_support_links(array $supportLinks): array
             'url' => $url,
             'label' => $definition['label'],
             'description' => $definition['description'],
+            'external_hint' => $definition['external_hint'] ?? 'Abre recurso externo',
             'event' => $definition['event'],
+            'member_context' => $definition['member_context'] ?? null,
         ];
     }
 

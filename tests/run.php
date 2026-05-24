@@ -427,6 +427,57 @@ $phoneValidation = validate_content_against_rules($contentWithPhone);
 $assertTrue(!$phoneValidation['valid'], 'Sequencia numerica longa deve ser detectada como possivel telefone.');
 $assertTrue(count($phoneValidation['violations']) >= 1, 'Telefone detectado deve gerar violacao.');
 
+// Epic 3: Recursos Complementares e Continuidade
+// Story 3.1: Cartao de Relatorio Publico
+$supportWithReport = present_support_links([
+    'whatsapp' => null,
+    'report' => null,
+    'directory' => 'https://www.na.org.br/virtual/',
+]);
+$assertTrue($supportWithReport['has_items'], 'Com link de diretorio valido, a secao complementar deve ser exposta.');
+$assertSame('external_hint', array_key_exists('external_hint', $supportWithReport['items'][0]) ? 'external_hint' : 'missing', 'Todo item de apoio deve declarar external_hint.');
+$assertTrue(is_string($supportWithReport['items'][0]['external_hint'] ?? null) && ($supportWithReport['items'][0]['external_hint'] ?? '') !== '', 'external_hint nao deve ser vazio.');
+
+// Story 3.2: Diretorio e Outras Reunioes de Apoio
+$supportWithDirectory = present_support_links(['whatsapp' => null, 'report' => null, 'directory' => 'https://www.na.org.br/virtual/']);
+$assertSame('directory', $supportWithDirectory['items'][0]['key'], 'O link do diretorio deve preservar a chave de identificacao.');
+$assertSame('Diretorio e outras reunioes', $supportWithDirectory['items'][0]['label'], 'O diretorio deve ter rotulo explicito.');
+$assertTrue(str_contains($supportWithDirectory['items'][0]['external_hint'], 'NA'), 'O external_hint do diretorio deve contextualizar o ecossistema.');
+
+// Story 3.3: Link de WhatsApp para Membros
+$supportWithWhatsApp = present_support_links(['whatsapp' => 'https://chat.whatsapp.com/abc123', 'report' => null, 'directory' => null]);
+$assertTrue($supportWithWhatsApp['has_items'], 'Com link de WhatsApp valido, a secao complementar deve ser exposta.');
+$assertSame('whatsapp', $supportWithWhatsApp['items'][0]['key'], 'O link do WhatsApp deve preservar a chave.');
+$assertTrue(is_string($supportWithWhatsApp['items'][0]['member_context'] ?? null) && ($supportWithWhatsApp['items'][0]['member_context'] ?? '') !== '', 'O WhatsApp deve incluir contexto de membro (member_context).');
+$assertTrue(str_contains(strtolower($supportWithWhatsApp['items'][0]['label']), 'membros'), 'O rotulo do WhatsApp deve mencionar membros.');
+
+// Story 3.4: Navegacao Externa com Fallback e Clareza
+$allLinks = present_support_links(['whatsapp' => null, 'report' => null, 'directory' => 'https://www.na.org.br/virtual/']);
+$prevSupportSection = $viewData['support_section'];
+$viewData['support_section'] = $allLinks;
+$renderedSupportSection = '';
+ob_start();
+require dirname(__DIR__) . '/app/views/partials/support_links.php';
+$renderedSupportSection = (string) ob_get_clean();
+$assertTrue(str_contains($renderedSupportSection, 'rel="noopener noreferrer"'), 'Links de apoio externos devem proteger a navegacao com rel noopener.');
+$assertTrue(str_contains($renderedSupportSection, 'support-links__external-indicator'), 'Links externos devem exibir indicador visual (icone).');
+$assertTrue(str_contains($renderedSupportSection, 'aria-hidden="true"'), 'Indicador externo deve ser oculto para leitores de tela.');
+$assertTrue(!str_contains($renderedSupportSection, 'support-links__member-context'), 'Link sem contexto de membro nao deve renderizar bloco de contexto.');
+$assertTrue(str_contains($renderedSupportSection, 'Diretorio e outras reunioes'), 'A secao complementar deve expor o rotulo amigavel do diretorio.');
+
+$viewData['support_section'] = present_support_links(['whatsapp' => 'https://chat.whatsapp.com/abc123', 'report' => null, 'directory' => null]);
+ob_start();
+require dirname(__DIR__) . '/app/views/partials/support_links.php';
+$renderedWhatsApp = (string) ob_get_clean();
+$assertTrue(str_contains($renderedWhatsApp, 'support-links__member-context'), 'WhatsApp deve renderizar bloco de contexto de membro.');
+$assertTrue(str_contains($renderedWhatsApp, 'participantes recorrentes'), 'Contexto de membro do WhatsApp deve mencionar participantes.');
+$viewData['support_section'] = $prevSupportSection;
+
+// CSS para indicador externo
+$css = (string) file_get_contents(dirname(__DIR__) . '/public/assets/css/home.css');
+$assertTrue(str_contains($css, '.support-links__external-indicator'), 'O CSS deve estilizar o indicador de link externo.');
+$assertTrue(str_contains($css, '.support-links__member-context'), 'O CSS deve estilizar o bloco de contexto de membro.');
+
 if ($failures > 0) {
     exit(1);
 }
