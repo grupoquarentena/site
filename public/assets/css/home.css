@@ -463,6 +463,28 @@ a {
     outline-offset: 4px;
 }
 
+.support-links__external-indicator {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-left: 0.3em;
+    vertical-align: middle;
+    background: currentColor;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 2v2H3v9h9v-3h2v4a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h4zm7.293 0H9V0h7v7h-2V2.707L7.854 8.854 6.146 7.146 12.293 2z'/%3E%3C/svg%3E");
+    mask-size: contain;
+    opacity: 0.55;
+}
+
+.support-links__member-context {
+    display: block;
+    margin-top: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.45;
+}
+
 @media (min-width: 48rem) {
     .page-shell {
         width: min(100% - 3rem, 72rem);
