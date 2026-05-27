@@ -28,6 +28,7 @@ if (($supportSection['has_items'] ?? false) !== true) {
                     <span class="support-links__label">
                         <?= $escape($item['label']) ?>
                         <span class="support-links__external-indicator" aria-hidden="true" title="<?= $escape($item['external_hint'] ?? 'Link externo') ?>"></span>
+                        <span class="sr-only">abre recurso externo</span>
                     </span>
                     <span class="support-links__description"><?= $escape($item['description']) ?></span>
                     <?php if (!empty($item['member_context'])): ?>

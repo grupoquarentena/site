@@ -6,9 +6,9 @@ $escape = static fn (mixed $value): string => htmlspecialchars((string) $value, 
 $site = $viewData['site'] ?? [];
 $siteName = $escape($site['name'] ?? 'Grupo QuarenteNA');
 
-$metaDescription = 'Ponto oficial da reuniao online do Grupo QuarenteNA de Narcoticos Anonimos. '
-    . 'Horario, ID, senha e tipo da reuniao disponiveis em um unico lugar. '
-    . 'Acolhimento direto, sem JavaScript obrigatorio.';
+$metaDescription = 'Ponto oficial da reunião online do Grupo QuarenteNA de Narcóticos Anônimos. '
+    . 'Horário, ID, senha e tipo da reunião disponíveis em um único lugar. '
+    . 'Acolhimento direto, sem JavaScript obrigatório.';
 ?>
 <!DOCTYPE html>
 <html lang="<?= $escape($site['locale'] ?? 'pt-BR') ?>">
@@ -26,8 +26,12 @@ $metaDescription = 'Ponto oficial da reuniao online do Grupo QuarenteNA de Narco
     <link rel="stylesheet" href="assets/css/home.css">
 </head>
 <body class="home-body">
-    <a class="skip-link" href="#main-content">Pular para o conteudo principal</a>
-    <main id="main-content" class="page-shell" role="main" aria-label="Conteudo principal">
+    <a class="skip-link" href="#main-content">Pular para o conteúdo principal</a>
+    <header class="site-header" aria-label="Identificação do site">
+        <p class="site-header__mark">Grupo QuarenteNA</p>
+        <p class="site-header__context">Narcóticos Anônimos · reunião online</p>
+    </header>
+    <main id="main-content" class="page-shell" role="main" aria-label="Conteúdo principal">
         <?php require __DIR__ . '/partials/hero_meeting_cta.php'; ?>
         <?php require __DIR__ . '/partials/meeting_types.php'; ?>
         <?php require __DIR__ . '/partials/about_na.php'; ?>
@@ -35,5 +39,8 @@ $metaDescription = 'Ponto oficial da reuniao online do Grupo QuarenteNA de Narco
         <?php require __DIR__ . '/partials/group_history.php'; ?>
         <?php require __DIR__ . '/partials/support_links.php'; ?>
     </main>
+    <footer class="site-footer" aria-label="Rodapé do site">
+        <p>Conteúdo público revisado para preservar anonimato. O caminho principal continua sendo o botão de entrada da reunião.</p>
+    </footer>
 </body>
 </html>

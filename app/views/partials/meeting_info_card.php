@@ -6,8 +6,8 @@ $meeting = $viewData['meeting'];
 $meetingDisplay = $viewData['meeting_display'];
 ?>
 <section class="meeting-card" aria-labelledby="meeting-card-title">
-    <p class="meeting-card__eyebrow">Dados da reuniao</p>
-    <h2 id="meeting-card-title" class="meeting-card__title">Informacoes essenciais antes de entrar</h2>
+    <p class="meeting-card__eyebrow">Dados da reunião</p>
+    <h2 id="meeting-card-title" class="meeting-card__title">Informações essenciais antes de entrar</h2>
 
     <dl class="meeting-card__list">
         <div class="meeting-card__item meeting-card__item--status">
@@ -22,7 +22,7 @@ $meetingDisplay = $viewData['meeting_display'];
             </dd>
         </div>
         <div class="meeting-card__item">
-            <dt class="meeting-card__term">Horario</dt>
+            <dt class="meeting-card__term">Horário</dt>
             <dd class="meeting-card__description"><?= $escape($meetingDisplay['schedule_label']) ?></dd>
         </div>
         <div class="meeting-card__item">
@@ -43,7 +43,7 @@ $meetingDisplay = $viewData['meeting_display'];
     </dl>
 
     <div class="meeting-card__meta">
-        <span class="meeting-card__meta-label">Reuniao</span>
+        <span class="meeting-card__meta-label">Reunião</span>
         <span class="meeting-card__meta-value"><?= $escape($meeting['title']) ?></span>
         <span class="meeting-card__meta-label">Atualizado em</span>
         <span class="meeting-card__meta-value"><?= $escape($meetingDisplay['updated_at_label']) ?></span>

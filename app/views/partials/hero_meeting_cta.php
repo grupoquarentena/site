@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 $heroContent = $viewData['home_content']['hero'] ?? [];
 $meeting = $viewData['meeting'];
+$meetingDisplay = $viewData['meeting_display'];
 ?>
 <section class="hero" aria-labelledby="hero-title">
     <div class="hero__copy">
@@ -21,6 +22,11 @@ $meeting = $viewData['meeting'];
             <span class="hero__cta-label"><?= $escape($heroContent['cta_label'] ?? 'Entrar na reunião') ?></span>
             <span class="hero__cta-context"><?= $escape($meeting['title']) ?></span>
         </a>
+
+        <div class="hero__quick-facts" aria-label="Resumo rapido da reuniao">
+            <span>Status: <?= $escape($meetingDisplay['status_label']) ?></span>
+            <span>Horário: <?= $escape($meetingDisplay['schedule_label']) ?></span>
+        </div>
 
         <p class="hero__trust"><?= $escape($heroContent['trust_note'] ?? '') ?></p>
     </div>

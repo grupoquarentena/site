@@ -6,23 +6,23 @@ function present_support_links(array $supportLinks): array
 {
     $definitions = [
         'directory' => [
-            'label' => 'Diretorio e outras reunioes',
+            'label' => 'Diretório e outras reuniões',
             'description' => 'Abrir recurso complementar de apoio',
             'event' => 'support_directory_click',
             'external_hint' => 'Abre recurso externo do ecossistema NA',
         ],
         'report' => [
-            'label' => 'Relatorio publico',
-            'description' => 'Abrir relatorio publico aprovado pelo grupo',
+            'label' => 'Relatório público',
+            'description' => 'Abrir relatório público aprovado pelo grupo',
             'event' => 'report_click',
-            'external_hint' => 'Abre relatorio em ferramenta externa',
+            'external_hint' => 'Abre relatório em ferramenta externa',
         ],
         'whatsapp' => [
             'label' => 'WhatsApp de membros',
-            'description' => 'Abrir canal de comunicacao para participantes recorrentes',
+            'description' => 'Abrir canal de comunicação para participantes recorrentes',
             'event' => 'whatsapp_click',
             'external_hint' => 'Abre WhatsApp Web ou aplicativo',
-            'member_context' => 'Link disponivel para membros e participantes regulares do grupo.',
+            'member_context' => 'Link disponível para membros e participantes regulares do grupo.',
         ],
     ];
 

@@ -210,7 +210,7 @@ $assertTrue(str_contains($renderedHtml, 'href="' . $contract['meeting']['join_ur
 $assertTrue(str_contains($renderedHtml, $contract['meeting']['title']), 'O CTA e a home devem expor o titulo vindo da fonte unica.');
 $assertTrue(str_contains($renderedHtml, 'class="meeting-card"'), 'A home deve renderizar um card dedicado para os dados da reuniao.');
 $assertTrue(str_contains($renderedHtml, 'aria-labelledby="meeting-card-title"'), 'O card deve expor uma relacao semantica clara com seu titulo.');
-$assertTrue(str_contains($renderedHtml, '>Horario</dt>'), 'O card deve rotular o horario da reuniao.');
+$assertTrue(str_contains($renderedHtml, '>Horário</dt>'), 'O card deve rotular o horario da reuniao.');
 $assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['schedule_label'] . '</dd>'), 'O card deve exibir o horario formatado no mesmo bloco visual.');
 $assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['meeting_id_label'] . '</dd>'), 'O card deve exibir o meeting ID vindo da fonte unica.');
 $assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['password_label'] . '</dd>'), 'O card deve exibir a senha vinda da fonte unica.');
@@ -233,7 +233,7 @@ $assertTrue(str_contains($renderedHtml, 'agora'), 'A home deve exibir exatamente
 
 // Story 1.5: Resiliencia a falhas externas
 $assertTrue(str_contains($renderedHtml, 'class="support-links"'), 'A home deve renderizar uma secao complementar secundaria quando houver recurso externo aprovado.');
-$assertTrue(str_contains($renderedHtml, 'Diretorio e outras reunioes'), 'A secao complementar deve expor o recurso externo disponivel sem competir com o CTA principal.');
+$assertTrue(str_contains($renderedHtml, 'Diretório e outras reuniões'), 'A secao complementar deve expor o recurso externo disponivel sem competir com o CTA principal.');
 $assertTrue(str_contains($renderedHtml, 'data-event="support_directory_click"'), 'A secao complementar deve sinalizar o evento agregado do link de apoio.');
 
 // Story 2.1: Mensagem curta de acolhimento
@@ -251,8 +251,8 @@ $assertTrue(str_contains($renderedHtml, $viewData['home_content']['about_na']['b
 
 // Story 2.3: Sobre o Grupo QuarenteNA
 $assertTrue(isset($viewData['home_content']['about_group']['body']), 'O bootstrap deve expor a copy do bloco sobre o grupo.');
-$assertTrue(str_contains(strtolower($viewData['home_content']['about_group']['body']), 'reunioes'), 'O bloco sobre o grupo deve comunicar frequencia regular.');
-$assertTrue(str_contains(strtolower($viewData['home_content']['about_group']['body']), 'narcoticos anonimos'), 'O bloco sobre o grupo deve explicar a relacao com NA.');
+$assertTrue(str_contains(strtolower($viewData['home_content']['about_group']['body']), 'reuniões'), 'O bloco sobre o grupo deve comunicar frequencia regular.');
+$assertTrue(str_contains(strtolower($viewData['home_content']['about_group']['body']), 'narcóticos anônimos'), 'O bloco sobre o grupo deve explicar a relacao com NA.');
 $assertTrue(!str_contains($viewData['home_content']['about_group']['body'], 'Ciro'), 'O bloco sobre o grupo nao deve expor identidades pessoais.');
 $assertTrue(str_contains($renderedHtml, 'info-section info-section--group'), 'A home deve renderizar o bloco sobre o grupo abaixo do contexto inicial sobre NA.');
 $assertTrue(str_contains($renderedHtml, $viewData['home_content']['about_group']['title']), 'O bloco sobre o grupo deve consumir o titulo vindo do conteudo da home.');
@@ -441,7 +441,7 @@ $assertTrue(is_string($supportWithReport['items'][0]['external_hint'] ?? null) &
 // Story 3.2: Diretorio e Outras Reunioes de Apoio
 $supportWithDirectory = present_support_links(['whatsapp' => null, 'report' => null, 'directory' => 'https://www.na.org.br/virtual/']);
 $assertSame('directory', $supportWithDirectory['items'][0]['key'], 'O link do diretorio deve preservar a chave de identificacao.');
-$assertSame('Diretorio e outras reunioes', $supportWithDirectory['items'][0]['label'], 'O diretorio deve ter rotulo explicito.');
+$assertSame('Diretório e outras reuniões', $supportWithDirectory['items'][0]['label'], 'O diretorio deve ter rotulo explicito.');
 $assertTrue(str_contains($supportWithDirectory['items'][0]['external_hint'], 'NA'), 'O external_hint do diretorio deve contextualizar o ecossistema.');
 
 // Story 3.3: Link de WhatsApp para Membros
@@ -463,7 +463,7 @@ $assertTrue(str_contains($renderedSupportSection, 'rel="noopener noreferrer"'), 
 $assertTrue(str_contains($renderedSupportSection, 'support-links__external-indicator'), 'Links externos devem exibir indicador visual (icone).');
 $assertTrue(str_contains($renderedSupportSection, 'aria-hidden="true"'), 'Indicador externo deve ser oculto para leitores de tela.');
 $assertTrue(!str_contains($renderedSupportSection, 'support-links__member-context'), 'Link sem contexto de membro nao deve renderizar bloco de contexto.');
-$assertTrue(str_contains($renderedSupportSection, 'Diretorio e outras reunioes'), 'A secao complementar deve expor o rotulo amigavel do diretorio.');
+$assertTrue(str_contains($renderedSupportSection, 'Diretório e outras reuniões'), 'A secao complementar deve expor o rotulo amigavel do diretorio.');
 
 $viewData['support_section'] = present_support_links(['whatsapp' => 'https://chat.whatsapp.com/abc123', 'report' => null, 'directory' => null]);
 ob_start();
@@ -497,7 +497,7 @@ $assertSame(1, substr_count($seoHtml, '<title>'), 'A home deve ter exatamente um
 $assertTrue(str_contains($seoHtml, 'class="skip-link"'), 'A home deve manter skip link acessivel.');
 $assertTrue(str_contains($seoHtml, 'id="main-content"'), 'O main deve manter id navegavel para skip link.');
 $assertTrue(str_contains($seoHtml, 'role="main"'), 'O main deve declarar role=main.');
-$assertTrue(str_contains($seoHtml, 'aria-label="Conteudo principal"'), 'O main deve ter aria-label descritivo.');
+$assertTrue(str_contains($seoHtml, 'aria-label="Conteúdo principal"'), 'O main deve ter aria-label descritivo.');
 $assertTrue(str_contains($seoHtml, '<html lang="pt-BR"'), 'A home deve declarar lang pt-BR no html.');
 $assertTrue(str_contains($seoHtml, 'charset="UTF-8"'), 'A home deve declarar charset UTF-8.');
 $assertTrue(str_contains($seoHtml, '<meta name="viewport"'), 'A home deve declarar viewport para responsividade mobile.');
