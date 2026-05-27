@@ -1,0 +1,95 @@
+# generated: 2026-03-24T04:30:11-03:00
+# last_updated: 2026-05-27T00:00:00-03:00
+# project: site
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog -> in-progress: Automatically when first story is created or a kickoff decision activates the epic
+#   - in-progress -> done: Manually when all stories reach "done" status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in implementation artifacts
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - This kickoff intentionally opens only the MVP public track
+# - Epics 6-9 remain tracked but out of current sprint scope
+# - Stories 4.1 and 1.1 were prepared as kickoff artifacts to open implementation formally
+
+generated: 2026-03-24T04:30:11-03:00
+last_updated: 2026-05-27T00:00:00-03:00
+project: site
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  epic-1: done
+  1-1-home-oficial-com-cta-primario: done
+  1-2-card-da-reuniao-com-dados-completos: done
+  1-3-tipo-de-reuniao-e-elegibilidade-no-bloco-principal: done
+  1-4-status-agora-mais-tarde-hoje-ou-proxima-reuniao: done
+  1-5-fluxo-principal-resiliente-a-falhas-externas: done
+  epic-1-retrospective: optional
+  epic-2: done
+  2-1-mensagem-curta-de-acolhimento: done
+  2-2-bloco-o-que-e-na: done
+  2-3-bloco-sobre-o-grupo-quarentena: done
+  2-4-explicacao-aberta-versus-fechada: done
+  2-5-historia-resumida-do-grupo: done
+  epic-2-retrospective: optional
+  epic-3: done
+  3-1-cartao-de-relatorio-publico: done
+  3-2-diretorio-e-outras-reunioes-de-apoio: done
+  3-3-link-de-whatsapp-para-membros: done
+  3-4-navegacao-externa-com-fallback-e-clareza: done
+  epic-3-retrospective: optional
+  epic-4: done
+  4-1-contrato-da-fonte-unica-de-verdade: done
+  4-2-fluxo-manual-de-atualizacao-operacional: done
+  4-3-checklist-de-anonimato-para-conteudo-publico: done
+  4-4-regras-editoriais-para-creditos-e-responsaveis: done
+  epic-4-retrospective: optional
+  epic-5: done
+  5-1-seo-e-semantica-da-home: done
+  5-2-acessibilidade-do-fluxo-principal: done
+  5-3-analytics-agregado-e-anonimo: done
+  5-4-checklist-de-lancamento-tecnico-do-mvp: done
+  epic-5-retrospective: optional
+  epic-6: backlog
+  6-1-estrutura-publica-para-relatorios-e-apoios: backlog
+  6-2-expansao-do-conteudo-institucional: backlog
+  6-3-governanca-editorial-publica-refinada: backlog
+  6-4-instrumentacao-analitica-refinada: backlog
+  epic-6-retrospective: optional
+  epic-7: backlog
+  7-1-casca-inicial-do-namespace-admin: backlog
+  7-2-autenticacao-de-servidores-voluntarios: backlog
+  7-3-acesso-por-papel-na-estrutura-de-servico: backlog
+  epic-7-retrospective: optional
+  epic-8: backlog
+  8-1-gestao-interna-dos-dados-da-reuniao: backlog
+  8-2-gestao-de-conteudo-publico-essencial: backlog
+  epic-8-retrospective: optional
+  epic-9: backlog
+  9-1-gestao-interna-de-atas-relatorios-e-dashboards: backlog
+  9-2-migracao-de-dados-operacionais-externos: backlog
+  9-3-governanca-de-publicacao-de-dashboards-internos: backlog
+  epic-9-retrospective: optional
