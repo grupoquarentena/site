@@ -23,7 +23,7 @@ $meetingDisplay = $viewData['meeting_display'];
             <span class="hero__cta-context"><?= $escape($meeting['title']) ?></span>
         </a>
 
-        <div class="hero__quick-facts" aria-label="Resumo rapido da reuniao">
+        <div class="hero__quick-facts" aria-label="Resumo rápido da reunião">
             <span>Status: <?= $escape($meetingDisplay['status_label']) ?></span>
             <span>Horário: <?= $escape($meetingDisplay['schedule_label']) ?></span>
         </div>

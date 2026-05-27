@@ -194,7 +194,7 @@ a {
     font-weight: 800;
     text-align: center;
     text-decoration: none;
-    transition: background-color 0ms, transform 200ms ease-out;
+    transition: transform 200ms ease-out;
 }
 
 .hero__cta:hover {
@@ -401,7 +401,7 @@ a {
     background: var(--color-bg-deep);
     color: var(--color-text-primary);
     text-decoration: none;
-    transition: border-color 0ms, transform 200ms ease-out;
+    transition: transform 200ms ease-out;
 }
 
 .support-links__link:hover {
