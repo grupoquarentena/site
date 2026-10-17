@@ -1,16 +1,16 @@
 ---
 title: "QuarenteNA.md — Diagnóstico operacional e transição do legado"
-project: Grupo QuarenteNA — Plataforma v2
+project: Grupo QuarenteNA — Plataforma Web
 artifact: analysis-context
-method: "BMAD v6.12.4 — consolidação analítica orientada a evidências"
-status: "DRAFT — validação com servidores pendente"
+method: "BMAD 6.12.4 — artefato canônico de planejamento"
+status: "APROVADO"
 date: "2026-10-17"
 source_window: "2026-03 a 2026-05"
 ---
 
 # QuarenteNA.md — Diagnóstico operacional e transição do legado
 
-> **Situação:** artefato consolidado para revisão. Não constitui homologação de requisitos, validação em produção, inspeção das instâncias em execução nem execução automatizada dos workflows BMAD. Consolidação do funcionamento anterior e das decisões posteriores para a plataforma v2.
+> **Situação: APROVADO.** Inventário canônico de contexto e migração. As informações sobre sistemas externos descrevem os registros e fluxos documentados, não uma auditoria em tempo real.
 
 ## Quadro comparativo: site antigo (MVP) × novo sistema (v2)
 
@@ -51,7 +51,7 @@ pie showData
   "Epic 5 - Qualidade" : 4
 ```
 
-> **Atenção:** 22/22 marcadas `done` no `sprint-status.yaml`, mas o code review de 27/05/2026 registra pendências de lançamento (issue `#28`). O gráfico mostra apenas o **status documental**, não qualidade de produção.
+> **Atenção:** 22/22 Stories marcadas `done` no `sprint-status.yaml`, porém o MVP BMAD antigo **nunca entrou em produção**. O code review de 27/05/2026 registra pendências de lançamento (issue `#28`); o gráfico indica somente progresso documental.
 
 ### Semelhanças que devem sobreviver
 
@@ -60,17 +60,17 @@ Acesso rápido ao Zoom; legitimidade e acolhimento do grupo; divulgação de age
 ### Desambiguação histórica
 
 1. **Site provisório:** arquivos `index.php`, `conexao.php`, `db.sql` e `estilo.css` enviados como referência histórica de código (ex.: domínio `.com.br`).
-2. **Site antigo planejado/implementado com BMAD:** brief/PRD/UX/architecture de março de 2026, 22 stories marcadas como `done` nos Epics 1–5, e code review de 27/05/2026 com pendências. O `done` documental não equivale a release homologada.
+2. **Site antigo planejado/implementado com BMAD:** brief/PRD/UX/architecture de março de 2026, 22 stories marcadas como `done` nos Epics 1–5, e code review de 27/05/2026 com pendências. O `done` documental não equivale a release: **o antigo site BMAD/MVP nunca foi colocado no ar**.
 3. **Site novo v2:** documentação operacional + Product Brief + PRD de maio de 2026, objeto desta consolidação. Prevê domínio `GrupoQuarenteNA.org` (não equivale a DNS/posse verificados).
 
-## Mapa consolidado do AS-IS e do TO-BE (sem arquitetura antecipada)
+## Mapa consolidado do AS-IS e do TO-BE
 
 | Processo | Fonte/execução documentada (AS-IS) | Capacidade pretendida (TO-BE) | Prova de migração esperada | Natureza da evidência |
 |---|---|---|---|---|
 | Reuniões/atas | Formulário Google → planilha de respostas | Ata web, rascunho, revisão e histórico | Paridade de campos e totais amostrais | Descrição de operação; não auditoria de instância |
 | Frequência e partilhas | Sheets → Looker | Agregados no painel próprio | Comparação de métricas por período/horário | Indicadores históricos observados |
 | Serviço/encargos | Sheets + Docs `VAGO` / `Relação de Servidores` | Cadastro, vagas, mandatos e notificações | Vagas e escalas reconciliadas | Planilhas/roteiros descritos |
-| Kit ingresso | Planilha + mensagens e rastreamento | Fila, status, endereço restrito, expedição | Conferência de kits pendentes/enviados | Fluxos e campos descritos |
+| Kit ingresso | Planilha + mensagens e rastreamento | Fila, status, endereço restrito, expedição e serviço Correios REST | Conferência de kits pendentes/enviados | Fluxos e campos descritos |
 | Tesouraria | Planilhas + ASAAS + automações | Lançamentos auditáveis e conciliação | Saldo, reserva prudente e categorias conferidos | Regras pretendidas + fontes antigas |
 | WhatsApp | n8n + Evolution API | Comandos PHP sobre dados autorizados | Mesmo conjunto de comandos essenciais | Dependência funcional descrita |
 | Zoom | Webhooks e scripts auxiliares | Eventos restritos; sugestões agregadas | Contagens por reunião com correção humana | Integração documentada; payload a confirmar |
@@ -108,7 +108,7 @@ flowchart LR
 
 ```mermaid
 flowchart TB
-  PUBLIC[Visitante / Home pública] --> CORE[Plataforma PHP - v2]
+  PUBLIC[Visitante / Home pública] --> CORE[Plataforma Laravel]
   STAFF[Servidores / Mesa] --> AUTH[Autenticação e autorizações]
   AUTH --> CORE
   CORE --> DB[(PostgreSQL - operações)]
@@ -124,20 +124,20 @@ flowchart TB
 
 ## Evoluções posteriores que prevalecem sobre as descrições mais antigas
 
-As atualizações entre 15 e 23/05/2026 incluem o seguinte conjunto de **decisões de produto documentadas**, cuja implementação e aprovação ainda exigem validação:
+Os registros históricos de maio de 2026, agora reconciliados com o Brief e PRD **aprovados**, estabelecem as seguintes decisões de produto. A verificação técnica da implantação permanece uma atividade distinta:
 
 | Tema | Formulação canônica | Status documental |
 |---|---|---|
-| Identidade da v2 | Site público em `GrupoQuarenteNA.org` e painel em `/admin` | Planejado; domínio não verificado |
+| Identidade do projeto | Site público em `GrupoQuarenteNA.org` e painel em `/admin` | Planejado; domínio não verificado |
 | Arquitetura tecnológica pretendida | PHP, PostgreSQL e Docker | Diretriz de produto; framework e desenho a definir |
 | Servidores | Mesa: Secretário Geral, Tesoureiro, RSG, RSG Suplente e Kit Ingresso; Coordenador Geral extinto, mas configurável | Descrição histórica de cargos, confirmar composição vigente |
 | Moderação do dia | Secretário registra ata; coordenador conduz; uma pessoa pode acumular quando necessário | Regra de proposta, sujeita a validação |
 | Agenda | Reuniões diárias 20h–22h no recorte relatado, mas suportar múltiplos horários | Informação histórica, agenda vigente por confirmar |
 | Identidade de pessoas | Pessoas operacionais cadastradas separadamente de participantes Zoom | Diretriz de privacidade |
 | Permissões | Root institucional de contingência, SuperAdmin técnico, mesa, servidor e permissões granulares | Modelo a validar; não publicar seeds nominais |
-| Ata | Login, dados sugeridos/editáveis, rascunho automático, revisão, correção justificada | Requisito v2 |
-| Ata de serviço | Template, rascunho, campos de presença/decisões e PDF | Requisito v2 |
-| Financeiro | ASAAS sugere categoria, tesoureiro confere, painel público sem identificação | Requisito v2 |
+| Ata | Login, dados sugeridos/editáveis, rascunho automático, revisão, correção justificada | Requisito aprovado |
+| Ata de serviço | Template, rascunho, campos de presença/decisões e PDF | Requisito aprovado |
+| Financeiro | ASAAS sugere categoria, tesoureiro confere, painel público sem identificação | Requisito aprovado |
 | Zoom | Uso agregado e revisão humana; identidade nominal exclusivamente restrita quando indispensável | Limite de privacidade |
 | Migração | Varredura, normalização, sugestão de mesclagem, revisão humana, importação e reconciliação | Gate obrigatório |
 | Reversibilidade | Exportações, backup e retorno temporário à operação manual | Requisito transversal |
@@ -154,7 +154,7 @@ As atualizações entre 15 e 23/05/2026 incluem o seguinte conjunto de **decisõ
 
 1. O legado era orientado a landing page; a nova v2 introduz dados pessoais e integrações financeiras — requisitos de privacidade e segurança devem ter validação própria.
 2. O planejamento diz “substituição completa”, mas também “fases técnicas”: **a substituição do fluxo principal é o estado final** e a virada deve ter critérios operacionais, não ocorrer antes da paridade comprovada.
-3. A versão antiga do PRD usa IDs funcionais com sentidos diferentes dos IDs na revisão mais recente. O PRD consolidado mantém a numeração mais recente, com controle de legado.
+3. O `PRD.md` é fonte única de requisitos; referências operacionais não devem usar códigos de requisitos de documentos obsoletos.
 4. A documentação de maio é retrato histórico, não vistoria realizada em outubro de 2026.
 5. Os riscos de `track.php` e URLs do antigo MVP pertencem ao acervo histórico e não comprovam vulnerabilidades no código futuro.
 
@@ -171,21 +171,19 @@ As atualizações entre 15 e 23/05/2026 incluem o seguinte conjunto de **decisõ
 | Reuniões de serviço | Consciências vigentes, documentos aprovados e fluxos de autorização |
 | Público | Domínio, SEO, copy e horários oficiais; distinção aberta/fechada |
 
-## Proveniência e tratamento das versões
+## Fontes canônicas e natureza das evidências
 
-| Arquivo de entrada | Função | Tratamento |
+| Documento | Papel único | Situação |
 |---|---|---|
-| `QuarenteNA-OLD.md` | Inventário inicial extenso | Suporte histórico; idêntico a `QuarenteNA(1).md` nos arquivos enviados |
-| `QuarenteNA(1).md` | Cópia do inventário inicial | Deduplicado por conteúdo |
-| `QuarenteNA_detalhado_atualizado(1).md` | Inventário expandido e notas posteriores | Principal base de fatos e campos preservados abaixo |
-| `QuarenteNA_atualizado(1).md` | Revisão com dados de v2/serviço/privacidade | Atualizações integradas às tabelas canônicas |
-| Arquivos do site provisório | Código enviado como referência | Não confundidos com backend aprovado da v2 |
-| Planejamento e code review do antigo BMAD | Escopo do antigo MVP e riscos em maio | Base da tabela comparativa e lições aprendidas |
+| `QuarenteNA.md` | Inventário AS-IS, contexto e plano de migração | **APROVADO** |
+| `ProductBrief.md` | Visão, objetivos, destinatários e limites | **APROVADO** |
+| `PRD.md` | Comportamentos, RF, RNF, regras e aceites | **APROVADO** |
+| `UX-Design.md` | Fluxos, navegação e identidade da solução | Projeto de UX desenvolvido |
+| `Arquitetura.md` | Arquitetura Laravel/PostgreSQL/Docker e modelo lógico | Projeto técnico desenvolvido |
 
-**Regra de prevalência:** informação comprovada do modo anterior > informação inferida claramente rotulada; revisão posterior e mais específica prevalece apenas para *intenção de produto*, sem alterar fatos históricos ou transformar hipótese em evidência.
+O inventário foi elaborado a partir de prints, scripts, descrições e documentos anteriores. **Aprovação do documento não significa inspeção direta de todos os serviços em execução**. Durante migração, fluxos podem ser marcados como ativos, inativos ou obsoletos; nenhum fluxo ativo será omitido silenciosamente.
 
-
----
+**Decisão de migração integral:** scripts e funções Apps Script, workflows n8n, planilhas, abas, cálculos, Google Docs operacionais e Looker Studio serão incorporados em capacidades nativas da nova aplicação, preservando os serviços externos necessários (Zoom, ASAAS, Evolution API e rastreamento Correios). O desligamento é por evidência de paridade e aceite, não pela simples criação de uma tela.
 
 ## Inventário detalhado da operação anterior — base documental preservada
 
@@ -1584,7 +1582,7 @@ Para fechar esta documentação da estrutura atual com mais precisão, seria út
 
 A estrutura atual do Grupo QuarenteNA é funcional, mas foi construída com ferramentas de produtividade e automações incrementais. O Google Sheets atua como banco de dados informal, o Looker Studio como camada de relatório, Apps Script/n8n como automação e Google Docs como interface textual para dados operacionais.
 
-A migração para PHP + PostgreSQL + Docker deve preservar o que funciona hoje, mas corrigir os pontos frágeis:
+A migração para Laravel + PostgreSQL + Docker deve preservar o que funciona hoje, mas corrigir os pontos frágeis:
 
 - dados relacionais;
 - validação;
@@ -1596,7 +1594,7 @@ A migração para PHP + PostgreSQL + Docker deve preservar o que funciona hoje, 
 - segurança de credenciais;
 - proteção de dados pessoais.
 
-Este documento deve ser usado como base de contexto para o brainstorming BMAD, PRD, arquitetura e posterior decomposição em épicos e histórias.
+Este documento é o contexto canônico **aprovado** para o Brief, PRD, UX, arquitetura e futura decomposição em épicos e histórias.
 
 
 ---
@@ -1604,7 +1602,102 @@ Este documento deve ser usado como base de contexto para o brainstorming BMAD, P
 
 
 ---
+
+## Plano de substituição integral das ferramentas (TO-BE aprovado)
+
+```mermaid
+flowchart TB
+  subgraph LEGADO[Ecossistema distribuído]
+    GF[Google Forms] --> GS[Google Sheets]
+    GD[Google Docs] --> N[n8n / Apps Script]
+    GS --> LO[Looker Studio]
+    GS --> N
+  end
+  subgraph NOVO[Plataforma única]
+    WEB[Laravel: home + administração] --> PG[(PostgreSQL)]
+    PG --> REL[Dashboards e relatórios]
+    PG --> JOB[Jobs / agendamentos / eventos]
+    JOB --> EXT[ASAAS, Zoom, Evolution API, Correios]
+  end
+  GF --> IMP[Importação verificável]
+  GS --> IMP
+  GD --> IMP
+  LO --> PAR[Paridade de métricas]
+  N --> PAR
+  IMP --> PG
+  PAR --> WEB
+```
+
+### Matriz de planilhas, tabelas e destino no novo sistema
+
+| Origem operacional | Dados e colunas descritas | Destino conceitual | Regra de migração e uso |
+|---|---|---|---|
+| `Reuniões Grupo QuarenteNA Bahia (Responses)` / `Form Responses 1` | Data, horário, secretário, coordenador, membros, partilhas, visitas, ingressos, contatos, conquistas, temática, resumos | `ocorrencias_reuniao`, `atas`, `visitas`, `ingressos`, `conquistas`, `tematicas` | Importar cada linha com ID de origem e data, normalizar números e preservar contagem original para conciliação |
+| `Kit Ingresso Quarentena` / `Kit Ingresso` | Nome, data, telefone, status, servidor, observações, CEP, endereço, código de rastreio | `ingressos`, `kits_ingresso`, `enderecos_kit`, `remessas`, `eventos_rastreio` | Proteger dados pessoais, ligar kit ao ingresso, deduplicar rastreios; evitar criar login para ingressante |
+| `Serviço Grupo Quarentena` | Dia, reunião, servidor, início/fim, status, telefone e demais colunas ainda não verificadas | `encargos`, `designacoes_servico`, `escalas_reuniao` | Reproduzir vagas, vencimentos e histórico sem copiar linhas |
+| `Atas de Serviço` | Data, referência, resumo, tipo, PDFs e links | `reunioes_servico`, `atas_servico`, `decisoes_coletivas`, `anexos` | Preservar PDFs, vincular documento e texto estruturado quando possível |
+| `Tesouraria Grupo Quarentena` | Datas, entradas/saídas, categorias, valores, observações, saldo e referências ASAAS | `lancamentos_financeiros`, `contas_financeiras`, `categorias_financeiras`, `eventos_webhook` | Reconciliar valores e saldo com responsável autorizado; não inventar contrapartes |
+| `VAGO` e `Relação de Servidores` (Docs) | Encargos, titulares, substitutos e vagas | Visões derivadas de `designacoes_servico` + `encargos` | Documento antigo vira saída publicada, nunca fonte separada de verdade |
+| `Consciências Coletivas` (Docs) | Decisões, textos, datas e revisões | `decisoes_coletivas`, `documentos`, `anexos` | Preservar autoria/visibilidade conforme privacidade e o registro do grupo |
+| Looker Studio | Resumo, Reuniões, Visitas, Ingressos/Conquistas, Temáticas, Quadro e Serviço | consultas e relatórios sobre PostgreSQL | Reproduzir totais e filtros; divergências de fórmula exigem aprovação |
+
+> Campos inferidos de prints/scripts não são esquema comprovado. `Arquitetura.md` descreve as tabelas propostas; a extração real deve conferir abas e tipos antes da primeira importação.
+
+### Matriz de funções Apps Script e jobs n8n a migrar
+
+| Rotina/documento legado | Gatilho/entrada atual | Implementação própria correspondente | Critério de paridade |
+|---|---|---|---|
+| `ata-resumo` | Resposta de ata no Forms/Sheets | Evento de ata enviada, serviço de resumo, mensagem autorizada | Conteúdo equivalente, sem divulgar informação privada |
+| `ata-kitingresso` / `kiIngresso` | Ingressantes de novas atas | Serviço transacional que cria pendências únicas de kit | 1 ingresso lógico ⇒ no máximo 1 kit ativo |
+| `kit-ingresso` | Edição da planilha; atualizações de CEP/status | Serviço de remessa, rastreio Correios e notificações por eventos | Sem disparos duplicados e com status histórico |
+| `servico-terminio` | Rotina de verificação de datas | Scheduler de mandatos e alertas; atualização de vaga e histórico | Avisos em 30/15/7/3/2/1 dias e ausência de perda de histórico |
+| n8n `Robô` | Comandos `!` no WhatsApp | Rotas de webhook + registry de comandos + políticas | Respostas atuais e permissões por grupo |
+| n8n `Resumo do Grupo QuarenteNA` | Dados e agendamentos de ata | Template de resumo e job idempotente | Mesmo significado dos indicadores |
+| n8n `Divulgação das reuniões` | Horários e textos da agenda | Notificação programada e configurável | Sem edição de texto em código/n8n |
+| n8n `Envia Mensagens do Kit Ingresso` | Estado de kit | Outbox de mensagens e regras de transição | Confirmação, histórico e retry seguros |
+| n8n `Planilha da Tesouraria` | Webhook ASAAS | Inbox de eventos + lançamento financeiro + conciliação | Sem duplicidade monetária por evento repetido |
+| n8n `Envia MSG para todos os Servidores` | Grupo/escala | Audiência autorizada e templates | Destinatários verificados e sem vazamento de contatos |
+| Telegram | Resumo da ata | Canal opcional de notificação | Manter se operacionalmente ativo e autorizado |
+| Linketrack / APIs alternativas | Código de remessa | Serviço `opastorello/correios-rastreamento` via REST | Histórico e status normalizados em PostgreSQL |
+
+### Diagrama do ciclo do kit ingresso e rastreamento
+
+```mermaid
+sequenceDiagram
+  participant A as Ata validada
+  participant Q as Laravel
+  participant D as PostgreSQL
+  participant C as Correios Rastreamento
+  participant E as Evolution API
+  A->>Q: Ingresso reconhecido
+  Q->>D: Criar pendência idempotente
+  Q->>E: Solicitar dados por canal autorizado
+  Q->>D: Registrar remessa e código
+  loop Até status terminal
+    Q->>C: Consultar código por REST
+    C-->>Q: Eventos de rastreio
+    Q->>D: Deduplicar eventos / atualizar status
+  end
+  Q->>E: Enviar aviso autorizado de movimentação
+```
+
+**Requisitos de implantação:** serviço de rastreamento separado, API autenticada, sem exposição da interface administrativa externa à Internet, rate limit, retries graduais, observabilidade, avaliação de estabilidade do scraping/CAPTCHA e conformidade com condições de uso dos Correios. O histórico do serviço externo não substitui as tabelas institucionais.
+
+### Critérios de corte operacional por fonte
+
+| Verificação | Evidência obrigatória |
+|---|---|
+| Completude | Todas as abas, fórmulas, scripts e workflows ativos inventariados |
+| Preservação | Export original imutável, hash, data e responsável pelo lote |
+| Migração | Contagem por entidade, mapa campo→destino, erros e descartes justificados |
+| Paridade | Totais financeiros, atas, visitas, ingressos, serviços e kit conferidos |
+| Automação | Entradas, saídas, triggers, erros e reprocessamento testados |
+| Privacidade | Acesso restrito, dados minimizados e ausência de PII no dashboard público |
+| Recuperação | Backup restaurado e procedimento de retorno manual disponível |
+| Aceite | Responsáveis autorizam desligamento da rotina antiga individualmente |
 
 ## Encerramento e handoff BMAD
 
-Este documento responde **como a operação estava descrita** e quais fricções motivam a v2. Para **por quê e para quem**, consultar `ProductBrief.md`; para **o que o produto deve realizar e seus critérios**, consultar `PRD.md`. Arquitetura, banco físico, rotas e histórias são fases posteriores; não são homologados aqui.
+**Situação dos documentos canônicos: APROVADO (Brief, PRD e inventário).** O UX e a arquitetura são propostas técnicas derivadas, ainda sujeitas à verificação no runtime e em protótipos.
+
+Este documento responde **como a operação estava descrita** e quais fricções motivam a v2. Para **por quê e para quem**, consultar `ProductBrief.md`; para **o que o produto deve realizar e seus critérios**, consultar `PRD.md`. A solução técnica está detalhada em `Arquitetura.md`; migrations e banco físico definitivo serão verificados no código/runtime. Stories e aceitação de implantação pertencem aos próximos workflows BMAD.

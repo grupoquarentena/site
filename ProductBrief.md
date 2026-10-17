@@ -1,16 +1,16 @@
 ---
 title: "ProductBrief.md — Visão e estratégia do Sistema QuarenteNA"
-project: Grupo QuarenteNA — Plataforma v2
+project: Grupo QuarenteNA — Plataforma Web
 artifact: product-brief
-method: "BMAD v6.12.4 — consolidação analítica orientada a evidências"
-status: "DRAFT — validação com servidores pendente"
+method: "BMAD 6.12.4 — artefato canônico de planejamento"
+status: "APROVADO"
 date: "2026-10-17"
 source_window: "2026-03 a 2026-05"
 ---
 
 # ProductBrief.md — Visão e estratégia do Sistema QuarenteNA
 
-> **Situação:** artefato consolidado para revisão. Não constitui homologação de requisitos, validação em produção, inspeção das instâncias em execução nem execução automatizada dos workflows BMAD. Síntese gerencial do problema, motivação, valor e contorno do produto; detalhes de implementação ficam no PRD/arquitetura.
+> **Situação: APROVADO.** Visão de produto e escopo aprovados. Aprovação documental não comprova implantação, levantamento em tempo real das ferramentas legadas nem testes técnicos. Requisitos completos em `PRD.md`, inventário em `QuarenteNA.md` e projeto técnico em `Arquitetura.md`.
 
 ## 1. Visão executiva
 
@@ -23,7 +23,7 @@ A **plataforma QuarenteNA v2** transforma uma operação hoje descrita como dist
 ```mermaid
 flowchart LR
   P[Site provisório: PHP/SQL de referência] --> M[Site antigo BMAD: MVP público PHP SSR]
-  M --> N[Plataforma v2: público + operações + dados]
+  M -. não chegou a produção .-> N[Plataforma nova: público + operações + dados]
   L[Google Drive / Sheets / Forms / Looker / n8n] --> N
   N --> T[Contingência exportável: funcionamento sem aprisionamento técnico]
 ```
@@ -105,11 +105,26 @@ journey
 | Gestão de serviço | Encargos, reuniões, escalas, vagas, histórico e vencimentos |
 | Indicadores | Dashboards operacionais, visitas, ingresso, conquistas, temáticas e filtros |
 | Tesouraria | ASAAS, entradas/saídas, conciliação, reserva prudente e relatório público agregado |
-| Kit ingresso | Pendência, coleta restrita, entrega, status de expedição e rastreamento |
+| Kit ingresso | Pendência, coleta restrita, entrega, expedição e rastreamento automático via serviço `opastorello/correios-rastreamento` |
 | Comunicações | Evolution API, WhatsApp, comandos e notificação autorizada |
 | Presença Zoom | Webhook, eventos separados, sugestão de contagem; não vigilância individual |
 | Migração | Importar legado, deduplicar com revisão humana, comparar totais |
 | Operação | Auditoria, logs mínimos, documentação, exportação, backup e restauração |
+
+### Migração integral do ecossistema operacional
+
+**Decisão aprovada:** planilhas, tabelas, documentos operacionais, scripts do Google Apps Script, fluxos n8n, fórmulas relevantes e relatórios do Looker Studio devem ter sua **função, dados e regras de negócio incorporados à plataforma**. As ferramentas externas deixam de ser a fonte operacional após a virada validada; integrações de infraestrutura (Evolution API, ASAAS, Zoom e Correios) continuam como serviços externos necessários.
+
+| Fonte atual | Resultado na nova plataforma | Evidência de conclusão |
+|---|---|---|
+| Google Forms / Sheets | Formulários, tabelas PostgreSQL, validações e histórico | Campos e registros conciliados |
+| Google Docs operacionais | Conteúdo versionado, gestão de documentos e visões derivadas de dados | Sem edição duplicada de informação autoritativa |
+| Looker Studio | Dashboards públicos e restritos com consultas reprodutíveis | Paridade aprovada dos indicadores |
+| Apps Script | Serviços Laravel, eventos, jobs e agendamentos equivalentes | Regras testadas e acionamentos rastreáveis |
+| n8n | Endpoints, jobs, comandos e notificações próprios | Workflows mapeados e casos de teste por automação |
+| Kit ingresso | Rastreamento integrado ao `correios-rastreamento` via API REST | Atualizações deduplicadas, histórico e tratamento de falha |
+
+A migração compreende **tudo que esteja ativo e aplicável**, com classificação de rotinas obsoletas antes da implementação; não significa transportar código inseguro literalmente.
 
 ### Fronteiras e integrações
 
@@ -124,7 +139,7 @@ flowchart TB
   Q <--> Z[Zoom]
   Q <--> E[Evolution API]
   Q <--> A[ASAAS]
-  Q <--> K[Correios / rastreio / CEP]
+  Q <--> K[Serviço Correios Rastreamento / CEP]
   DB --> EXPORT[Backups / exportação / contingência]
   DB --> AUD[Auditoria restrita]
 ```
@@ -180,33 +195,34 @@ flowchart TD
 | Big-bang sem validação | Perda operacional | Migração incremental, operação assistida, rollback documentado |
 | Confusão entre papel e poder administrativo | Permissões indevidas | Matriz de autorizações e revisão da mesa |
 
-## 10. Pressupostos e questões para validação
+## 10. Parâmetros para execução e homologação
 
-| ID | Questão | Responsável sugerido | Impacto |
+**Brief APROVADO.** Os itens abaixo correspondem a conferências e parâmetros da execução; não são pendências de aprovação deste Brief.
+
+| Nº | Parâmetro operacional | Responsável sugerido | Impacto |
 |---|---|---|---|
-| AB-01 | Confirmar agenda, tipos e horários vigentes | Mesa | Portal e pré-preenchimento |
-| AB-02 | Confirmar forma de aprovação das atas e correções | Servidores/Mesa | Workflow e auditoria |
-| AB-03 | Definir quais decisões/relatórios podem ser públicos | Consciência coletiva | Privacidade |
-| AB-04 | Validar perfis, root técnico e limites do SuperAdmin | Mesa/responsável técnico | Segurança |
-| AB-05 | Estabelecer retenção de webhooks e dados Zoom | Responsáveis pelo grupo | Proteção de dados |
-| AB-06 | Conferir dados/fontes de migração e qualidade | Responsáveis pelos dados | Aceite do banco |
-| AB-07 | Confirmar domínio institucional e aprovar o conteúdo | Mesa | Release público |
-| AB-08 | Definir critérios de reconciliação financeira | Tesouraria | Cutover |
-| AB-09 | Documentar política de contingência, conta institucional e acessos | Mesa/técnico | Reversibilidade |
+| 01 | Confirmar agenda, tipos e horários vigentes | Mesa | Portal e pré-preenchimento |
+| 02 | Confirmar forma de aprovação das atas e correções | Servidores/Mesa | Workflow e auditoria |
+| 03 | Definir quais decisões/relatórios podem ser públicos | Consciência coletiva | Privacidade |
+| 04 | Validar perfis, root técnico e limites do SuperAdmin | Mesa/responsável técnico | Segurança |
+| 05 | Estabelecer retenção de webhooks e dados Zoom | Responsáveis pelo grupo | Proteção de dados |
+| 06 | Conferir dados/fontes de migração e qualidade | Responsáveis pelos dados | Aceite do banco |
+| 07 | Confirmar domínio institucional e aprovar o conteúdo | Mesa | Release público |
+| 08 | Definir critérios de reconciliação financeira | Tesouraria | Cutover |
+| 09 | Documentar política de contingência, conta institucional e acessos | Mesa/técnico | Reversibilidade |
 
-## 11. Critério para avançar no BMAD
+## 11. Aprovação e continuidade no BMAD
 
-**Status: DRAFT.** O brief está consolidado para revisão, mas não é aprovado pelos servidores. Avançar a um PRD validado, design UX e arquitetura apenas após resolver as questões críticas. O PRD canônico anexo desenvolve capacidades com IDs estáveis, limites e critérios de aceite; o inventário `QuarenteNA.md` conserva o detalhamento do legado. Evitar adicionar épicos e stories à declaração de visão antes da aprovação.
+**Status: APROVADO.** A visão, os públicos, o escopo completo e os princípios de serviço foram aprovados. Questões operacionais e técnicas que dependam de conferência no sistema real permanecem registradas para a execução e homologação, sem retirar o caráter de aprovado do Brief. `PRD.md` especifica o comportamento exigido; `QuarenteNA.md` documenta o legado; `UX-Design.md` e `Arquitetura.md` desenvolvem os projetos de experiência e engenharia. Epics/Stories devem citar os documentos canônicos.
 
-## 12. Fontes e linhagem documental
+## 12. Referências canônicas
 
-| Família | Arquivo fonte | Uso na consolidação |
+| Documento único | Finalidade | Natureza |
 |---|---|---|
-| Brief | `ProductBrief_detalhado_atualizado(1).md` | Domínios, objetivos, papéis, riscos e revisão posterior |
-| Brief | `ProductBrief_atualizado(1).md` | Revisão v1.1 com princípios, regras de serviço e escopo |
-| Brief | `ProductBrief(1).md` | Fundamentação inicial |
-| Contexto | `QuarenteNA_detalhado_atualizado(1).md` e `QuarenteNA_atualizado(1).md` | Observação da operação e feedback dos servidores |
-| PRD | `PRD_atualizado(1).md` e `PRD_detalhado_atualizado(1).md` | Resolução de consistência com capacidades propostas |
-| Antigo site BMAD | `product-brief-site-2026-03-23.md`, `prd(1).md` e `mvp-epics-1-5-code-review.md` | Comparação e lições aprendidas |
+| [`QuarenteNA.md`](QuarenteNA.md) | Inventário de planilhas, scripts, ferramentas, fluxos e decisões históricas; mapa de migração | Contexto operacional aprovado |
+| [`ProductBrief.md`](ProductBrief.md) | Visão, públicos, objetivos, limites e resultados | **Brief aprovado** |
+| [`PRD.md`](PRD.md) | Requisitos funcionais, não funcionais, negócios, migração e aceite | **PRD aprovado** |
+| [`UX-Design.md`](UX-Design.md) | Experiência pública e administrativa, fluxos e design system | Projeto UX derivado |
+| [`Arquitetura.md`](Arquitetura.md) | Solução Laravel, PostgreSQL, Docker, integrações e modelo lógico | Projeto técnico derivado |
 
-**Referência de método:** [BMAD Method 6.12.4 (npm)](https://www.npmjs.com/package/bmad-method/v/6.12.4) e [BMad Method — site oficial](https://docs.bmad-method.org/). A aplicação nesta consolidação usa os princípios Analysis → Planning → UX/Architecture → Delivery; não representa execução do pacote/instalação no repositório.
+Fontes técnicas externas: [BMAD Method 6.12.4](https://github.com/bmad-code-org/BMAD-METHOD/tree/v6.12.4), [template Laravel BMAD](https://github.com/cirinho/template-laravel-bmad), [rastreio Correios](https://github.com/opastorello/correios-rastreamento). Não há versões paralelas destes documentos canônicos.
