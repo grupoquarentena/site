@@ -22,6 +22,6 @@ Os cinco documentos canônicos estão em [`_bmad-output/planning-artifacts/`](_b
 - **Stack:** Laravel, PostgreSQL e Docker.
 - **Laravel Boost:** utilizado na implementação.
 
-O antigo MVP, que nunca entrou em produção, permanece como referência histórica na branch `main`.
+O antigo MVP, que nunca entrou em produção, está preservado na [branch `legado/site-2026`](https://github.com/grupoquarentena/site/tree/legado/site-2026) e na [release histórica `site-2026-legado`](https://github.com/grupoquarentena/site/releases/tag/site-2026-legado). As branches `main` (estável) e `dev` (desenvolvimento) pertencem à nova plataforma.
 
 Consulte `AGENTS.md` antes de alterar requisitos, arquitetura ou código.
