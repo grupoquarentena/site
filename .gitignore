@@ -9,9 +9,14 @@
 _bmad/
 _bmad-tools/
 
-# Rascunhos locais de design e documentacao (nunca versionados neste repositorio)
+# Rascunhos locais de design (nunca versionados neste repositorio)
 design/
-docs/
+
+# Documentacao historica de processo, aprovada no arquivamento de 18/10/2026.
+# Qualquer outro rascunho em docs/ continua ignorado.
+docs/*
+!docs/project-context.md
+!docs/git-workflow.md
 
 # Artefatos de execucao local (ex.: contadores agregados do analytics)
 tmp/
