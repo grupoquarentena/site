@@ -1,0 +1,18 @@
+# BMAD e OpenCode — instalações locais
+/_bmad/
+/.agents/
+/.opencode/
+
+# Auditorias, relatórios e arquivos temporários
+/tmp/
+
+# Ambiente local
+.env
+.env.*
+!.env.example
+
+# Dependências e editores
+/node_modules/
+/vendor/
+.idea/
+.vscode/
