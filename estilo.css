@@ -1,0 +1,497 @@
+/**
+ * ============================================================================
+ * ARQUIVO: estilo.css
+ * ============================================================================
+ * 
+ * PROPÓSITO:
+ * Este arquivo contém estilos CSS customizados que complementam o Tailwind CSS.
+ * Inclui efeitos visuais avançados como glassmorphism, animações, e ajustes
+ * específicos para a identidade visual do Grupo QuarenteNA.
+ * 
+ * PALETA DE CORES:
+ * - Azul Escuro (Fundo): #0B1120, #0f172a
+ * - Azul Gelo (Destaques): #38bdf8
+ * - Amarelo (CTA/Destaque): #facc15
+ * - Branco (Texto): #e0f2fe, #ffffff
+ * 
+ * ESTRUTURA DO ARQUIVO:
+ * 1. Reset e Base
+ * 2. Tipografia
+ * 3. Glassmorphism
+ * 4. Animações
+ * 5. Componentes
+ * 6. Utilitários
+ * 7. Responsividade
+ * 8. Acessibilidade
+ * 
+ * @author Grupo QuarenteNA
+ * @version 1.0.0
+ * ============================================================================
+ */
+
+/* ============================================================================
+   SEÇÃO 1: RESET E BASE
+   ============================================================================ */
+
+/**
+ * Garante que o scroll seja suave em toda a página
+ * quando o usuário clica em links âncora (#sobre, #historia, etc.)
+ */
+html {
+    scroll-behavior: smooth;
+}
+
+/**
+ * Configurações base do body
+ * A fonte Inter é carregada via Google Fonts no HTML
+ */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    /* Antialiasing para texto mais suave */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Previne scroll horizontal indesejado */
+    overflow-x: hidden;
+}
+
+/* ============================================================================
+   SEÇÃO 2: TIPOGRAFIA
+   ============================================================================ */
+
+/**
+ * Espaçamento entre letras para títulos
+ * Melhora a legibilidade em fontes grandes
+ */
+h1,
+h2,
+h3 {
+    letter-spacing: -0.02em;
+}
+
+/**
+ * Line-height confortável para parágrafos longos
+ * Facilita a leitura de textos extensos
+ */
+p {
+    line-height: 1.7;
+}
+
+/**
+ * Estilo para texto com sombra
+ * Usado em títulos sobre fundos com imagens/gradientes
+ */
+.text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+}
+
+/* ============================================================================
+   SEÇÃO 3: GLASSMORPHISM
+   ============================================================================ */
+
+/**
+ * GLASSMORPHISM:
+ * Efeito visual moderno que simula vidro fosco/translúcido.
+ * Combina: fundo semi-transparente + blur (desfoque) + borda sutil
+ * 
+ * Suporte:
+ * - Chrome 76+, Firefox 103+, Safari 9+ (com prefixo), Edge 79+
+ * - Fallback: fundo sólido para navegadores antigos
+ */
+
+/**
+ * Vidro padrão (sutil)
+ * Usado em: cards, header, containers
+ */
+.glass {
+    /* Fundo branco com 3% de opacidade */
+    background: rgba(255, 255, 255, 0.03);
+    /* Desfoque do conteúdo atrás do elemento - 12px de intensidade */
+    backdrop-filter: blur(12px);
+    /* Prefixo para Safari */
+    -webkit-backdrop-filter: blur(12px);
+    /* Sombra suave para profundidade */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    /* Borda sutil para definir as bordas */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/**
+ * Vidro mais forte/opaco
+ * Usado em: modais, overlays, elementos que precisam de mais destaque
+ */
+.glass-strong {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/**
+ * Vidro escuro
+ * Usado em: header quando scrollado, elementos que precisam contraste
+ */
+.glass-dark {
+    background: rgba(11, 17, 32, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+/* ============================================================================
+   SEÇÃO 4: ANIMAÇÕES
+   ============================================================================ */
+
+/**
+ * ANIMAÇÃO: Pulse Glow (Brilho Pulsante)
+ * Usada no botão principal de acesso ao Zoom
+ * Cria um efeito de "chamada para ação" que atrai o olhar
+ */
+@keyframes pulse-glow {
+    0% {
+        /* Estado inicial: sem sombra extra, tamanho normal */
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+        transform: scale(1);
+    }
+
+    70% {
+        /* Meio da animação: sombra expandida, leve aumento */
+        box-shadow: 0 0 0 20px rgba(56, 189, 248, 0);
+        transform: scale(1.02);
+    }
+
+    100% {
+        /* Retorna ao estado inicial */
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+        transform: scale(1);
+    }
+}
+
+/**
+ * Classe para aplicar a animação de pulse
+ * Duração: 2 segundos, repete infinitamente
+ */
+.btn-pulse {
+    animation: pulse-glow 2s infinite;
+}
+
+/**
+ * ANIMAÇÃO: Pulse Lento
+ * Versão mais suave do pulse, usada em indicadores de status
+ */
+@keyframes pulse-slow {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.pulse-slow {
+    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/**
+ * ANIMAÇÃO: Float (Flutuação)
+ * Cria um movimento suave de subida e descida
+ * Usado em elementos decorativos
+ */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.float-slow {
+    animation: float 6s ease-in-out infinite;
+}
+
+/**
+ * ANIMAÇÃO: Fade In (Aparecer Suave)
+ * Usado para elementos que aparecem quando entram na viewport
+ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+/**
+ * ANIMAÇÃO: Shimmer (Brilho Deslizante)
+ * Efeito de "loading" ou destaque em elementos
+ */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* ============================================================================
+   SEÇÃO 5: COMPONENTES
+   ============================================================================ */
+
+/**
+ * COMPONENTE: Sombra com Brilho (Glow)
+ * Adiciona um brilho colorido ao redor do elemento
+ */
+.shadow-glow {
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+}
+
+.shadow-glow-yellow {
+    box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
+}
+
+/**
+ * COMPONENTE: Gradiente de Texto
+ * Aplica um gradiente como cor do texto
+ * Requer: background-clip: text e text-fill-color: transparent
+ */
+.gradient-text {
+    background: linear-gradient(135deg, #38bdf8 0%, #facc15 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/**
+ * COMPONENTE: Card com Hover
+ * Adiciona efeito de elevação ao passar o mouse
+ */
+.card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/**
+ * COMPONENTE: Borda Gradiente
+ * Cria uma borda com gradiente usando pseudo-elemento
+ */
+.border-gradient {
+    position: relative;
+}
+
+.border-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    background: linear-gradient(135deg, #38bdf8, #facc15);
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+/* ============================================================================
+   SEÇÃO 6: UTILITÁRIOS
+   ============================================================================ */
+
+/**
+ * SCROLLBAR CUSTOMIZADA
+ * Estiliza a barra de rolagem para combinar com o tema escuro
+ * Funciona em navegadores baseados em WebKit (Chrome, Edge, Safari)
+ */
+
+/* Largura da scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+/* Fundo da track (trilha) */
+::-webkit-scrollbar-track {
+    background: #0B1120;
+}
+
+/* Thumb (o "botão" que você arrasta) */
+::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 5px;
+    border: 2px solid #0B1120;
+}
+
+/* Thumb ao passar o mouse */
+::-webkit-scrollbar-thumb:hover {
+    background: #38bdf8;
+}
+
+/**
+ * SELEÇÃO DE TEXTO
+ * Muda as cores quando o usuário seleciona texto
+ * Já definido inline no HTML via Tailwind, mas mantido aqui como fallback
+ */
+::selection {
+    background-color: #facc15;
+    color: #0B1120;
+}
+
+::-moz-selection {
+    background-color: #facc15;
+    color: #0B1120;
+}
+
+/**
+ * Remove outline padrão e adiciona um mais bonito
+ * Mantém acessibilidade (foco visível) com estilo customizado
+ */
+*:focus {
+    outline: none;
+}
+
+*:focus-visible {
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+}
+
+/**
+ * Esconde elementos visualmente mas mantém acessível para leitores de tela
+ */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ============================================================================
+   SEÇÃO 7: RESPONSIVIDADE
+   ============================================================================ */
+
+/**
+ * Ajustes para telas pequenas (mobile)
+ * max-width: 640px corresponde ao breakpoint 'sm' do Tailwind
+ */
+@media (max-width: 640px) {
+
+    /* Reduz o blur em mobile para melhor performance */
+    .glass {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* Desativa animação de pulse em mobile (economia de bateria) */
+    .btn-pulse {
+        animation: none;
+    }
+
+    /* Adiciona uma sombra estática no lugar */
+    .btn-pulse:active {
+        transform: scale(0.98);
+    }
+}
+
+/**
+ * Preferência do usuário: Movimento Reduzido
+ * Respeita configurações do sistema operacional para usuários
+ * sensíveis a animações
+ */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/* ============================================================================
+   SEÇÃO 8: ACESSIBILIDADE
+   ============================================================================ */
+
+/**
+ * Alto contraste para links
+ * Garante que links sejam distinguíveis mesmo para usuários
+ * com deficiências visuais
+ */
+a:not([class]) {
+    color: #38bdf8;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+a:not([class]):hover {
+    color: #facc15;
+}
+
+/**
+ * Skip link para navegação por teclado
+ * Permite que usuários pulem direto para o conteúdo principal
+ */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #facc15;
+    color: #0B1120;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    z-index: 9999;
+    transition: top 0.3s;
+}
+
+.skip-link:focus {
+    top: 1rem;
+}
+
+/* ============================================================================
+   FIM DO ARQUIVO
+   ============================================================================ */
