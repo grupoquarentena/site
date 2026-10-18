@@ -1,0 +1,5 @@
+# Arquivos usados dentro de containers Linux exigem terminacao LF,
+# independentemente de core.autocrlf no Windows.
+*.sh text eol=lf
+docker/** text eol=lf
+.dockerignore text eol=lf

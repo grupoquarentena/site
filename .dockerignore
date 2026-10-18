@@ -1,0 +1,15 @@
+.git
+.gitignore
+.agents
+.claude
+.opencode
+.tools
+_bmad
+_bmad-output
+design-artifacts
+docs
+reviews
+skills
+tmp
+*.log
+*.tmp

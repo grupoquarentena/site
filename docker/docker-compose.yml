@@ -1,0 +1,32 @@
+# =============================================================================
+# Arquivo historico do site do Grupo QuarenteNA (MVP 2026) -- TESTE LOCAL
+# =============================================================================
+# Objeto arquivado: nunca foi publicado em producao e nao deve ser publicado.
+#
+# Uso, a partir da raiz do repositorio:
+#   docker compose -f docker/docker-compose.yml up --build
+# Acesso local: http://127.0.0.1:8080 (somente loopback)
+# Testes no container:
+#   docker compose -f docker/docker-compose.yml exec app php /var/www/site/tests/run.php
+# =============================================================================
+
+name: quarentena-site
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: quarentena-site:local
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      # Codigo do acervo montado somente-leitura; tmp/ e o unico diretorio
+      # gravavel (contadores agregados do analytics, descartaveis).
+      - ../public:/var/www/site/public:ro
+      - ../app:/var/www/site/app:ro
+      - ../tests:/var/www/site/tests:ro
+      - ../tmp:/var/www/site/tmp
+    environment:
+      # Mantem o relogio real: SITE_TEST_NOW so tem efeito com APP_ENV=test.
+      APP_ENV: development
