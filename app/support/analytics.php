@@ -2,52 +2,115 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/external_links.php';
+
+/** @return list<string> */
+function valid_track_events(): array
+{
+    return ['meeting_cta_click', 'whatsapp_click', 'report_click', 'support_directory_click'];
+}
+
+function is_valid_track_event(string $event): bool
+{
+    return in_array($event, valid_track_events(), true);
+}
+
+function analytics_storage_file(): string
+{
+    return dirname(__DIR__, 2) . '/tmp/analytics.json';
+}
+
+/**
+ * Incrementa um contador agregado e anonimo (sem identificadores pessoais).
+ * Leitura, incremento e escrita acontecem sob o mesmo flock() exclusivo,
+ * de modo que requisicoes concorrentes nao percam cliques.
+ */
 function track_event(string $event): void
 {
-    $validEvents = ['meeting_cta_click', 'whatsapp_click', 'report_click', 'support_directory_click'];
-
-    if (!in_array($event, $validEvents, true)) {
+    if (!is_valid_track_event($event)) {
         return;
     }
 
-    $storageFile = dirname(__DIR__, 2) . '/tmp/analytics.json';
+    $storageFile = analytics_storage_file();
     $dir = dirname($storageFile);
 
-    if (!is_dir($dir)) {
-        @mkdir($dir, 0755, true);
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
+        return;
     }
 
-    $data = [];
+    $handle = @fopen($storageFile, 'c+');
 
-    if (is_file($storageFile)) {
-        $raw = @file_get_contents($storageFile);
+    if ($handle === false) {
+        return;
+    }
 
-        if (is_string($raw)) {
+    try {
+        if (!flock($handle, LOCK_EX)) {
+            return;
+        }
+
+        rewind($handle);
+        $raw = stream_get_contents($handle);
+        $data = [];
+
+        if (is_string($raw) && $raw !== '') {
             $decoded = json_decode($raw, true);
 
             if (is_array($decoded)) {
                 $data = $decoded;
             }
         }
+
+        $data[$event] = ((int) ($data[$event] ?? 0)) + 1;
+
+        if (!isset($data['_first_event_at'])) {
+            $data['_first_event_at'] = date('c');
+        }
+
+        $data['_last_event_at'] = date('c');
+
+        $encoded = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        if (is_string($encoded)) {
+            ftruncate($handle, 0);
+            rewind($handle);
+            fwrite($handle, $encoded . "\n");
+            fflush($handle);
+        }
+
+        flock($handle, LOCK_UN);
+    } finally {
+        fclose($handle);
     }
-
-    $data[$event] = ($data[$event] ?? 0) + 1;
-
-    if (!isset($data['_first_event_at'])) {
-        $data['_first_event_at'] = date('c');
-    }
-
-    $data['_last_event_at'] = date('c');
-
-    @file_put_contents($storageFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n", LOCK_EX);
 }
 
-function tracked_url(string $url, string $event): string
+/**
+ * Monta a URL de medicao por identificador de recurso.
+ * O destino real e resolvido em track.php a partir do contrato; nenhuma URL
+ * arbitraria trafega pela pagina.
+ */
+function tracked_url(string $target, string $event): string
 {
-    $base = 'track.php';
-    $encoded = urlencode($url);
+    return 'track.php?event=' . rawurlencode($event) . '&target=' . rawurlencode($target);
+}
 
-    return "{$base}?event={$event}&redirect={$encoded}";
+/**
+ * Valida a requisicao de medicao por completo antes de registrar qualquer
+ * evento: evento conhecido, alvo conhecido e destino resolvido pelo contrato.
+ */
+function resolve_track_request(array $contract, string $event, string $target): ?string
+{
+    if (!is_valid_track_event($event)) {
+        return null;
+    }
+
+    $destination = resolve_tracked_target($contract, $target);
+
+    if ($destination === null || filter_var($destination, FILTER_VALIDATE_URL) === false) {
+        return null;
+    }
+
+    return $destination;
 }
 
 function launch_checklist(): array
@@ -75,38 +138,49 @@ function launch_checklist(): array
     ];
 }
 
-function validate_launch_readiness(): array
+/**
+ * Avalia o checklist apenas com as evidencias informadas pelo chamador.
+ * Sem evidencia explicita, o item fica 'pending' — nenhum estado e aprovado
+ * por constante. O MVP historico nunca foi publicado em producao.
+ *
+ * @param array<string, mixed> $evidence Mapa id do item => true/'ok' | false/'fail'
+ */
+function validate_launch_readiness(array $evidence = []): array
 {
     $checks = launch_checklist()['items'];
     $results = [];
 
-    $autoChecks = [
-        'LCH-03' => true,
-        'LCH-06' => true,
-        'LCH-07' => true,
-        'LCH-08' => true,
-        'LCH-11' => true,
-    ];
-
     foreach ($checks as $check) {
-        $auto = $autoChecks[$check['id']] ?? null;
+        $state = $evidence[$check['id']] ?? null;
+
+        if ($state === true || $state === 'ok') {
+            $status = 'ok';
+        } elseif ($state === false || $state === 'fail') {
+            $status = 'fail';
+        } else {
+            $status = 'pending';
+        }
 
         $results[] = [
             'id' => $check['id'],
             'item' => $check['item'],
             'category' => $check['category'],
-            'status' => $auto === true ? 'ok' : ($auto === false ? 'fail' : 'manual'),
+            'status' => $status,
         ];
     }
 
-    $okCount = count(array_filter($results, static fn (array $r): bool => $r['status'] === 'ok'));
-    $manualCount = count(array_filter($results, static fn (array $r): bool => $r['status'] === 'manual'));
+    $statuses = array_column($results, 'status');
+    $okCount = count(array_filter($statuses, static fn (string $status): bool => $status === 'ok'));
+    $failCount = count(array_filter($statuses, static fn (string $status): bool => $status === 'fail'));
+    $pendingCount = count(array_filter($statuses, static fn (string $status): bool => $status === 'pending'));
 
     return [
-        'ready' => $results !== [] && !in_array('fail', array_column($results, 'status'), true),
+        'ready' => $results !== [] && $failCount === 0 && $pendingCount === 0 && $okCount === count($results),
         'total' => count($results),
         'ok' => $okCount,
-        'manual' => $manualCount,
+        'fail' => $failCount,
+        'pending' => $pendingCount,
+        'note' => 'O MVP historico nunca foi publicado em producao; o resultado reflete apenas as evidencias informadas nesta chamada.',
         'items' => $results,
     ];
 }

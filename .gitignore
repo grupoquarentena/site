@@ -1,13 +1,17 @@
-# IA
-.agents
-.claude
-.opencode
-.tools
+# Ferramentas locais de agentes de IA (nunca versionar)
+.agents/
+.claude/
+.opencode/
+.tools/
 
-#BMAD
-_bmad*
-design*
-docs*
+# Instalacao local do BMAD.
+# Os artefatos historicos versionados em _bmad-output/ nao entram nesta exclusao.
+_bmad/
+_bmad-tools/
 
-#TMP
+# Rascunhos locais de design e documentacao (nunca versionados neste repositorio)
+design/
+docs/
+
+# Artefatos de execucao local (ex.: contadores agregados do analytics)
 tmp/

@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 return [
     'hero' => [
-        'eyebrow' => 'Ponto oficial da reunião online',
-        'lead' => 'A reunião online do Grupo QuarenteNA acontece aqui. Confira os dados e entre quando se sentir pronto.',
-        'welcome_message' => 'Se você está chegando agora, respire. A entrada é simples e as informações principais estão logo abaixo.',
+        'eyebrow' => 'Registro histórico — MVP 2026',
+        'lead' => 'Esta é a referência histórica do aplicativo desenvolvido entre março e maio de 2026 para o Grupo QuarenteNA. O MVP nunca foi publicado em produção e não possui agenda de reunião ativa.',
+        'welcome_message' => 'Se você está chegando agora: este registro não agenda reuniões. Para buscar ajuda, use o diretório oficial de Narcóticos Anônimos nos recursos de apoio.',
         'cta_label' => 'Entrar na reunião',
-        'trust_note' => 'O botão principal leva diretamente à sala da reunião. Recursos de apoio aparecem mais abaixo.',
-        'surface_label' => 'Canal oficial do grupo',
-        'surface_copy' => 'A reunião principal fica concentrada neste endereço. Os dados críticos continuam em uma única fonte de atualização.',
+        'cta_disabled_label' => 'Sem reunião ativa',
+        'cta_disabled_note' => 'MVP arquivado — apenas referência histórica',
+        'trust_note' => 'O botão principal só aparece quando há uma sala validada na fonte única. Neste arquivamento, nenhum dado operacional de reunião está publicado.',
     ],
     'support_links' => [
         'eyebrow' => 'Apoio complementar',
         'title' => 'Recursos externos aprovados',
-        'lead' => 'Se algum recurso externo estiver ausente, a reunião principal continua sendo o caminho prioritário desta página.',
+        'lead' => 'O diretório oficial de NA segue disponível. Relatório e WhatsApp permanecem ocultos enquanto não estiverem configurados e aprovados.',
     ],
     'about_na' => [
         'eyebrow' => 'O que é NA',

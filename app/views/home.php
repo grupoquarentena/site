@@ -6,8 +6,8 @@ $escape = static fn (mixed $value): string => htmlspecialchars((string) $value, 
 $site = $viewData['site'] ?? [];
 $siteName = $escape($site['name'] ?? 'Grupo QuarenteNA');
 
-$metaDescription = 'Ponto oficial da reunião online do Grupo QuarenteNA de Narcóticos Anônimos. '
-    . 'Horário, ID, senha e tipo da reunião disponíveis em um único lugar. '
+$metaDescription = 'Registro histórico do MVP do Grupo QuarenteNA de Narcóticos Anônimos (março–maio de 2026). '
+    . 'O projeto nunca foi publicado em produção e este aplicativo não agenda reuniões. '
     . 'Acolhimento direto, sem JavaScript obrigatório.';
 ?>
 <!DOCTYPE html>
@@ -21,15 +21,14 @@ $metaDescription = 'Ponto oficial da reunião online do Grupo QuarenteNA de Narc
     <meta property="og:description" content="<?= $escape($metaDescription) ?>">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="pt_BR">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://quarentena.na.org.br/">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="assets/css/home.css">
 </head>
 <body class="home-body">
     <a class="skip-link" href="#main-content">Pular para o conteúdo principal</a>
     <header class="site-header" aria-label="Identificação do site">
         <p class="site-header__mark">Grupo QuarenteNA</p>
-        <p class="site-header__context">Narcóticos Anônimos · reunião online</p>
+        <p class="site-header__context">Narcóticos Anônimos · registro histórico do MVP (2026)</p>
     </header>
     <main id="main-content" class="page-shell" role="main" aria-label="Conteúdo principal">
         <?php require __DIR__ . '/partials/hero_meeting_cta.php'; ?>
@@ -40,7 +39,7 @@ $metaDescription = 'Ponto oficial da reunião online do Grupo QuarenteNA de Narc
         <?php require __DIR__ . '/partials/support_links.php'; ?>
     </main>
     <footer class="site-footer" aria-label="Rodapé do site">
-        <p>Conteúdo público revisado para preservar anonimato. O caminho principal continua sendo o botão de entrada da reunião.</p>
+        <p>Registro histórico do MVP (março–maio de 2026). Este aplicativo nunca foi publicado em produção e não convida a entrar em reuniões.</p>
     </footer>
 </body>
 </html>

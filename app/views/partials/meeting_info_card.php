@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 $meeting = $viewData['meeting'];
 $meetingDisplay = $viewData['meeting_display'];
+$hasJoinUrl = ($meetingDisplay['has_join_url'] ?? false) === true;
 ?>
 <section class="meeting-card" aria-labelledby="meeting-card-title">
     <p class="meeting-card__eyebrow">Dados da reunião</p>
-    <h2 id="meeting-card-title" class="meeting-card__title">Informações essenciais antes de entrar</h2>
+    <h2 id="meeting-card-title" class="meeting-card__title"><?= $escape($hasJoinUrl ? 'Informações essenciais antes de entrar' : 'Informações históricas da reunião') ?></h2>
 
     <dl class="meeting-card__list">
         <div class="meeting-card__item meeting-card__item--status">

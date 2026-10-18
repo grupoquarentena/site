@@ -24,16 +24,7 @@ $timezone = (string) $contract['timezone'];
 $meeting = $contract['meeting'];
 $supportLinks = $contract['support_links'];
 
-$referenceNow = null;
-$testNow = getenv('SITE_TEST_NOW');
-
-if (is_string($testNow) && trim($testNow) !== '') {
-    try {
-        $referenceNow = new DateTimeImmutable($testNow, new DateTimeZone($timezone));
-    } catch (Throwable) {
-        $referenceNow = null;
-    }
-}
+$referenceNow = site_test_now(new DateTimeZone($timezone));
 
 $status = resolve_meeting_status($meeting, $timezone, $referenceNow);
 $meetingDisplay = present_meeting_details($meeting, $timezone, $status);

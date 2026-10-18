@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/meeting_contract.php';
+
 function present_support_links(array $supportLinks): array
 {
     $definitions = [
@@ -37,7 +39,7 @@ function present_support_links(array $supportLinks): array
 
         $url = trim($value);
 
-        if (!is_valid_support_link($url)) {
+        if (!is_valid_support_link($url, $key)) {
             continue;
         }
 
@@ -58,13 +60,86 @@ function present_support_links(array $supportLinks): array
     ];
 }
 
-function is_valid_support_link(string $url): bool
+/**
+ * Valida um link complementar por categoria.
+ * - directory: apenas o ecossistema oficial de NA (na.org.br / na.org);
+ * - report: apenas o ecossistema oficial de NA ate que um dominio alternativo
+ *   seja aprovado pela governanca editorial;
+ * - whatsapp: apenas convites oficiais do WhatsApp (chat.whatsapp.com / wa.me).
+ * Somente https, sem credenciais embutidas e sem porta alternativa.
+ */
+function is_valid_support_link(string $url, string $category): bool
 {
     if (filter_var($url, FILTER_VALIDATE_URL) === false) {
         return false;
     }
 
-    $scheme = parse_url($url, PHP_URL_SCHEME);
+    $parts = parse_url($url);
 
-    return in_array($scheme, ['http', 'https'], true);
+    if (!is_array($parts)) {
+        return false;
+    }
+
+    $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+    $host = strtolower((string) ($parts['host'] ?? ''));
+
+    if ($scheme !== 'https' || $host === '') {
+        return false;
+    }
+
+    if (isset($parts['user']) || isset($parts['pass'])) {
+        return false;
+    }
+
+    if (isset($parts['port']) && (int) $parts['port'] !== 443) {
+        return false;
+    }
+
+    $allowedHosts = support_link_host_allowlist($category);
+
+    return $allowedHosts !== [] && host_matches_allowlist($host, $allowedHosts);
+}
+
+/** @return list<string> */
+function support_link_host_allowlist(string $category): array
+{
+    switch ($category) {
+        case 'directory':
+        case 'report':
+            return ['na.org.br', 'na.org'];
+        case 'whatsapp':
+            return ['chat.whatsapp.com', 'wa.me'];
+        default:
+            return [];
+    }
+}
+
+/**
+ * Resolve o destino de um alvo de medicao a partir do contrato aprovado.
+ * Nunca aceita URLs arbitrarias: apenas identificadores de recurso conhecidos.
+ */
+function resolve_tracked_target(array $contract, string $target): ?string
+{
+    $meeting = $contract['meeting'] ?? [];
+    $supportLinks = $contract['support_links'] ?? [];
+
+    if ($target === 'meeting') {
+        $joinUrl = is_array($meeting) ? ($meeting['join_url'] ?? null) : null;
+
+        return is_string($joinUrl) && trim($joinUrl) !== '' ? trim($joinUrl) : null;
+    }
+
+    if (!array_key_exists($target, ['directory' => true, 'report' => true, 'whatsapp' => true])) {
+        return null;
+    }
+
+    $url = is_array($supportLinks) ? ($supportLinks[$target] ?? null) : null;
+
+    if (!is_string($url) || trim($url) === '') {
+        return null;
+    }
+
+    $url = trim($url);
+
+    return is_valid_support_link($url, $target) ? $url : null;
 }

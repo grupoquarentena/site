@@ -10,9 +10,9 @@ function operational_update_guide(): array
         'single_source' => 'app/data/meeting.php',
         'steps' => [
             ['order' => 1, 'action' => 'Abra app/data/meeting.php na raiz do projeto.'],
-            ['order' => 2, 'action' => 'Altere apenas o(s) campo(s) necessario(s): join_url, meeting_id, password, type, starts_at, ends_at, status, status_override.'],
+            ['order' => 2, 'action' => 'Estado arquivado: mantenha join_url, meeting_id, password, starts_at e ends_at como null. Para reativar uma reuniao, informe apenas valores validados (link HTTPS de dominio oficial do Zoom).'],
             ['order' => 3, 'action' => 'Salve o arquivo e faca deploy (commit + push / upload via FTP).'],
-            ['order' => 4, 'action' => 'Abra a home publica e confirme que o card da reuniao reflete os dados atualizados.'],
+            ['order' => 4, 'action' => 'Abra a home publica e confirme que o card da reuniao reflete o estado atualizado.'],
             ['order' => 5, 'action' => 'Se houver duvida, execute php tests/run.php para validar o contrato antes de publicar.'],
         ],
         'rule' => 'Nenhuma informacao de reuniao deve ser editada fora de app/data/meeting.php.',
@@ -29,31 +29,46 @@ function verify_update_flow(array $contract): array
         $meeting = [];
     }
 
-    $requiredKeys = [
-        'meeting.join_url' => $meeting['join_url'] ?? null,
-        'meeting.meeting_id' => $meeting['meeting_id'] ?? null,
-        'meeting.password' => $meeting['password'] ?? null,
-        'meeting.type' => $meeting['type'] ?? null,
-        'meeting.starts_at' => $meeting['starts_at'] ?? null,
-        'meeting.ends_at' => $meeting['ends_at'] ?? null,
-        'meeting.updated_at' => $meeting['updated_at'] ?? null,
+    $fields = [
+        'meeting.type' => ['value' => $meeting['type'] ?? null, 'required' => true],
+        'meeting.updated_at' => ['value' => $meeting['updated_at'] ?? null, 'required' => true],
+        'meeting.join_url' => ['value' => $meeting['join_url'] ?? null, 'required' => false],
+        'meeting.meeting_id' => ['value' => $meeting['meeting_id'] ?? null, 'required' => false],
+        'meeting.password' => ['value' => $meeting['password'] ?? null, 'required' => false],
+        'meeting.starts_at' => ['value' => $meeting['starts_at'] ?? null, 'required' => false],
+        'meeting.ends_at' => ['value' => $meeting['ends_at'] ?? null, 'required' => false],
     ];
 
-    foreach ($requiredKeys as $label => $value) {
+    $requiredOk = true;
+
+    foreach ($fields as $label => $definition) {
+        $present = is_string($definition['value']) && trim($definition['value']) !== '';
+
+        if ($definition['required'] && !$present) {
+            $requiredOk = false;
+        }
+
+        if ($present) {
+            $message = "Campo '{$label}' preenchido.";
+        } elseif ($definition['required']) {
+            $message = "Campo obrigatorio '{$label}' ausente ou vazio.";
+        } else {
+            $message = "Campo opcional '{$label}' nao configurado (estado arquivado).";
+        }
+
         $checklist[] = [
             'field' => $label,
-            'present' => is_string($value) && trim($value) !== '',
-            'message' => (is_string($value) && trim($value) !== '')
-                ? "Campo '{$label}' preenchido."
-                : "Campo '{$label}' ausente ou vazio.",
+            'required' => $definition['required'],
+            'present' => $present,
+            'message' => $message,
         ];
     }
 
     return [
         'title' => 'Verificacao do Fluxo de Atualizacao',
-        'passed' => !in_array(false, array_column($checklist, 'present'), true),
+        'passed' => $requiredOk,
         'checks' => $checklist,
-        'note' => 'Se todos os campos estao preenchidos, o fluxo da fonte unica esta integro.',
+        'note' => 'Os campos operacionais (link, ID, senha e agenda) sao opcionais no estado arquivado; apenas os campos obrigatorios precisam estar preenchidos.',
     ];
 }
 

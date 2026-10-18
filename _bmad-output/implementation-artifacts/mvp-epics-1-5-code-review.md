@@ -98,3 +98,14 @@ Recomendacao: tornar esses itens manuais ou executar verificacoes reais antes de
 ## Verificacao Executada
 
 `php tests/run.php` retornou `PASS: 225 verificacoes`.
+
+## Arquivamento (2026-10-18)
+
+O MVP foi arquivado na branch `legado/site-2026` (tag `site-2026-legado`), sem
+publicacao em producao. Neste arquivamento foram tratados os oito achados da
+issue #28: dados operacionais da reuniao removidos da fonte unica (link, ID e
+senha), CTA desativado, destinacao de cliques resolvida por identificador de
+contrato (sem open redirect), allowlists de dominio para Zoom e links de apoio,
+contador de cliques com locking, gate de relogio restrito a `APP_ENV=test`,
+checklist de prontidao apenas com evidencia explicita e `noindex` na pagina
+estatica. A suite foi ampliada e passou a reportar `PASS: 309 verificacoes`.

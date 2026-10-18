@@ -21,7 +21,7 @@ if (($supportSection['has_items'] ?? false) !== true) {
             <li class="support-links__item">
                 <a
                     class="support-links__link"
-                    href="<?= $escape($item['url']) ?>"
+                    href="<?= $escape(tracked_url($item['key'], $item['event'])) ?>"
                     rel="noopener noreferrer"
                     data-event="<?= $escape($item['event']) ?>"
                 >

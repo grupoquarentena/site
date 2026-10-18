@@ -205,6 +205,16 @@ a {
     transform: scale(0.97);
 }
 
+.hero__cta--disabled,
+.hero__cta--disabled:hover,
+.hero__cta--disabled:active {
+    margin: 0;
+    background: var(--color-surface-soft);
+    color: var(--color-text-primary);
+    cursor: not-allowed;
+    transform: none;
+}
+
 .hero__cta-label,
 .hero__cta-context {
     display: block;
@@ -310,6 +320,12 @@ a {
 .meeting-status-pill--mais-tarde-hoje,
 .meeting-status-pill--proxima-reuniao {
     border-color: var(--color-accent);
+}
+
+.meeting-status-pill--sem-agenda-ativa {
+    border-color: var(--color-text-secondary);
+    background: var(--color-surface-soft);
+    color: var(--color-text-primary);
 }
 
 .meeting-card__meta {

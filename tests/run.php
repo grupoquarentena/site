@@ -6,6 +6,8 @@ require_once dirname(__DIR__) . '/app/support/meeting_status.php';
 require_once dirname(__DIR__) . '/app/support/meeting_contract.php';
 require_once dirname(__DIR__) . '/app/support/meeting_presenter.php';
 require_once dirname(__DIR__) . '/app/support/external_links.php';
+require_once dirname(__DIR__) . '/app/support/editorial_governance.php';
+require_once dirname(__DIR__) . '/app/support/analytics.php';
 
 $failures = 0;
 $assertions = 0;
@@ -33,37 +35,55 @@ $assertSame(
     'O contrato deve expor apenas as chaves principais esperadas.'
 );
 
-$assertTrue(isset($contract['meeting']['join_url']), 'O contrato deve incluir o link principal da reunião.');
 $assertTrue(isset($contract['meeting']['title']), 'O contrato deve incluir o titulo da reuniao.');
-$assertTrue(isset($contract['meeting']['meeting_id']), 'O contrato deve incluir o ID da reunião.');
-$assertTrue(isset($contract['meeting']['password']), 'O contrato deve incluir a senha da reunião.');
+$assertTrue(array_key_exists('join_url', $contract['meeting']), 'O contrato deve incluir a chave do link principal.');
+$assertSame(null, $contract['meeting']['join_url'], 'No arquivamento, o link da reuniao nao pode conter dado operacional real.');
+$assertTrue(array_key_exists('meeting_id', $contract['meeting']), 'O contrato deve incluir a chave do ID da reuniao.');
+$assertSame(null, $contract['meeting']['meeting_id'], 'No arquivamento, o ID da reuniao nao pode conter dado operacional real.');
+$assertTrue(array_key_exists('password', $contract['meeting']), 'O contrato deve incluir a chave da senha da reuniao.');
+$assertSame(null, $contract['meeting']['password'], 'No arquivamento, a senha da reuniao nao pode conter dado operacional real.');
 $assertTrue(isset($contract['meeting']['type']), 'O contrato deve incluir o tipo da reunião.');
-$assertTrue(isset($contract['meeting']['starts_at']), 'O contrato deve incluir starts_at.');
-$assertTrue(isset($contract['meeting']['ends_at']), 'O contrato deve incluir ends_at.');
-$assertTrue(array_key_exists('status', $contract['meeting']), 'O contrato deve incluir status.');
-$assertTrue(array_key_exists('status_override', $contract['meeting']), 'O contrato deve incluir status_override.');
+$assertTrue(array_key_exists('starts_at', $contract['meeting']), 'O contrato deve incluir starts_at.');
+$assertSame(null, $contract['meeting']['starts_at'], 'No arquivamento, starts_at nao pode reutilizar a ocorrencia historica como proxima reuniao.');
+$assertTrue(array_key_exists('ends_at', $contract['meeting']), 'O contrato deve incluir ends_at.');
+$assertSame(null, $contract['meeting']['ends_at'], 'No arquivamento, ends_at nao pode reutilizar a ocorrencia historica como proxima reuniao.');
+$assertSame('sem agenda ativa', $contract['meeting']['status'], 'A fonte unica deve declarar explicitamente a ausencia de agenda operacional.');
+$assertSame('sem agenda ativa', $contract['meeting']['status_override'], 'O override deve permanecer sincronizado com o status arquivado.');
 $assertTrue(isset($contract['meeting']['updated_at']), 'O contrato deve incluir updated_at.');
 $assertTrue(array_key_exists('directory', $contract['support_links']), 'O contrato deve incluir o link de diretório.');
- $assertTrue(is_file(dirname(__DIR__) . '/public/assets/css/home.css'), 'A home deve expor um CSS dedicado em public/assets/css.');
+$assertTrue(is_file(dirname(__DIR__) . '/public/assets/css/home.css'), 'A home deve expor um CSS dedicado em public/assets/css.');
+
+$meetingSource = (string) file_get_contents(dirname(__DIR__) . '/app/data/meeting.php');
+$assertTrue(!str_contains($meetingSource, 'zoom.us'), 'A fonte unica nao pode conter URL de reuniao.');
+$assertTrue(!str_contains($meetingSource, 'pwd='), 'A fonte unica nao pode conter parametros de sala.');
 
 $validatedContract = validate_meeting_contract($contract);
 $assertSame('America/Sao_Paulo', $validatedContract['timezone'], 'O contrato valido deve preservar o timezone oficial.');
-$assertSame(null, $validatedContract['meeting']['status'], 'Sem override manual, o contrato validado deve permitir calculo automatico do status.');
+$assertSame('sem agenda ativa', $validatedContract['meeting']['status'], 'O estado arquivado explicito deve sobreviver a validacao.');
+$assertSame(null, $validatedContract['meeting']['join_url'], 'O link nulo deve ser aceito de forma explicita pelo contrato.');
 
 $meetingDisplay = present_meeting_details(
     $validatedContract['meeting'],
     $validatedContract['timezone'],
     [
-        'label' => 'mais tarde hoje',
-        'slug' => 'mais-tarde-hoje',
+        'label' => 'sem agenda ativa',
+        'slug' => 'sem-agenda-ativa',
     ]
 );
-$assertSame('mais tarde hoje', $meetingDisplay['status_label'], 'A apresentacao da reuniao deve preservar o rotulo canonico do status para exibicao.');
-$assertSame('mais-tarde-hoje', $meetingDisplay['status_slug'], 'A apresentacao da reuniao deve propagar o slug do status.');
-$assertTrue($meetingDisplay['schedule_label'] !== '', 'A apresentacao da reuniao deve formatar o horario em um unico rotulo legivel.');
-$assertSame($validatedContract['meeting']['meeting_id'], $meetingDisplay['meeting_id_label'], 'A apresentacao da reuniao deve expor o ID vindo da fonte unica.');
-$assertSame($validatedContract['meeting']['password'], $meetingDisplay['password_label'], 'A apresentacao da reuniao deve expor a senha vinda da fonte unica.');
+$assertSame('sem agenda ativa', $meetingDisplay['status_label'], 'A apresentacao da reuniao deve preservar o rotulo canonico do status para exibicao.');
+$assertSame('sem-agenda-ativa', $meetingDisplay['status_slug'], 'A apresentacao da reuniao deve propagar o slug do status.');
+$assertSame(false, $meetingDisplay['has_join_url'], 'Sem link configurado, o presenter deve indicar ausencia de CTA de entrada.');
+$assertSame(null, $meetingDisplay['join_url'], 'Sem link configurado, o presenter nao deve inventar destino de reuniao.');
+$assertSame('Sem agenda publicada', $meetingDisplay['schedule_label'], 'Sem agenda, o horario deve comunicar a ausencia de agenda publicada.');
+$assertSame('Não divulgado', $meetingDisplay['meeting_id_label'], 'Sem dado operacional, o ID deve exibir placeholder de arquivamento.');
+$assertSame('Não divulgada', $meetingDisplay['password_label'], 'Sem dado operacional, a senha deve exibir placeholder de arquivamento.');
 $assertSame($validatedContract['meeting']['type'] === 'aberta' ? 'Aberta' : 'Fechada', $meetingDisplay['type_label'], 'A apresentacao da reuniao deve normalizar o tipo para exibicao.');
+
+$formattedSchedule = format_meeting_schedule(
+    new DateTimeImmutable('2026-03-24T19:30:00-03:00'),
+    new DateTimeImmutable('2026-03-24T20:00:00-03:00')
+);
+$assertSame('24/03, 19:30 as 20:00', $formattedSchedule, 'Com agenda valida configurada, o formato de horario historico deve ser preservado.');
 
 $manualStatus = resolve_meeting_status(
     ['status_override' => 'agora'],
@@ -127,6 +147,36 @@ $manualFallbackStatus = resolve_meeting_status(
 );
 $assertSame('manual', $manualFallbackStatus['source'], 'Quando a agenda nao for suficiente, o fallback manual deve continuar valido.');
 
+// Arquivamento: ausencia de agenda operacional e ocorrencia encerrada
+$archivedStatus = resolve_meeting_status(
+    ['starts_at' => null, 'ends_at' => null, 'status_override' => null],
+    'America/Sao_Paulo',
+    new DateTimeImmutable('2026-10-18T12:00:00-03:00')
+);
+$assertSame('sem agenda ativa', $archivedStatus['label'], 'Sem agenda configurada, o resolver deve representar a ausencia de agenda operacional.');
+$assertSame('sem-agenda-ativa', $archivedStatus['slug'], 'O estado sem agenda deve ter slug proprio.');
+$assertSame('automatic', $archivedStatus['source'], 'A ausencia de agenda e derivada do dado, nao de override manual.');
+
+$pastOccurrenceStatus = resolve_meeting_status(
+    [
+        'starts_at' => '2026-03-24T19:30:00-03:00',
+        'ends_at' => '2026-03-24T20:00:00-03:00',
+        'status_override' => null,
+    ],
+    'America/Sao_Paulo',
+    new DateTimeImmutable('2026-10-18T12:00:00-03:00')
+);
+$assertSame('sem agenda ativa', $pastOccurrenceStatus['label'], 'Uma ocorrencia encerrada nao pode ser anunciada como próxima reunião.');
+$assertSame('sem-agenda-ativa', $pastOccurrenceStatus['slug'], 'O estado de ocorrencia encerrada deve reutilizar o slug de ausencia de agenda.');
+
+$manualArchivedStatus = resolve_meeting_status(
+    ['status_override' => 'sem agenda ativa'],
+    'America/Sao_Paulo',
+    new DateTimeImmutable('2026-10-18T12:00:00-03:00')
+);
+$assertSame('sem agenda ativa', $manualArchivedStatus['label'], 'O rotulo de arquivamento deve ser aceito como override manual valido.');
+$assertSame('manual', $manualArchivedStatus['source'], 'O override de arquivamento deve ter precedencia manual.');
+
 $supportSectionWithoutLinks = present_support_links([
     'whatsapp' => null,
     'report' => null,
@@ -149,6 +199,37 @@ $supportSectionWithInvalidLink = present_support_links([
     'directory' => null,
 ]);
 $assertSame(false, $supportSectionWithInvalidLink['has_items'], 'Links complementares malformados devem ser ignorados para fail-soft.');
+
+// Validacao por categoria com allowlist de hostname
+$assertTrue(is_valid_support_link('https://www.na.org.br/virtual/', 'directory'), 'Diretorio oficial de NA deve ser aceito.');
+$assertTrue(is_valid_support_link('https://na.org/diretorio/', 'directory'), 'Diretorio internacional oficial de NA deve ser aceito.');
+$assertTrue(!is_valid_support_link('https://example.com/na', 'directory'), 'Destino generico nao pode ser aceito como diretorio oficial.');
+$assertTrue(!is_valid_support_link('https://www.na.org.br.evil.example.com/virtual/', 'directory'), 'Host que imita o dominio oficial nao pode contornar a allowlist.');
+$assertTrue(!is_valid_support_link('http://www.na.org.br/virtual/', 'directory'), 'Esquema http deve ser rejeitado nos recursos externos.');
+$assertTrue(!is_valid_support_link('https://user@www.na.org.br/virtual/', 'directory'), 'URL com credenciais embutidas deve ser rejeitada.');
+$assertTrue(!is_valid_support_link('https://www.na.org.br:8443/virtual/', 'directory'), 'Porta alternativa deve ser rejeitada nos recursos externos.');
+$assertTrue(is_valid_support_link('https://chat.whatsapp.com/abc123', 'whatsapp'), 'Convite oficial do WhatsApp deve ser aceito.');
+$assertTrue(is_valid_support_link('https://wa.me/5500000000000', 'whatsapp'), 'Contato direto oficial do WhatsApp deve ser aceito.');
+$assertTrue(!is_valid_support_link('https://chat.whatsapp.com.evil.example.com/abc', 'whatsapp'), 'Host que imita o WhatsApp nao pode contornar a allowlist.');
+$assertTrue(!is_valid_support_link('https://evil.example.com/invite', 'whatsapp'), 'WhatsApp fora do dominio oficial deve ser bloqueado.');
+$assertTrue(is_valid_support_link('https://www.na.org.br/relatorio/', 'report'), 'Relatorio publicado no ecossistema oficial de NA deve ser aceito.');
+$assertTrue(!is_valid_support_link('https://docs.google.com/document/d/000', 'report'), 'Relatorio em dominio sem aprovacao editorial deve ser bloqueado.');
+$assertTrue(!is_valid_support_link('https://www.na.org.br/virtual/', 'ignorado'), 'Categoria desconhecida nao pode aceitar nenhum host.');
+
+$blockedSupport = present_support_links([
+    'whatsapp' => 'https://evil.example.com/invite',
+    'report' => 'https://docs.google.com/document/d/000',
+    'directory' => 'http://www.na.org.br/virtual/',
+]);
+$assertSame(false, $blockedSupport['has_items'], 'Links de apoio fora da governanca editorial devem ser omitidos por completo.');
+
+$allowedReport = present_support_links([
+    'whatsapp' => null,
+    'report' => 'https://www.na.org.br/relatorio/',
+    'directory' => null,
+]);
+$assertSame(true, $allowedReport['has_items'], 'Relatorio no ecossistema oficial de NA deve ser aceito quando configurado.');
+$assertSame('report', $allowedReport['items'][0]['key'], 'O relatorio configurado deve preservar sua chave de identificacao.');
 
 $viewData = [
     'support_section' => $supportSectionWithoutLinks,
@@ -189,12 +270,68 @@ try {
     $assertTrue(true, 'Agenda parcial sem override deve disparar excecao.');
 }
 
+$openContractInput = [
+    'timezone' => 'America/Sao_Paulo',
+    'meeting' => array_merge($contract['meeting'], [
+        'join_url' => 'https://us02web.zoom.us/j/0000000000',
+        'meeting_id' => '000 000 000',
+        'password' => '000000',
+    ]),
+    'support_links' => $contract['support_links'],
+];
+$openContract = validate_meeting_contract($openContractInput);
+$assertSame('https://us02web.zoom.us/j/0000000000', $openContract['meeting']['join_url'], 'URL https de subdominio oficial do Zoom deve ser aceita no contrato.');
+
+$invalidJoinUrls = [
+    'http://zoom.us/j/000' => 'esquema http',
+    'https://zoom.evil.example.com/j/000' => 'dominio nao autorizado',
+    'https://zoom.us.evil.example.com/j/000' => 'dominio parecido com o oficial',
+    'https://example.com/j/000' => 'destino generico',
+    'join-url-malformada' => 'URL malformada',
+    'https://user:senha@zoom.us/j/000' => 'credenciais embutidas',
+];
+
+foreach ($invalidJoinUrls as $invalidJoinUrl => $reason) {
+    try {
+        validate_meeting_contract(array_merge($openContractInput, [
+            'meeting' => array_merge($openContractInput['meeting'], ['join_url' => $invalidJoinUrl]),
+        ]));
+        $assertTrue(false, 'join_url invalida deve disparar excecao (' . $reason . ').');
+    } catch (RuntimeException) {
+        $assertTrue(true, 'join_url invalida deve disparar excecao (' . $reason . ').');
+    }
+}
+
+$openDisplay = present_meeting_details(
+    $openContract['meeting'],
+    'America/Sao_Paulo',
+    ['label' => 'próxima reunião', 'slug' => 'proxima-reuniao']
+);
+$assertSame(true, $openDisplay['has_join_url'], 'Com link validado no contrato, o presenter deve habilitar o CTA.');
+$assertSame('000 000 000', $openDisplay['meeting_id_label'], 'Com dado configurado, o presenter deve exibir o ID.');
+$assertSame('000000', $openDisplay['password_label'], 'Com dado configurado, o presenter deve exibir a senha.');
+
+// Gate de ambiente para o relogio de teste
+$testTimezone = new DateTimeZone('America/Sao_Paulo');
+putenv('APP_ENV=test');
 putenv('SITE_TEST_NOW=2026-03-24T19:45:00-03:00');
+$referenceNow = site_test_now($testTimezone);
+$assertTrue($referenceNow instanceof DateTimeImmutable, 'Com APP_ENV=test, SITE_TEST_NOW deve ser aplicado.');
+$assertSame('2026-03-24 19:45', $referenceNow instanceof DateTimeImmutable ? $referenceNow->format('Y-m-d H:i') : null, 'O relogio de teste deve respeitar SITE_TEST_NOW.');
+
+putenv('APP_ENV=production');
+$assertSame(null, site_test_now($testTimezone), 'Fora de APP_ENV=test, SITE_TEST_NOW deve ser ignorado.');
+putenv('APP_ENV=test');
+putenv('SITE_TEST_NOW=valor-invalido');
+$assertSame(null, site_test_now($testTimezone), 'SITE_TEST_NOW invalido deve ser ignorado com seguranca.');
+putenv('SITE_TEST_NOW=2026-03-24T19:45:00-03:00');
+
 $viewData = require dirname(__DIR__) . '/app/bootstrap.php';
 $assertTrue(isset($viewData['meeting_status']['label']), 'O bootstrap deve preparar o status da reunião.');
-$assertSame($meetingDisplay['schedule_label'], $viewData['meeting_display']['schedule_label'], 'O bootstrap deve propagar o horario formatado do card principal.');
+$assertSame('sem agenda ativa', $viewData['meeting_status']['label'], 'O bootstrap deve propagar o estado arquivado da fonte unica.');
+$assertSame('manual', $viewData['meeting_status']['source'], 'O estado arquivado e explicito na fonte unica (override manual).');
+$assertSame('Sem agenda publicada', $viewData['meeting_display']['schedule_label'], 'O bootstrap deve propagar a ausencia de agenda publicada.');
 $assertSame('America/Sao_Paulo', $viewData['site']['timezone'], 'O bootstrap deve propagar o timezone do contrato.');
-$assertSame('agora', $viewData['meeting_status']['label'], 'O bootstrap deve resolver o status automaticamente no timezone oficial.');
 $assertTrue(isset($viewData['home_content']['hero']['cta_label']), 'O bootstrap deve carregar o conteudo da home.');
 $assertSame(true, $viewData['support_section']['has_items'], 'O bootstrap deve preparar a secao complementar quando houver link aprovado.');
 
@@ -205,19 +342,27 @@ $assertTrue(str_contains($renderedHtml, '<h1 id="hero-title" class="hero__title"
 $assertTrue(str_contains($renderedHtml, 'class="skip-link"'), 'A home deve incluir skip link visivel ao foco.');
 $assertTrue(str_contains($renderedHtml, 'href="assets/css/home.css"'), 'A home deve carregar o CSS dedicado.');
 $assertTrue(str_contains($renderedHtml, 'id="main-content"'), 'A home deve expor landmark principal com id navegavel.');
-$assertSame(1, substr_count($renderedHtml, 'class="hero__cta"'), 'A home deve renderizar exatamente um CTA primario.');
-$assertTrue(str_contains($renderedHtml, 'href="' . $contract['meeting']['join_url'] . '"'), 'O CTA deve consumir o join_url vindo da fonte unica.');
+$assertSame(
+    1,
+    substr_count($renderedHtml, 'class="hero__cta"') + substr_count($renderedHtml, 'hero__cta hero__cta--disabled'),
+    'A home deve renderizar exatamente um CTA primario (ativo ou desabilitado para arquivamento).'
+);
+$assertTrue(str_contains($renderedHtml, 'hero__cta--disabled'), 'Sem sala configurada, o CTA deve aparecer desabilitado em vez de convidar para uma reuniao inexistente.');
+$assertTrue(!str_contains($renderedHtml, 'zoom.us'), 'A home arquivada nao pode expor destinos de reuniao.');
+$assertTrue(!str_contains($renderedHtml, 'pwd='), 'A home arquivada nao pode expor parametros de sala.');
+$assertTrue(!str_contains($renderedHtml, 'track.php?event=meeting_cta_click'), 'Sem reuniao ativa, nenhum clique ficticio de reuniao pode ser criado.');
 $assertTrue(str_contains($renderedHtml, $contract['meeting']['title']), 'O CTA e a home devem expor o titulo vindo da fonte unica.');
 $assertTrue(str_contains($renderedHtml, 'class="meeting-card"'), 'A home deve renderizar um card dedicado para os dados da reuniao.');
 $assertTrue(str_contains($renderedHtml, 'aria-labelledby="meeting-card-title"'), 'O card deve expor uma relacao semantica clara com seu titulo.');
+$assertTrue(str_contains($renderedHtml, 'Informações históricas da reunião'), 'O card deve comunicar o contexto de arquivamento.');
 $assertTrue(str_contains($renderedHtml, '>Horário</dt>'), 'O card deve rotular o horario da reuniao.');
 $assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['schedule_label'] . '</dd>'), 'O card deve exibir o horario formatado no mesmo bloco visual.');
-$assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['meeting_id_label'] . '</dd>'), 'O card deve exibir o meeting ID vindo da fonte unica.');
-$assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['password_label'] . '</dd>'), 'O card deve exibir a senha vinda da fonte unica.');
+$assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['meeting_id_label'] . '</dd>'), 'O card deve exibir o placeholder de ID no arquivamento.');
+$assertTrue(str_contains($renderedHtml, '>' . $meetingDisplay['password_label'] . '</dd>'), 'O card deve exibir o placeholder de senha no arquivamento.');
 $assertTrue(str_contains($renderedHtml, $meetingDisplay['type_label']), 'O card deve exibir o tipo da reuniao.');
-$assertSame(1, substr_count($renderedHtml, '>' . $meetingDisplay['meeting_id_label'] . '<'), 'O meeting ID nao deve ser duplicado fora do bloco principal.');
+$assertSame(1, substr_count($renderedHtml, '>' . $meetingDisplay['meeting_id_label'] . '<'), 'O ID nao deve ser duplicado fora do bloco principal.');
 $assertSame(1, substr_count($renderedHtml, '>' . $meetingDisplay['password_label'] . '<'), 'A senha nao deve ser duplicada fora do bloco principal.');
-$assertTrue(str_contains($renderedHtml, 'rel="noopener noreferrer"'), 'O CTA externo deve proteger a navegacao.');
+$assertTrue(str_contains($renderedHtml, 'rel="noopener noreferrer"'), 'Os links externos devem proteger a navegacao.');
 $assertTrue(!str_contains($renderedHtml, '<script'), 'A home nao deve depender de JavaScript obrigatorio.');
 
 // Story 1.3: Tipo e elegibilidade
@@ -228,13 +373,14 @@ $assertTrue(str_contains($renderedHtml, $meetingDisplay['type_description']), 'O
 
 // Story 1.4: Status da reuniao
 $assertTrue(str_contains($renderedHtml, '>Status</dt>'), 'O card deve rotular o status da reuniao.');
-$assertTrue(str_contains($renderedHtml, 'class="meeting-status-pill meeting-status-pill--agora"'), 'O card deve exibir o estado atual com pill dedicada.');
-$assertTrue(str_contains($renderedHtml, 'agora'), 'A home deve exibir exatamente um estado visivel da reuniao no bloco principal.');
+$assertTrue(str_contains($renderedHtml, 'class="meeting-status-pill meeting-status-pill--sem-agenda-ativa"'), 'O card deve exibir o estado arquivado com pill dedicada.');
+$assertTrue(str_contains($renderedHtml, 'sem agenda ativa'), 'A home deve exibir o estado de ausencia de agenda no bloco principal.');
 
 // Story 1.5: Resiliencia a falhas externas
 $assertTrue(str_contains($renderedHtml, 'class="support-links"'), 'A home deve renderizar uma secao complementar secundaria quando houver recurso externo aprovado.');
 $assertTrue(str_contains($renderedHtml, 'Diretório e outras reuniões'), 'A secao complementar deve expor o recurso externo disponivel sem competir com o CTA principal.');
 $assertTrue(str_contains($renderedHtml, 'data-event="support_directory_click"'), 'A secao complementar deve sinalizar o evento agregado do link de apoio.');
+$assertTrue(str_contains($renderedHtml, 'href="track.php?event=support_directory_click&amp;target=directory"'), 'A secao complementar deve medir o clique via tracked_url com destino por identificador.');
 
 // Story 2.1: Mensagem curta de acolhimento
 $assertTrue(isset($viewData['home_content']['hero']['welcome_message']), 'O bootstrap deve expor a mensagem curta de acolhimento.');
@@ -300,7 +446,7 @@ $viewData = array_merge($viewData, [
 ob_start();
 require dirname(__DIR__) . '/app/views/home.php';
 $renderedHtmlWithoutSupport = (string) ob_get_clean();
-$assertTrue(str_contains($renderedHtmlWithoutSupport, 'class="hero__cta"'), 'Mesmo sem links externos, o CTA principal deve continuar renderizado.');
+$assertTrue(str_contains($renderedHtmlWithoutSupport, 'hero__cta'), 'Mesmo sem links externos, o bloco do CTA principal deve continuar renderizado.');
 $assertTrue(str_contains($renderedHtmlWithoutSupport, 'class="meeting-card"'), 'Mesmo sem links externos, o card principal deve continuar renderizado.');
 $assertTrue(!str_contains($renderedHtmlWithoutSupport, 'class="support-links"'), 'Sem links externos validos, a secao complementar deve desaparecer sem quebrar a home.');
 
@@ -310,14 +456,14 @@ $assertTrue(str_contains($css, '--color-accent'), 'O CSS da home deve declarar o
 $assertTrue(str_contains($css, '.skip-link:focus-visible'), 'O CSS da home deve estilizar o estado de foco do skip link.');
 $assertTrue(str_contains($css, '.meeting-card__item'), 'O CSS da home deve estilizar o card de dados da reuniao.');
 $assertTrue(str_contains($css, '.meeting-status-pill'), 'O CSS da home deve estilizar a pill de status da reuniao.');
+$assertTrue(str_contains($css, '.meeting-status-pill--sem-agenda-ativa'), 'O CSS deve estilizar o estado de ausencia de agenda.');
+$assertTrue(str_contains($css, '.hero__cta--disabled'), 'O CSS deve estilizar o CTA desabilitado do arquivamento.');
 $assertTrue(str_contains($css, '.support-links__link'), 'O CSS da home deve estilizar a secao complementar de apoio.');
 $assertTrue(str_contains($css, '.hero__welcome'), 'O CSS da home deve estilizar o bloco curto de acolhimento.');
 $assertTrue(str_contains($css, '.info-section'), 'O CSS da home deve estilizar o bloco O que e NA.');
 $assertTrue(str_contains($css, '.info-section--group'), 'O CSS da home deve estilizar o bloco sobre o grupo.');
 $assertTrue(str_contains($css, '.meeting-types-grid'), 'O CSS da home deve estilizar o bloco aberta versus fechada.');
 $assertTrue(str_contains($css, '.info-section--history'), 'O CSS da home deve estilizar o bloco de historia do grupo.');
-
-require_once dirname(__DIR__) . '/app/support/editorial_governance.php';
 
 // Story 4.2: Fluxo Manual de Atualizacao Operacional
 $updateGuide = operational_update_guide();
@@ -328,15 +474,34 @@ $assertTrue(str_contains($updateGuide['rule'], 'app/data/meeting.php'), 'O guia 
 $assertTrue(str_contains($updateGuide['warning'], '/admin'), 'O guia deve alertar que o MVP nao possui painel administrativo.');
 
 $flowCheck = verify_update_flow($validatedContract);
-$assertTrue($flowCheck['passed'], 'O fluxo de atualizacao deve passar com um contrato valido.');
+$assertTrue($flowCheck['passed'], 'O fluxo de atualizacao deve passar no estado arquivado (somente campos obrigatorios sao exigidos).');
 $assertSame(7, count($flowCheck['checks']), 'O verificador deve inspecionar todos os campos criticos do contrato.');
-$assertSame('meeting.join_url', $flowCheck['checks'][0]['field'], 'O verificador deve inspecionar join_url imediatamente.');
-$assertTrue($flowCheck['checks'][0]['present'], 'O verificador deve confirmar que join_url esta preenchido.');
+
+$flowFields = array_column($flowCheck['checks'], 'field');
+$assertTrue(in_array('meeting.join_url', $flowFields, true), 'O verificador deve inspecionar join_url.');
+$assertTrue(in_array('meeting.updated_at', $flowFields, true), 'O verificador deve inspecionar updated_at.');
+
+$joinUrlCheck = null;
+$updatedAtCheck = null;
+
+foreach ($flowCheck['checks'] as $check) {
+    if ($check['field'] === 'meeting.join_url') {
+        $joinUrlCheck = $check;
+    }
+
+    if ($check['field'] === 'meeting.updated_at') {
+        $updatedAtCheck = $check;
+    }
+}
+
+$assertTrue(is_array($joinUrlCheck) && $joinUrlCheck['present'] === false, 'join_url nulo deve ser reportado como ausente no estado arquivado.');
+$assertTrue(is_array($joinUrlCheck) && $joinUrlCheck['required'] === false, 'join_url deve ser opcional no fluxo da fonte unica arquivada.');
+$assertTrue(is_array($updatedAtCheck) && $updatedAtCheck['present'] === true && $updatedAtCheck['required'] === true, 'updated_at deve ser obrigatorio e estar presente.');
 
 $brokenContract = $validatedContract;
-$brokenContract['meeting']['join_url'] = '  ';
+$brokenContract['meeting']['updated_at'] = '  ';
 $flowCheckBroken = verify_update_flow($brokenContract);
-$assertTrue(!$flowCheckBroken['checks'][0]['present'], 'Campo em branco deve ser reportado como ausente pelo verificador.');
+$assertTrue(!$flowCheckBroken['passed'], 'Campo obrigatorio em branco deve reprovar o fluxo de atualizacao.');
 
 // Story 4.3: Checklist de Anonimato para Conteudo Publico
 $checklist = anonymity_checklist();
@@ -464,6 +629,8 @@ $assertTrue(str_contains($renderedSupportSection, 'support-links__external-indic
 $assertTrue(str_contains($renderedSupportSection, 'aria-hidden="true"'), 'Indicador externo deve ser oculto para leitores de tela.');
 $assertTrue(!str_contains($renderedSupportSection, 'support-links__member-context'), 'Link sem contexto de membro nao deve renderizar bloco de contexto.');
 $assertTrue(str_contains($renderedSupportSection, 'Diretório e outras reuniões'), 'A secao complementar deve expor o rotulo amigavel do diretorio.');
+$assertTrue(str_contains($renderedSupportSection, 'href="track.php?event=support_directory_click&amp;target=directory"'), 'A secao complementar deve medir o clique via tracked_url com destino por identificador.');
+$assertTrue(!str_contains($renderedSupportSection, 'redirect='), 'A renderizacao nao pode reintroduzir redirecionamento aberto.');
 
 $viewData['support_section'] = present_support_links(['whatsapp' => 'https://chat.whatsapp.com/abc123', 'report' => null, 'directory' => null]);
 ob_start();
@@ -471,14 +638,13 @@ require dirname(__DIR__) . '/app/views/partials/support_links.php';
 $renderedWhatsApp = (string) ob_get_clean();
 $assertTrue(str_contains($renderedWhatsApp, 'support-links__member-context'), 'WhatsApp deve renderizar bloco de contexto de membro.');
 $assertTrue(str_contains($renderedWhatsApp, 'participantes recorrentes'), 'Contexto de membro do WhatsApp deve mencionar participantes.');
+$assertTrue(str_contains($renderedWhatsApp, 'href="track.php?event=whatsapp_click&amp;target=whatsapp"'), 'O WhatsApp configurado deve ser medido via tracked_url.');
 $viewData['support_section'] = $prevSupportSection;
 
 // CSS para indicador externo
 $css = (string) file_get_contents(dirname(__DIR__) . '/public/assets/css/home.css');
 $assertTrue(str_contains($css, '.support-links__external-indicator'), 'O CSS deve estilizar o indicador de link externo.');
 $assertTrue(str_contains($css, '.support-links__member-context'), 'O CSS deve estilizar o bloco de contexto de membro.');
-
-require_once dirname(__DIR__) . '/app/support/analytics.php';
 
 // Story 5.1: SEO e Semantica da Home
 ob_start();
@@ -488,8 +654,8 @@ $assertTrue(str_contains($seoHtml, '<meta name="description"'), 'A home deve inc
 $assertTrue(str_contains($seoHtml, '<meta property="og:title"'), 'A home deve incluir Open Graph title.');
 $assertTrue(str_contains($seoHtml, '<meta property="og:description"'), 'A home deve incluir Open Graph description.');
 $assertTrue(str_contains($seoHtml, '<meta property="og:type" content="website"'), 'A home deve declarar og:type website.');
-$assertTrue(str_contains($seoHtml, '<meta name="robots" content="index, follow"'), 'A home deve permitir indexacao por mecanismos de busca.');
-$assertTrue(str_contains($seoHtml, '<link rel="canonical"'), 'A home deve incluir link canonical.');
+$assertTrue(str_contains($seoHtml, '<meta name="robots" content="noindex, nofollow"'), 'A home arquivada deve bloquear indexacao acidental.');
+$assertTrue(!str_contains($seoHtml, 'rel="canonical"'), 'A home arquivada nao deve declarar canonical de dominio publico.');
 $assertTrue(str_contains($seoHtml, '<title>'), 'A home deve ter title tag preenchido.');
 $assertSame(1, substr_count($seoHtml, '<title>'), 'A home deve ter exatamente um title tag.');
 
@@ -503,7 +669,8 @@ $assertTrue(str_contains($seoHtml, 'charset="UTF-8"'), 'A home deve declarar cha
 $assertTrue(str_contains($seoHtml, '<meta name="viewport"'), 'A home deve declarar viewport para responsividade mobile.');
 
 // Story 5.3: Analytics Agregado e Anonimo
-$storageFile = dirname(__DIR__) . '/tmp/analytics.json';
+$storageFile = analytics_storage_file();
+
 if (is_file($storageFile)) {
     unlink($storageFile);
 }
@@ -524,10 +691,77 @@ $data3 = json_decode((string) file_get_contents($storageFile), true);
 $assertTrue(!isset($data3['evento_invalido']), 'Eventos nao registrados devem ser ignorados.');
 $assertSame(2, $data3['meeting_cta_click'] ?? 0, 'Evento invalido nao deve afetar contadores validos.');
 
-$tracked = tracked_url('https://zoom.us/j/example', 'meeting_cta_click');
+$hasOnlyAggregateKeys = true;
+foreach (array_keys($data3) as $dataKey) {
+    if (!is_valid_track_event((string) $dataKey) && !str_starts_with((string) $dataKey, '_')) {
+        $hasOnlyAggregateKeys = false;
+    }
+}
+$assertTrue($hasOnlyAggregateKeys, 'O arquivo de analytics so pode conter contadores agregados e metadados internos, sem identificadores.');
+
+$assertTrue(is_valid_track_event('meeting_cta_click'), 'Eventos conhecidos devem ser aceitos pelo validador.');
+$assertTrue(!is_valid_track_event('../etc/passwd'), 'Eventos desconhecidos nao podem ser aceitos.');
+
+$tracked = tracked_url('meeting', 'meeting_cta_click');
 $assertTrue(str_contains($tracked, 'track.php'), 'URL rastreada deve apontar para track.php.');
 $assertTrue(str_contains($tracked, 'event=meeting_cta_click'), 'URL rastreada deve incluir o parametro event.');
-$assertTrue(str_contains($tracked, 'redirect='), 'URL rastreada deve incluir o parametro redirect.');
+$assertTrue(str_contains($tracked, 'target=meeting'), 'URL rastreada deve identificar o recurso por chave, nao por URL arbitraria.');
+$assertTrue(!str_contains($tracked, 'redirect='), 'Nenhum parametro de redirecionamento aberto deve permanecer.');
+
+// Resolucao de destinos por identificador a partir do contrato
+$assertSame(null, resolve_track_request($validatedContract, 'meeting_cta_click', 'meeting'), 'Sem reuniao configurada, o destino de reuniao nao pode ser resolvido nem medido.');
+$assertSame('https://www.na.org.br/virtual/', resolve_track_request($validatedContract, 'support_directory_click', 'directory'), 'Destinos aprovados devem ser resolvidos pelo contrato por identificador.');
+$assertSame(null, resolve_track_request($validatedContract, 'support_directory_click', 'https://evil.example.com'), 'URLs arbitrarias nao podem ser aceitas como alvo.');
+$assertSame(null, resolve_track_request($validatedContract, 'meeting_cta_click', '../etc/passwd'), 'Alvo desconhecido nao pode resolver destino.');
+$assertSame(null, resolve_track_request($validatedContract, 'evento_invalido', 'directory'), 'Evento invalido nao pode registrar nem resolver destino.');
+$assertSame(null, resolve_track_request($validatedContract, 'meeting_cta_click', 'whatsapp'), 'Alvo nao configurado nao pode resolver destino.');
+$assertSame('https://us02web.zoom.us/j/0000000000', resolve_track_request($openContract, 'meeting_cta_click', 'meeting'), 'Com sala validada no contrato, o destino de reuniao pode ser medido.');
+
+if (is_file($storageFile)) {
+    unlink($storageFile);
+}
+
+// Concorrencia: varios processos incrementando o mesmo contador com flock
+$workerCount = 4;
+$incrementsPerWorker = 25;
+
+if (function_exists('proc_open')) {
+    $workerCode = 'require ' . var_export(dirname(__DIR__) . '/app/support/analytics.php', true) . ';'
+        . 'for ($i = 0; $i < ' . $incrementsPerWorker . '; $i++) { track_event("whatsapp_click"); }';
+
+    $workerProcesses = [];
+
+    for ($worker = 0; $worker < $workerCount; $worker++) {
+        $descriptors = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
+        $process = proc_open([PHP_BINARY, '-r', $workerCode], $descriptors, $pipes);
+
+        if (is_resource($process)) {
+            $workerProcesses[] = [$process, $pipes];
+        }
+    }
+
+    $assertSame($workerCount, count($workerProcesses), 'O teste de concorrencia deve iniciar todos os processos de incremento.');
+
+    foreach ($workerProcesses as [$process, $pipes]) {
+        foreach ($pipes as $pipe) {
+            if (is_resource($pipe)) {
+                stream_get_contents($pipe);
+                fclose($pipe);
+            }
+        }
+
+        proc_close($process);
+    }
+
+    $concurrentData = json_decode((string) file_get_contents($storageFile), true);
+    $assertSame(
+        $workerCount * $incrementsPerWorker,
+        $concurrentData['whatsapp_click'] ?? 0,
+        'Incrementos concorrentes nao podem ser perdidos pelo contador agregado com flock.'
+    );
+} else {
+    $assertTrue(false, 'proc_open indisponivel: o teste de concorrencia do contador precisa ser executado.');
+}
 
 if (is_file($storageFile)) {
     unlink($storageFile);
@@ -542,9 +776,27 @@ $assertTrue(count($checklist['categories']) >= 4, 'O checklist deve cobrir multi
 
 $readiness = validate_launch_readiness();
 $assertTrue($readiness['total'] > 0, 'A validacao de readiness deve inspecionar itens.');
-$assertTrue($readiness['ok'] >= 4, 'Pelo menos 4 itens devem ser validaveis automaticamente.');
-$assertTrue($readiness['ready'], 'Nenhum item automatico deve falhar no estado atual.');
-$assertTrue($readiness['manual'] > 0, 'Alguns itens devem exigir verificacao manual.');
+$assertSame(0, $readiness['ok'], 'Sem evidencias informadas, nenhum item pode constar como aprovado.');
+$assertSame(0, $readiness['fail'], 'Sem evidencias informadas, nenhum item pode constar como reprovado.');
+$assertSame($readiness['total'], $readiness['pending'], 'Sem evidencias informadas, todos os itens devem ficar pendentes.');
+$assertTrue(!$readiness['ready'], 'O MVP historico, nunca publicado, nao pode constar como pronto para producao.');
+
+$fullEvidence = [];
+foreach ($readiness['items'] as $readinessItem) {
+    $fullEvidence[$readinessItem['id']] = 'ok';
+}
+$readinessWithEvidence = validate_launch_readiness($fullEvidence);
+$assertTrue($readinessWithEvidence['ready'], 'Com evidencia explicita para todos os itens, a validacao pode confirmar o conjunto.');
+$assertSame(0, $readinessWithEvidence['pending'], 'Com evidencias completas, nao deve restar pendencia.');
+
+$partialEvidence = validate_launch_readiness(['LCH-11' => 'ok']);
+$assertTrue(!$partialEvidence['ready'], 'Evidencia parcial nao deve declarar readiness.');
+$assertSame(1, $partialEvidence['ok'], 'Somente itens com evidencia explicita podem constar como ok.');
+$assertSame($partialEvidence['total'] - 1, $partialEvidence['pending'], 'Itens sem evidencia devem permanecer pendentes.');
+
+$failedEvidence = validate_launch_readiness(['LCH-12' => 'fail']);
+$assertTrue(!$failedEvidence['ready'], 'Item reprovado explicitamente deve bloquear o readiness.');
+$assertSame(1, $failedEvidence['fail'], 'O item reprovado deve ser contabilizado.');
 
 if ($failures > 0) {
     exit(1);
