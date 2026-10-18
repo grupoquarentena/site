@@ -3,13 +3,13 @@ title: "UX Design — Grupo QuarenteNA"
 project: Grupo QuarenteNA — Plataforma Web
 artifact: ux-design
 method: "BMAD 6.12.4 — DESIGN + EXPERIENCE em especificação única"
-status: "PROJETO DE UX DERIVADO DO BRIEF E PRD APROVADOS; testes com usuários a executar"
-date: "2026-10-17"
+status: "APROVADO PELO RESPONSÁVEL DO PROJETO; validação de usabilidade durante homologação"
+date: "2026-10-18"
 ---
 
 # UX Design — Site e Administração do Grupo QuarenteNA
 
-> **Origem normativa:** [`ProductBrief.md`](ProductBrief.md) e [`PRD.md`](PRD.md), ambos **APROVADOS**. Inventário operacional: [`QuarenteNA.md`](QuarenteNA.md). **Este documento é uma proposta de UX**, não um protótipo validado. Mantém em um único Markdown a visão **DESIGN** (visual) e **EXPERIENCE** (comportamento) que o workflow oficial `bmad-ux` 6.12.4 normalmente produz em dois arquivos distintos. O template Laravel não define a aparência final.
+> **Origem normativa:** [`ProductBrief.md`](ProductBrief.md) e [`PRD.md`](PRD.md), ambos **APROVADOS**. Inventário operacional: [`QuarenteNA.md`](QuarenteNA.md). **UX VALIDADO E APROVADO pelo responsável do projeto.** Protótipos e testes de usabilidade com servidores permanecem como atividades de homologação da implementação; a aprovação documental não os substitui. Mantém em um único Markdown a visão **DESIGN** (visual) e **EXPERIENCE** (comportamento) que o workflow oficial `bmad-ux` 6.12.4 normalmente produz em dois arquivos distintos. O template Laravel não define a aparência final.
 
 ## 1. Experiência desejada
 
@@ -20,16 +20,36 @@ A plataforma terá duas experiências distintas: **entrada pública simples e ac
 | Recém-chegado | Encontrar reunião e entender se pode participar | Localiza link, horário, tipo e orientações sem cadastro | `RF-PUBLICO-001…005` |
 | Participante recorrente | Entrar imediatamente | Consegue acessar Zoom sem percorrer outras páginas | `RF-PUBLICO-002` |
 | Secretário do dia | Preencher e corrigir a ata | Usa fluxo guiado, rascunho, conferência e envio no celular | `RF-ATA-001…025` |
-| Mesa/servidores | Consultar serviço e decisões | Encontra escalas, vagas, decisões e histórico | `RF-SERVIDORES-*`, `RF-ATASERVICO-*` |
-| Tesouraria | Conferir lançamentos e saldo | Concilia ASAAS e transações manuais com trilha | `RF-TESOURARIA-*` |
+| Mesa/servidores | Consultar serviço e decisões | Encontra escalas, vagas, decisões e histórico, conforme mandato vigente | `RF-SERVIDORES-*`, `RF-ATASERVICO-*` |
+| Tesouraria | Conferir lançamentos e saldo | ASAAS e manuais contabilizados diretamente; Tesoureiro corrige divergências com trilha | `RF-TESOURARIA-*` |
 | Kit ingresso | Atender remessas com sigilo | Resolve endereço, remessa e rastreio com acesso restrito | `RF-KIT-*` |
 | Administrador técnico | Manter sistema saudável | Enxerga jobs, integrações, incidentes, backup e auditoria | `RF-ADMINISTRACAO-*`, `RF-BACKUP-*` |
+
+
+### Estrutura de servidores e responsabilidades aprovada
+
+O grupo possui **seis encargos de mesa** e, separadamente, dois **moderadores escalados por reunião**. Um cargo na mesa não equivale a uma função exercida na reunião diária.
+
+| Encargo na mesa | Responsabilidade | Autorização institucional predominante |
+|---|---|---|
+| Coordenador Geral | Coordenação geral, supervisão administrativa, apoio a todos os serviços | Administração funcional/técnica e gestão de acessos; **não edita tesouraria nem kit** |
+| Secretário Geral | Documentos, registros, atas mensais de serviço, acervo e apoio à administração técnica | Gestão documental, modelo editável de ata de serviço, administração funcional/técnica; **não edita tesouraria nem kit** |
+| Tesoureiro | Escrituração e movimentações financeiras, conferência de entradas/saídas | **Único encargo que cria, edita e exclui logicamente lançamentos financeiros**, com auditoria |
+| RSG | Representação do grupo perante NA e a sociedade | Consulta/ações de representação conforme designação; sem acesso financeiro ou aos dados do kit por padrão |
+| RSG Suplente | Auxílio e substituição do RSG | Permissões de representação durante substituição autorizada, sem privilégios administrativos implícitos |
+| Coordenador Kit Ingresso | Contato com ingressantes, montagem, envio e acompanhamento dos kits | **Único encargo com acesso operacional ao kit, telefones, endereços e remessas** |
+
+**Moderadores das reuniões regulares:** todos os dias, das **20h às 22h**, há uma dupla escalada. Ambos devem saber configurar a sala Zoom, coordenar pela fala e secretariar pelo chat. Em cada ocorrência, um atua como coordenador (partilhas, falas e avisos) e outro como secretário (chat, lista de partilhas, contagens e ata), mas **essas são funções intercambiáveis na escala, não dois encargos/mandatos independentes**. Se um faltar ou tiver dificuldade, o outro pode substituí-lo. Não confundir Coordenador Geral e Secretário Geral com essas funções temporárias.
+
+**Acesso dinâmico por encargo:** designação ativa concede apenas as capacidades daquele encargo; término do período revoga automaticamente; entrega/destituição/revogação manual por administrador é efetiva imediatamente. O histórico da designação, da concessão e da revogação é preservado. Uma designação expirada jamais pode ser usada para autorizar uma requisição, mesmo antes da execução do job de limpeza.
+
+**Conta `root` institucional:** acesso genérico de contingência, reservado à recuperação de acesso, gestão excepcional de administradores da mesa e manutenção/configuração de integrações. Não é conta de trabalho cotidiano nem substitui identidades pessoais; deve ter MFA, credencial sob guarda segura, justificativa de uso, alerta e registro de sessão com identificação do operador para rastreabilidade. Sessão `root` **não deve ser caminho normal de edição de tesouraria ou kit**.
 
 ### Princípios de interface
 
 | Prioridade | Princípio | Consequência no design |
 |---|---|---|
-| 1 | Anonimato e discrição | Nenhum nome/endereço de ingressante em visão pública ou em cartões globais |
+| 1 | Anonimato e discrição | Telefone, endereço, dados de contato e informações do kit nunca são públicos; primeiro nome/apelido de ingressante **pode aparecer** no relatório público autorizado de ingressos |
 | 2 | Reunião sempre encontrável | CTA principal único; não depender de script de terceiros para aparecer |
 | 3 | Economia de atenção | Menus por tarefa e funções realmente autorizadas; sem painel lotado |
 | 4 | Retomada segura | Rascunhos e estados persistentes; nunca confirmar envio que falhou |
@@ -77,15 +97,15 @@ flowchart TD
 | Entrada de menu | Exibir para | Prioridade móvel | Observação |
 |---|---|---|---|
 | Início | Todos com login | Alta | Próxima tarefa autorizada e avisos operacionais |
-| Preencher ata | Secretário/autorizados | Máxima | Atalho persistente e foco na ocorrência do dia |
+| Preencher ata | Dupla moderadora escalada e substituto autorizado | Máxima | Atribuição de função por ocorrência: coordenação na fala e secretaria no chat; ambos aptos a alternar |
 | Atas | Autorizados | Alta | Consulta, rascunhos, revisão e correções |
 | Encargos e vagas | Mesa/serviço | Alta | Escala, histórico e término |
-| Kit ingresso | Responsável kit | Alta | Pendências prioritárias, remessas, rastreio |
-| Tesouraria | Tesouraria/mesa autorizada | Alta | Conciliação, lançamentos e relatórios |
+| Kit ingresso | Coordenador Kit Ingresso com designação vigente | Alta | Tela integral exclusiva, contatos e endereços restritos |
+| Tesouraria | Tesoureiro com designação vigente | Alta | Edição exclusivamente do tesoureiro; gestão de valores sem rascunho de lançamento |
 | Reuniões de serviço | Serviço autorizado | Média | Pauta, ata, decisões, PDF |
 | Indicadores | Públicos ou restritos conforme política | Média | Agregações sem PII |
-| Configurações | Administradores autorizados | Baixa | Credenciais técnicas não devem aparecer para servidores comuns |
-| Auditoria / integrações | Administração técnica | Baixa | Páginas protegidas sem PII em logs |
+| Configurações | Coordenador Geral, Secretário Geral e root excepcional | Baixa | Configurar APIs, URL, webhook, rotinas e templates, com segredos mascarados e auditados |
+| Auditoria / integrações | Coordenador Geral, Secretário Geral e root excepcional | Baixa | Páginas protegidas; logs sem PII e marcação visível do executor |
 
 > O menu é **filtrado pela permissão**, mas o backend faz a verificação real em cada ação. Esconder item de menu não autoriza nem protege endpoints.
 
@@ -112,6 +132,22 @@ O site provisório e o planejamento antigo oferecem uma direção útil (azul pr
 
 **Grid e espaçamento:** sistema de 4/8/12/16/24/32/48px; coluna única para formulários móveis; cards de largura limitada no desktop; tabelas complexas com versão resumida em cards e opção de detalhar/baixar sem rolagem horizontal obrigatória para tarefas essenciais.
 
+### Identidade visual homologada e arquivos de origem
+
+A marca existente do Grupo QuarenteNA **deve ser preservada**: escudo, ave/águia, asas, azul predominante, amarelo e lettering conforme os originais CorelDRAW. As variantes fornecidas (`final BA`, `final amarelo`, `azul e branco`) são fontes de design; o screenshot é referência visual, **não arte-final vetorial**. Não propor um rebranding que substitua o símbolo do grupo. Aplicar a marca sobre fundo compatível e ajustar a paleta e espaçamentos do site **ao logotipo**, não o inverso.
+
+| Entrega de branding | Origem | Verificação indispensável |
+|---|---|---|
+| Original vetorial | Arquivos `.cdr` fornecidos | Preservar arquivos originais; confirmar fontes, objetos e direitos de uso |
+| SVG principal e variantes | Exportação/conversão do CDR | Revisão visual lado a lado: fontes, texto, alinhamento, cores e clip paths |
+| PNG web | Renderizar SVG homologado | Fundo transparente e nitidez em 1024/512/256/128/64 px |
+| Favicon | Versão compacta do escudo, sem lettering ilegível | Testes reais em 16/32/48 px e tema claro/escuro |
+| Uso no site/painel | Logo aprovada | Header desktop/mobile, login, rodapé e OpenGraph |
+
+**Nota de produção:** a importação automática dos CDR neste ambiente distorceu parte do texto, provavelmente por substituição de fontes. Os derivados entregues são **pré-visualizações técnicas**, não uma substituição fiel homologada do original. O SVG final deve ser revisado/corrigido em editor vetorial antes de publicação.
+
+**Arquivos de marca gerados:** `QuarenteNA-Marca/originais/` preserva os CDR; `png/` utiliza a prévia *incorporada dentro do próprio CDR* (aparência mais fiel do que exportação automática com fontes substituídas); `svg/*-previa-raster.svg` é **container SVG de PNG e não arte vetorial editável**; `svg/logo-bahia-conversao-vetorial-REVISAR.svg` contém conversão para vetores, mas **a tipografia precisa ser corrigida**; `favicon/` traz ICO e PNG pequenos provisórios. Esses ativos devem passar por homologação visual antes de integrar `public/` da aplicação.
+
 ### Comparação entre as duas superfícies
 
 | Característica | Página pública | Administração |
@@ -120,7 +156,7 @@ O site provisório e o planejamento antigo oferecem uma direção útil (azul pr
 | Navegação | Poucas âncoras; CTA único | Navegação por módulos e tarefas permitidas |
 | Cards | Agenda e informações essenciais | Pendências, rascunhos, alertas e filas |
 | Formulários | Mínimos ou ausentes | Assistidos, com validação e retomada |
-| Dados pessoais | Nunca expostos | Exibição sob finalidade/permissão |
+| Dados pessoais | Primeiro nome/apelido de ingressante autorizado pode ser exibido publicamente; nunca contato/endereço | Exibição sob finalidade/permissão |
 | Gráficos | Apenas agregados aprovados | Agregados + operações dentro da autorização |
 
 ## 4. Padrões de componentes
@@ -136,7 +172,7 @@ O site provisório e o planejamento antigo oferecem uma direção útil (azul pr
 | Banner de integração | Normal, degradado, indisponível, reprocessando | Distinguir falha do serviço externo de falha do banco |
 | Status de ata | Rascunho, enviada, revisada, corrigida, anulada | Texto e explicação; não apenas cor |
 | Status de kit | Verificar, falta endereço, falta enviar, enviado, recebido, devolvido, cancelado | Mudanças registram origem e autor |
-| Aviso financeiro | Pendente, conciliado, divergente, estornado | Dados de contribuinte não aparecem publicamente |
+| Aviso financeiro | Efetivado, divergência posterior, corrigido, estornado ou excluído logicamente | Não há rascunho de lançamento financeiro; dados do contribuinte não são públicos |
 | Gráfico | Sem dados, dados parciais, carregando, disponível | Eixos, unidades, período, fonte e tabela alternativa |
 
 ## 5. EXPERIENCE — fluxo principal da página pública
@@ -192,7 +228,7 @@ flowchart TD
 └────────────────────────────┘
 ```
 
-**Validação a realizar:** teste real em 360px, 375px, 768px, 1024px e 1440px; zoom de 200%; navegação apenas por teclado, sem JS; leitura por tecnologia assistiva.
+**Homologação complementar recomendada:** teste real em 360px, 375px, 768px, 1024px e 1440px; zoom de 200%; navegação apenas por teclado, sem JS; leitura por tecnologia assistiva.
 
 ## 6. EXPERIÊNCIA — ata regular pelo celular
 
@@ -260,11 +296,11 @@ flowchart TB
 
 | Tela / ação | Público autorizado | Dado exibido | Proteção |
 |---|---|---|---|
-| Fila de kits | Responsáveis e mesa conforme permissão | Status, pendência, dias de espera | Identificadores mínimos, sem endereço na listagem |
-| Detalhe do kit | Responsável kit | Contato/endereço, consentimento, remessa, observações | Autorização server-side, auditoria, campos sensíveis |
-| Registro de expedição | Responsável kit | Código de rastreio, data, transportadora, comprovante | Validar código e evitar repetição |
-| Eventos de rastreio | Responsável kit | Data, evento, cidade/UF e estado | Sem PII pública; histórico institucional |
-| Integração indisponível | Responsável kit | Última consulta e próximo retry | Atualização manual permitida e rastreável |
+| Fila de kits | Apenas Coordenador Kit Ingresso (mandato vigente) | Status, pendência, dias de espera | Sem acesso operacional da mesa por padrão |
+| Detalhe do kit | Apenas Coordenador Kit Ingresso | Contato/endereço, remessa e observações | Policy por usuário e encargo ativo; auditoria e criptografia |
+| Registro de expedição | Apenas Coordenador Kit Ingresso | Código de rastreio, data e comprovante | Validar código e evitar repetição |
+| Eventos de rastreio | Apenas Coordenador Kit Ingresso | Data, evento, cidade/UF e estado | Sem PII pública; histórico institucional |
+| Integração indisponível | Apenas Coordenador Kit Ingresso | Última consulta e próximo retry | Atualização manual permitida e rastreável |
 
 O rastreio é processado pelo projeto [correios-rastreamento](https://github.com/opastorello/correios-rastreamento). **A interface não chama a API externa diretamente do navegador**: Laravel consulta o serviço por rede privada e aplica suas autorizações.
 
@@ -272,23 +308,25 @@ O rastreio é processado pelo projeto [correios-rastreamento](https://github.com
 
 ```mermaid
 flowchart LR
-  A[ASAAS / registro manual] --> B[Pendente de conferência]
-  B --> C[Tesoureiro revisa categoria e valor]
-  C --> D{Conciliado?}
-  D -->|Não| E[Divergência / justificativa]
-  E --> C
-  D -->|Sim| F[Lançamento confirmado]
-  F --> G[Relatório restrito]
-  F --> H[Agregados públicos aprovados]
+  A[Webhook ASAAS validado] --> B[Idempotência + evento elegível]
+  B --> C[Lançamento imediato]
+  D[Tesoureiro: formulário manual] --> C
+  C --> E[Livro financeiro + auditoria]
+  E --> F[Relatório restrito]
+  E --> G[Agregados públicos autorizados]
+  E --> H{Divergência posterior?}
+  H -->|Sim| I[Tesoureiro corrige, estorna ou exclui logicamente]
+  I --> E
+  H -->|Não| F
 ```
 
 | Visualização | Público | Filtros | Restrições |
 |---|---|---|---|
 | Resumo financeiro público | Qualquer visitante | Período, categoria pública | Sem contribuinte, instrumento financeiro individual ou referência privada |
-| Conciliação | Tesouraria | Datas, origem ASAAS/manual, status, categoria | Mostra divergências e comparação de valores |
+| Gestão financeira | Apenas Tesoureiro para alterações | Datas, origem ASAAS/manual, categoria, histórico | Salvar publica o lançamento imediatamente; correções posteriores são auditadas |
 | Dashboard de ata | Mesa/serviço autorizado | Reunião, dia, horário, período | Contagens agregadas, sem rastrear indivíduos Zoom |
 | Quadro de encargos | Públicos/restritos conforme regra editorial | Data, encargo, reunião | Publicar apenas primeiro nome/apelido se autorizado |
-| Dados de visitantes/ingresso | Responsável de registro | Período, origem e total | Contatos limitados ao kit e prazo justificado |
+| Dados de visitantes/ingresso | Público: somente projeção aprovada; operadores conforme autorização | Período, origem, total, primeiro nome/apelido de ingressantes quando autorizado | Nunca incluir contato/endereço nem dados do kit |
 
 ### Especificações de gráficos
 
@@ -300,6 +338,31 @@ flowchart LR
 | Saldo financeiro | X=período; Y=valor e saldo | Lançamentos conciliados | Tabela de totais |
 | Kits por estado | Categorias de status e quantidade | Kits/remessas | Tabela status/quantidade |
 | Encargos | Ativos, vagos e próximos ao fim | Designações | Tabela de cargos e datas |
+
+### Gestão de templates, rotinas e configurações
+
+| Tela | Quem opera | Comportamento obrigatório |
+|---|---|---|
+| Integrações | Coordenador Geral, Secretário Geral; root excepcional | Host/URL/webhook, estado, últimos eventos, mascaramento de segredo, teste de conexão, rotação auditada |
+| Rotinas programadas | Administração funcional autorizada | Ativar/desativar, frequência, próximo disparo, última execução, retry, impedir duplo envio |
+| Modelos de mensagem | Administração funcional autorizada | Edição, variáveis permitidas, prévia sanitizada, aprovação e histórico de versões |
+| Conta root | Contingência | Tela separada com justificativa, operador identificado, aviso e encerramento de sessão emergencial |
+| Template da ata de serviço | Secretário Geral | Editar pauta, seções, texto padrão, gerar prévia/PDF, histórico do template |
+
+```mermaid
+sequenceDiagram
+  participant Mesa as Admin mesa
+  participant Sistema as Laravel
+  participant Usuario as Servidor
+  Mesa->>Sistema: Designa encargo e vigência
+  Sistema->>Sistema: Vincula capacidades pelo encargo
+  Usuario->>Sistema: Faz login pessoal
+  Sistema->>Sistema: Policy valida mandato ativo
+  Sistema-->>Usuario: Libera apenas menus/autorização do encargo
+  Mesa->>Sistema: Entrega ou destituição (ou prazo expira)
+  Sistema->>Sistema: Revoga acesso efetivo imediatamente
+  Sistema-->>Usuario: Próxima ação recebe 403
+```
 
 ## 9. Erros, privacidade e acessibilidade
 
@@ -333,9 +396,9 @@ flowchart LR
 | Teclado e leitores de tela | Executar rotas e formulários críticos | Ordem de foco/labels/erros coerentes |
 | Navegação responsiva | 360px e desktop | Tarefas concluíveis sem zoom ou rolagem horizontal essencial |
 
-## 11. Decisões de UX a homologar com usuários
+## 11. Detalhes para homologação prática durante a implementação
 
-O Brief e PRD estão **aprovados**. Os seguintes pontos são decisões de apresentação que exigem teste, não reabertura do escopo: identidade visual final/logo; contraste da paleta; disposição do menu; ordem exata das telas; quantidade de passos da ata; textos de validação; acessibilidade real; terminologia e permissões de visualização por encargo. Prototipar as telas críticas e confrontar com servidores em contexto real.
+O Brief e PRD estão **aprovados**. Os seguintes pontos são decisões de apresentação que exigem teste, não reabertura do escopo: correção técnica da exportação do CDR e contraste da paleta; disposição do menu; ordem exata das telas; quantidade de passos da ata; textos de validação; acessibilidade real; terminologia e permissões de visualização por encargo. Prototipar as telas críticas e confrontar com servidores em contexto real.
 
 ## 12. Vinculação ao método e às fontes
 

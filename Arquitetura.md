@@ -3,13 +3,13 @@ title: "Arquitetura — Grupo QuarenteNA"
 project: Grupo QuarenteNA — Plataforma Web
 artifact: architecture
 method: "BMAD 6.12.4 — Architecture Spine + detalhamento de dados"
-status: "PROPOSTA TÉCNICA DERIVADA DE DOCUMENTOS APROVADOS — implementação não executada"
-date: "2026-10-17"
+status: "APROVADO PELO RESPONSÁVEL DO PROJETO — implementação e schema físico ainda não executados"
+date: "2026-10-18"
 ---
 
 # Arquitetura — Grupo QuarenteNA
 
-> O **Brief**, o **PRD** e o **inventário QuarenteNA** estão **APROVADOS**. Este projeto de arquitetura concretiza essas decisões, mas o schema abaixo é **proposta lógica/física de referência**, não dump PostgreSQL gerado, migrations executadas ou homologação de produção. O código-fonte analisado foi o template em `main` na consulta de 17/10/2026; suas convenções deverão ser conferidas novamente no commit adotado pelo novo repositório.
+> O **Brief**, o **PRD** e o **inventário QuarenteNA** estão **APROVADOS**. Esta arquitetura **foi aprovada pelo responsável do projeto**, com os ajustes de governança e integrações descritos aqui. O schema abaixo é **proposta lógica/física de referência**, não dump PostgreSQL gerado, migrations executadas ou homologação de produção. O código-fonte analisado foi o template em `main` na consulta de 17/10/2026; suas convenções deverão ser conferidas novamente no commit adotado pelo novo repositório.
 
 ## 1. Objetivos, restrições e princípios
 
@@ -24,7 +24,7 @@ date: "2026-10-17"
 | Um grupo, não SaaS | **Um banco PostgreSQL institucional**, com esquema de domínio; fork parametrizável, sem multi-tenant |
 | Anonimato | Menor coleta necessária, isolamento dos dados pessoais e nenhuma vigilância individual de presença Zoom |
 | Continuidade | Fonte de verdade única, reconciliação, rollback, backup e restore testado |
-| Responsabilidade humana | Regras automáticas auxiliam, mas não revogam revisão/decisões de serviço |
+| Responsabilidade humana | Permissões derivadas de encargo vigente, auditoria e prestação de contas; decisões coletivas continuam humanas |
 
 ### Fronteira de evidência
 
@@ -105,44 +105,71 @@ flowchart TD
 | Auditoria | Snapshot mínimo redigido de antes/depois, autor, horário, ação, motivo | Salvar tokens, telefones/endereços em logs técnicos genéricos |
 | Contagens Zoom | Eventos efêmeros em área restrita; somente totais sugeridos para ata | Vincular evento automaticamente ao cadastro de pessoa |
 | Agendamentos | Definidos por ocorrência e fuso do grupo | Offset fixo ou horário duplicado em views |
-| Financeiro | Transação monetária atômica, idempotência ASAAS e conciliação | Alterar saldo manualmente sem evento de lançamento |
-| Kit | Máquina de estados com histórico e rastreio deduplicado | Expor endereço aos demais servidores |
-| Documentos | Arquivos privados com metadados/versionamento e links temporários | URLs públicas diretas de atas/endereços internos |
+| Financeiro | Lançamento automático imediato por evento ASAAS válido; manual imediato apenas pelo tesoureiro; edição/exclusão lógica com rastro | Rascunho ou aprovação intermediária como requisito para lançar; alteração física sem histórico |
+| Kit | Máquina de estados com histórico e rastreio deduplicado, acesso exclusivo ao Coordenador Kit em mandato vigente | Expor contato/endereço à mesa ou outros servidores por herança de admin |
+| Documentos | Google Drive institucional como storage documentário principal; OAuth/conta de serviço e permissões mínimas, versionamento e metadados PostgreSQL | Planilha ou arquivo Google como banco relacional; link público de ata restrita |
 | Integrações | Adaptadores com timeout, retry e circuit breaking básico | Tratar HTTP 200 como prova de mensagem recebida pelo destinatário |
 | Migração | Snapshot imutável, batch, origem e reconciliação | Apagar dados históricos antes do aceite |
 
-### Estrutura sugerida (não substituir as convenções do framework)
+### Estrutura definida para a derivação do template Laravel (preservar convenções do framework)
+
+**Decisão de arquitetura:** criar **um novo repositório de aplicação derivado** de `cirinho/template-laravel-bmad`, sem alterar o template genérico nem sobrescrever a `main` do site BMAD antigo. Esta é a estrutura alvo obrigatória, com diretórios criados **quando sua primeira classe/feature existir**; não gerar pastas vazias, arquivos placeholder ou “um documento por componente”.
 
 ```text
-app/
-  Funcionalidades/
-    Acesso/
-    Publico/
-    Reunioes/
-    Atas/
-    Servico/
-    KitIngresso/
-    Tesouraria/
-    Comunicacao/
-    Integracoes/
-    Relatorios/
-    Migracao/
-    Auditoria/
-  Http/Controllers/           # integração HTTP convencional
-  Policies/                    # autorizadores de recursos
-  Jobs/                        # integração com worker quando couber
-  Console/Commands/            # manutenção, importação, reconciliacao
-  Events/                      # eventos de negócio
-  Listeners/                   # reações assíncronas
- database/migrations/          # nunca podar migrations automaticamente
- database/schema/pgsql-schema.sql
- docs/banco/db.md              # gerado do PostgreSQL real
- tests/Unit/
- tests/Feature/
- tests/Integration/
+projeto-quarentena/
+├── AGENTS.md                      # uma regra canônica curta para agentes
+├── .ai/guidelines/                # somente convenções do projeto necessárias ao Boost
+├── _bmad-output/planning-artifacts/
+│   ├── QuarenteNA.md              # AS-IS, mapeamento de dados e corte
+│   ├── ProductBrief.md            # visão aprovada
+│   ├── PRD.md                     # requisitos aprovados e IDs estáveis
+│   ├── UX-Design.md               # DESIGN + EXPERIENCE aprovados num só documento
+│   └── Arquitetura.md             # decisões + dicionário lógico/relacional
+├── app/
+│   ├── Funcionalidades/           # domínio (regras, consultas, eventos e serviços)
+│   │   ├── Identidade/            # usuários, mandatos, permissões, root excepcional
+│   │   ├── Reunioes/              # agenda, ocorrências, moderadores, atas regulares
+│   │   ├── Servico/               # mesa, designações, atas e consciência coletiva
+│   │   ├── KitIngresso/           # ingressos, contato, remessa, Correios
+│   │   ├── Tesouraria/            # lançamentos, ASAAS, estorno e saldo
+│   │   ├── Comunicacao/           # Evolution, comandos, templates e jobs
+│   │   ├── Relatorios/            # agregações seguras e projeções públicas
+│   │   └── Integracoes/           # adaptadores Zoom, Correios, Drive e config
+│   ├── Http/Controllers/          # controladores web/API e webhooks (Laravel)
+│   ├── Models/                    # modelos Eloquent conforme convenção Laravel
+│   ├── Policies/                  # autorização em toda ação e registro
+│   ├── Jobs/                      # filas (atividades assíncronas quando necessárias)
+│   └── Console/Commands/          # importação, verificação e rotinas operacionais
+├── bootstrap/                      # manter o esqueleto original Laravel
+├── config/                         # drivers/storage/integrations não secretos
+├── database/
+│   ├── migrations/                 # fonte executável única do schema; nunca prune automático
+│   ├── seeders/                    # catálogos e encargos sem contas/PII reais
+│   └── schema/pgsql-schema.sql     # snapshot GERADO do PostgreSQL real
+├── resources/views/               # Blade público, painel, e-mails/PDFs
+├── routes/                        # web.php, api.php, console.php conforme necessário
+├── public/                        # assets versionados após homologação da logo
+├── tests/Unit/                    # regras puras
+├── tests/Feature/                 # fluxos HTTP, autorização e webhooks
+├── docs/banco/db.md               # catálogo GERADO do PostgreSQL real
+├── docker/                         # Compose/Swarm herdados e adaptados
+└── scripts/                        # comandos existentes do template (reutilizar)
 ```
 
-O padrão `app/Funcionalidades/` é preferencial no template. **Classes de framework que dependam de descoberta convencional não devem ser movidas arbitrariamente**. A árvore é alvo lógico para a implementação, não código criado nesta entrega.
+**Não criar** um diretório próprio `Integracoes/` *e* uma segunda hierarquia duplicada de conectores em `app/Http`; a lógica externa vive num só lugar e os controllers apenas recebem/validam/encaminham. Não criar `app/Events/Listeners/Repositories/Services/` vazios por padrão. `app/Funcionalidades/` é a propriedade dos contratos de domínio; Eloquent permanece no `app/Models/` do framework, evitando duplicidade de modelos. Documentação de API só é adicionada se uma API própria, estável e publicada realmente precisar de contrato distinto.
+
+**Regras de atualização do projeto (repositório derivado):**
+
+| Mudança | Atualizar no mesmo PR/commit, sem arquivo histórico paralelo |
+|---|---|
+| Requisito/escopo | `PRD.md` e, somente se afetados, `ProductBrief.md`, UX e arquitetura |
+| Fluxo/tela | `UX-Design.md`, testes e requisito correspondente no `PRD.md` |
+| Decisão de domínio/segurança | `Arquitetura.md`, regras em `AGENTS.md` e testes |
+| Banco estrutural | Nova migration + testes PG + `./scripts/banco-atualizar.sh` → `database/schema/pgsql-schema.sql` + `docs/banco/db.md` + **Arquitetura.md** |
+| Fonte importada/automações | `QuarenteNA.md` (mapa origem/destino), PRD (se alterar comportamento), testes |
+| Implementação de Story | Código, testes e **Story ativa** de BMAD; não reescrever stories históricas |
+
+**Artefatos BMAD mínimos:** somente os cinco documentos acima permanecem canônicos de planejamento do produto; Specs individuais só quando o BMAD exigir um contrato de Epic que não possa ser expresso pela Story, e Stories detalhadas **just in time**, próximas da implementação. `sprint-status.yaml` apenas quando o gate de readiness estiver satisfatório. É proibido criar versões concorrentes `-atualizado`, `-detalhado` ou múltiplos relatórios repetindo decisões. A ferramenta BMAD poderá gerar saídas operacionais temporárias, mas devem ser consolidadas/descartadas ao término da etapa, respeitando os contratos do workflow.
 
 ## 4. Adaptação correta do template Laravel BMAD
 
@@ -164,7 +191,16 @@ O padrão `app/Funcionalidades/` é preferencial no template. **Classes de frame
 
 ### Adaptação de papéis
 
-O template começa com `super_admin`, `admin` e `cliente`. O QuarenteNA não possui “clientes” como domínio de negócio. Recomenda-se adaptar a semântica para `super_admin`, `admin` e `servidor`, acrescentando **permissões granulares por função/encargo** (tesouraria, kit, revisão de ata, serviço, conteúdo, integrações). Não associar privilégios automaticamente apenas porque alguém participa da reunião. Contas de contingência precisam de acesso excepcional auditado, não privilégios permanentes sem controle.
+O template começa com `super_admin`, `admin` e `cliente`. O QuarenteNA **não possui clientes como entidade de negócio**; adaptar para login pessoal e um `root` institucional de emergência. **A fonte de permissão efetiva é a designação de encargo ativa**, complementada por uma exceção autorizada e auditada: o sistema pode materializar flags para performance, mas Policies devem sempre invalidá-las quando o mandato expirar ou for revogado.
+
+- **Coordenador Geral e Secretário Geral:** gestão técnica/administrativa, usuários, escalas, modelos documentais, integrações e auditoria; **sem permissão de edição financeira nem acesso operacional ao Kit Ingresso**.
+- **Tesoureiro:** único encargo de edição dos lançamentos e relatórios financeiros privados; eventos ASAAS processados sob identidade de sistema, não sob sessão humana.
+- **Coordenador Kit Ingresso:** único encargo com acesso ao módulo e contatos/endereços/remessas.
+- **RSG e RSG Suplente:** acesso às atividades de representação, sem privilégios de gestão financeira/kit.
+- **Moderadores do dia:** um único tipo de serviço de moderação com duas pessoas escaladas por ocorrência; papéis de voz (coordenador do dia) e chat/ata (secretário do dia) são substituíveis, sem confusão com cargos da Mesa.
+- **Root institucional:** conta de quebra-de-vidro exclusiva para bootstrap, recuperação e manutenção de configurações; nunca login padrão. MFA, segredo em cofre, justificativa, operador responsável declarado, logs e revisão posterior. Root não remove o requisito de um login pessoal do servidor para operações cotidianas.
+
+**Acesso:** na gravação da designação, concessão automática; no fim da vigência, policy nega **mesmo se o scheduler estiver atrasado**, e o job remove cache/flags/tokens; entrega ou destituição revoga instantaneamente, termina sessões privilegiadas quando necessário e registra motivo, responsável e instante. Evitar dar permissão perpetuamente em `permissoes_usuario` se derivada de `designacoes_servico`.
 
 **Migrações iniciais:** se o repositório derivado ainda não tiver banco instalado, alterar o conjunto de migrations do **novo repositório** antes da primeira instalação, com revisão explícita. Se migrations já tiverem sido aplicadas em ambiente compartilhado, manter histórico e criar novas migrations (não reescrever as existentes), como exigem `AGENTS.md` e o README da fundação.
 
@@ -239,6 +275,21 @@ pie showData
 
 ### 6.1. Identidade e permissões
 
+**Matriz efetiva de autorização aprovada** (leitura de indicadores agregados públicos é uma projeção separada; acesso à auditoria não permite editar o dado de negócio):
+
+| Papel/encargo ativo | Usuários e permissões | Ata regular do dia | Ata de serviço e templates | Tesouraria: editar | Kit/PII: acessar | Integrações/configurações |
+|---|---|---|---|---|---|---|
+| Coordenador Geral | Sim | Suporte e exceção justificada | Gestão administrativa | **Não** | **Não** | Sim |
+| Secretário Geral | Sim | Suporte e exceção justificada | **Editar template e atas** | **Não** | **Não** | Sim |
+| Tesoureiro | Não por padrão | Se escalado | Consulta autorizada | **Sim, exclusivo** | **Não** | Não |
+| RSG / Suplente | Não por padrão | Se escalado | Consulta/representação | **Não** | **Não** | Não |
+| Coordenador Kit Ingresso | Não por padrão | Se escalado | Consulta autorizada | **Não** | **Sim, exclusivo** | Não |
+| Moderador escalado | Não | **Sim, dentro da ocorrência** | Não por padrão | Não | Não | Não |
+| Root institucional | Recuperar administradores, em emergência | Não rotineiro | Não rotineiro | **Não por padrão** | **Não por padrão** | Sim, excepcional |
+
+A matriz é implementada por Laravel Gates/Policies com testes negativos. Sessões root registram também quem retirou/operou a credencial; uma conta compartilhada sem identificação do operador, sozinha, **não comprova autoria humana**.
+
+
 | Tabela | Finalidade | Relações principais | Privacidade | Fonte da necessidade |
 |---|---|---|---|---|
 | `pessoas` | Cadastro operacional de servidores/contatos sem login obrigatório | usuarios.pessoa_id opcional; designacoes_servico.pessoa_id | restrito | Cadastros e relações de servidores |
@@ -251,7 +302,8 @@ pie showData
 | Tabela | Campo / tipo sugerido | Significado / regra |
 |---|---|---|
 | `pessoas` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
-| ↳ | `nome_exibicao text` | Primeiro nome ou apelido |
+| ↳ | `nome_exibicao text` | Primeiro nome/apelido, preservando grafia exibida |
+| ↳ | `nome_busca varchar?` | Chave NFKC + trim/colapso de espaços + casefold para **sugestões**, não identidade única |
 | ↳ | `ativo bool` | Estado |
 | ↳ | `notas_restritas text?` | Notas com acesso mínimo |
 | `permissoes` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
@@ -265,7 +317,8 @@ pie showData
 | ↳ | `validade timestamptz?` | Fim |
 | ↳ | `motivo text?` | Justificativa |
 | `acessos_emergenciais` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
-| ↳ | `usuario_id FK` | Solicitante |
+| ↳ | `usuario_id FK` | Conta root/identidade de sessão |
+| ↳ | `operador_identificado_id FK?` | Usuário pessoal responsável pelo uso excepcional (declarado/verificado) |
 | ↳ | `aberto_em timestamptz` | Início |
 | ↳ | `expira_em timestamptz` | Fim |
 | ↳ | `justificativa text` | Motivo |
@@ -406,12 +459,15 @@ pie showData
 | ↳ | `reuniao_id FK?` | Reunião |
 | ↳ | `inicio date` | Data |
 | ↳ | `termino date?` | Data |
-| ↳ | `status varchar` | Ativo/vago/concluído/entregue/destituído |
+| ↳ | `status varchar` | Ativo/concluído/entregue/destituído: **vaga é ausência de designação ativa**, não linha vazia |
+| ↳ | `terminado_por_usuario_id FK?` | Administrador que encerrou manualmente |
+| ↳ | `motivo_termino text?` | Entrega, destituição, fim automático e justificativa |
 | `escalas_reuniao` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
 | ↳ | `ocorrencia_id FK` | Data/horário |
 | ↳ | `designacao_id FK?` | Mandato |
 | ↳ | `pessoa_id FK?` | Substituto |
-| ↳ | `funcao varchar` | Função no dia |
+| ↳ | `funcao varchar` | `fala` ou `chat`, **função por ocorrência**, nunca encargo permanente |
+| ↳ | `substituiu_escala_id FK?` | Troca de função/substituição auditável entre os dois moderadores |
 | `reunioes_servico` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
 | ↳ | `titulo varchar` | Reunião |
 | ↳ | `realizada_em timestamptz` | Instante |
@@ -419,7 +475,8 @@ pie showData
 | ↳ | `status varchar` | Estado |
 | `atas_servico` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
 | ↳ | `reuniao_servico_id FK UNIQUE` | Reunião |
-| ↳ | `conteudo text` | Texto |
+| ↳ | `conteudo text` | Conteúdo da ata de serviço montado pelo template vigente |
+| ↳ | `modelo_versao integer?` | Identifica versão do template utilizado pela Secretaria Geral |
 | ↳ | `status varchar` | Rascunho/aprovada |
 | ↳ | `pdf_arquivo_id FK?` | Documento |
 | `presencas_servico` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
@@ -450,7 +507,7 @@ pie showData
 
 | Tabela | Finalidade | Relações principais | Privacidade | Fonte da necessidade |
 |---|---|---|---|---|
-| `kits_ingresso` | Processo de atendimento de ingresso | ingressos; enderecos_kit; remessas | sensível | Kit Ingresso Quarentena |
+| `kits_ingresso` | Processo de atendimento de ingresso acessível só pelo Coordenador Kit | ingressos; enderecos_kit; remessas | sensível | Kit Ingresso Quarentena |
 | `enderecos_kit` | Endereço usado somente para entrega | kits_ingresso | muito restrito | Kit + AwesomeAPI CEP |
 | `contatos_kit` | Contato para comunicação da entrega | kits_ingresso | muito restrito | Telefone Forms/Kit |
 | `remessas` | Expedições efetivas de kits | kits_ingresso, eventos_rastreio | sensível | Planilha Kit / rastreio |
@@ -520,7 +577,7 @@ pie showData
 | ↳ | `nome varchar UNIQUE` | Nome |
 | ↳ | `tipo varchar` | Corrente/reserva |
 | ↳ | `ativa bool` | Vigente |
-| ↳ | `saldo_inicial numeric(14,2)` | Saldo auditado de abertura |
+| ↳ | `saldo_inicial numeric(14,2)` | Saldo inicial auditado de abertura |
 | `categorias_financeiras` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
 | ↳ | `nome varchar UNIQUE` | 7ª tradição, Zoom etc. |
 | ↳ | `natureza varchar` | Entrada/saída/ambos |
@@ -532,7 +589,10 @@ pie showData
 | ↳ | `valor numeric(14,2)>` | 0=Quantia |
 | ↳ | `ocorrido_em timestamptz` | Data |
 | ↳ | `asaas_evento_id FK?` | Fonte |
-| ↳ | `status varchar` | Pendente/conciliado |
+| ↳ | `status varchar` | Efetivo/estornado/excluído logicamente; não há rascunho ou pendente de aprovação do lançamento |
+| ↳ | `origem varchar` | ASAAS ou manual; ambos lançados imediatamente após validação |
+| ↳ | `corrigido_por FK?` | Somente tesoureiro; histórico em `auditorias` |
+| ↳ | `excluido_em timestamptz?` | Exclusão lógica, sem sumir com o evento original |
 | `eventos_asaas` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
 | ↳ | `evento_externo_id varchar UNIQUE` | Identificador |
 | ↳ | `tipo varchar` | Tipo |
@@ -571,7 +631,8 @@ pie showData
 | ↳ | `ativo bool` | Status |
 | `modelos_mensagem` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
 | ↳ | `chave varchar UNIQUE` | Identificador |
-| ↳ | `conteudo text` | Template |
+| ↳ | `conteudo text` | Template de mensagem com variáveis validadas |
+| ↳ | `ativo bool` | Habilitar/desabilitar uso do modelo |
 | ↳ | `aprovado_em timestamptz?` | Aprovação |
 | ↳ | `versao integer` | Revisão |
 | `mensagens_saida` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
@@ -658,7 +719,8 @@ pie showData
 | ↳ | `ocorrido_em timestamptz` | Quando |
 | `configuracoes` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
 | ↳ | `chave varchar UNIQUE` | Nome |
-| ↳ | `valor jsonb` | Valor público ou restrito |
+| ↳ | `valor jsonb` | **Somente configuração não secreta**, nunca token/API key em claro |
+| ↳ | `editavel_por varchar` | Perfil administrativo autorizado; controle real via Policy |
 | ↳ | `escopo varchar` | Institucional |
 | ↳ | `modificado_por FK?` | Responsável |
 | `registros_backup` | `id bigint PK` | Identificador interno estável; nunca igualar à linha da planilha |
@@ -678,6 +740,45 @@ pie showData
 | `jobs`, `job_batches`, `failed_jobs` | Fila e erros do Laravel | Usar filas sem payload integral de dados pessoais |
 | `migrations` | Lotes/histórico de schema Laravel | Não podar ou reescrever histórico aplicado |
 | `clientes`, `cliente_usuario` | Cadastro comercial e N:N com usuários | Não mapear para membros/ingressantes; remover/aposentar controladamente no projeto derivado |
+
+### 6.10. Normalização dos nomes e correspondência com as planilhas
+
+**Não existe identificador civil ou de membro de NA que justifique criar cadastro público nominal geral.** O sistema distingue `usuarios.id` (identidade de login), `pessoas.id` (servidor operacional), `ingressos.id` (ocorrência/registro de ingresso) e `contatos_kit.id` (contato protegido de entrega). Não criar unicidade global em primeiro nome/apelido.
+
+| Entrada legada | Exibição preservada | Chave de busca técnica | Efeito correto |
+|---|---|---|---|
+| `Ciro`, `ciro`, `CIRO`, `Ciro   ` | `Ciro` conforme revisão | `ciro` | Sugerir correspondência com registro existente; não duplicar por variação de caixa/espaço |
+| `Círo`, `Ciro` | Forma informada autorizada | `ciro` em chave auxiliar sem acentos | Sugerir possível correspondência, **sem fusão automática** |
+| Dois participantes distintos chamados `Ciro` | Primeiro nome/apelido de cada um | `ciro` | Manter dois identificadores estáveis e contextos distintos |
+| `Ciro` digitado junto a ingresso novo | Texto do ingresso separado do cadastro operacional | `ciro` | Registrar ingresso; só vincular pessoa com confirmação humana e finalidade |
+
+**Pipeline:** Unicode NFKC → trim Unicode → reduzir espaços internos → Unicode casefold para `nome_busca`; opcionalmente remover diacríticos **somente na chave auxiliar de busca**. Indexar chaves normalizadas de pesquisa, mas sem índice `UNIQUE` sobre nomes de pessoas. Para identidades de login, conservar `usuarios.email` único com canonização adequada e validação de colisão; índices funcionais/collations do PostgreSQL escolhidos e testados no schema real. A documentação PostgreSQL lembra que `citext` depende de locale e que collations ICU não determinísticas podem tratar Unicode/case melhor; decidir pelo PostgreSQL efetivamente instalado, não por heurística.
+
+### 6.11. Mapeamento dos campos reais da ata e da planilha
+
+| Origem no Form / Sheets | Campo relacional alvo | Regra de tratamento e histórico |
+|---|---|---|
+| Timestamp da resposta (A) | `atas.enviada_em` + `registros_importados` | Preservar timestamp e origem da importação |
+| Data (B), horário (C), tipo (W) | `ocorrencias_reuniao` + `reunioes` | Horário local 20h–22h como agenda atual confirmada; tipo de reunião pode variar |
+| Total membros (D), partilhas (E) | `atas.membros_total`, `atas.partilhas_total` | Inteiros não negativos, nulo distinto de zero na migração quando a fonte era vazia |
+| Visitas (F) e origem (X) | `visitas`, `origens_visita` | Contagem e origens separadas, múltiplas origens estruturadas |
+| Ingressos (G), nomes (I) | `atas.ingressos_total` + `ingressos` | Conferir total/linhas; público mostra somente apelido/primeiro nome autorizado |
+| Contato do ingressante (Z) | `contatos_kit` | Criptografia, acesso exclusivo ao Coordenador Kit |
+| Conquistas (H), nome/tempo (J) | `conquistas`, `tipos_conquista` | Contagem separada de referência nominal mínima autorizada |
+| Temática (K), partilhador (L) | `atas_tematicas`, `tematicas` | Normalizar catálogo; texto de referência permitido |
+| Observações (M) e informações adicionais (T) | `atas.observacoes`, `atas.informacoes_adicionais` | Campo livre higienizado, com privacidade e histórico |
+| Secretário (N), coordenador (O) | `escalas_reuniao`, `atas` | Resolver por usuário/escala real, sem duplicar servidor por grafia; funções alternáveis |
+| 7ª Tradição (P), data (Q), despesa (R), discriminação (S) | `lancamentos_financeiros` quando lançamento real; `atas` para informação declarativa | **Não criar transação financeira automaticamente só por total/saldo informado na ata**; distinguir saldo de entrada/saída e conciliar com ASAAS; direitos exclusivos tesoureiro |
+| Ata pendente (U) e e-mail (V) | `atas.status`, `usuarios` quando autorizado | Não importar e-mail do formulário como conta com login automaticamente |
+| Eleição de encargo (Y) | `designacoes_servico`, `decisoes_coletivas` | Criar mandato com prazo e responsável somente após confirmação de deliberação |
+| Google Sheets Atas de Serviço A–G | `atas_servico`, `reunioes_servico`, `presencas_servico`, `arquivos` | PDF no Drive privado; números de presença/falta preservados |
+| Google Sheets Serviço Grupo Quarentena | `encargos`, `designacoes_servico`, `escalas_reuniao` | Uma designação por titular/vigência, sem replicar linha histórica “VAGO” |
+| Google Sheets Kit A–K | `kits_ingresso`, `contatos_kit`, `enderecos_kit`, `remessas`, `eventos_rastreio`, `historico_kit` | Histórico eventos em linhas, não texto concatenado; PII isolada |
+| Google Sheets Tesouraria | `contas_financeiras`, `categorias_financeiras`, `lancamentos_financeiros`, `eventos_asaas` | Valores DECIMAL; guardar origem/estorno e conciliar totals históricos |
+
+**Campos de ata obrigatórios preservados no produto:** data, horário, formato/tipo, dupla (chat e fala), presenças, partilhas, visitas, ingressos, nomes públicos permitidos dos ingressantes, conquistas e tempos informados, temática/partilhador, 7ª Tradição e sua data de referência, despesas/discriminação quando existirem, informações adicionais, eleições e observações. Não misturar telefone/endereço com conteúdo da ata que pode ser exportado/publicado. Dados pessoais de kit entram no fluxo privado vinculado ao ingresso.
+
+**Consultas de relatório:** somente atas oficiais válidas entram em agregações; correção/anulação exige recálculo, e snapshot de importação permite conferir números do Looker antigo.
 
 ## 7. Diagramas entidade–relacionamento (ERD)
 
@@ -781,6 +882,24 @@ sequenceDiagram
 
 **Salvaguardas:** não realizar consulta em massa desnecessária; avaliar termos dos Correios e estabilidade do scraper; não exibir CPF, telefone, endereço completo ou dados privados no serviço auxiliar; não confiar em `situacao` sem normalizar eventos e datas; registrar `hash_evento` único por remessa e ocorrência.
 
+### 8.2. ASAAS — escrituração imediata e correção posterior
+
+```mermaid
+sequenceDiagram
+  participant ASAAS
+  participant API as Webhook Laravel
+  participant DB as PostgreSQL
+  participant T as Tesoureiro
+  ASAAS->>API: Evento autenticado
+  API->>DB: Inbox com chave de idempotência
+  API->>DB: Cria lançamento efetivo se evento financeiro elegível
+  DB-->>T: Lançamento disponível imediatamente
+  T->>DB: Se houver divergência, corrige/estorna/exclui logicamente
+  DB->>DB: Preserva evento, autor, antes/depois e motivo
+```
+
+A mensagem recebida não corresponde necessariamente a receita final: mapear tipos de eventos ASAAS que confirmam movimentação, reversão ou estorno, evitando duplicar a mesma transação em eventos de estado sucessivos. Lançamento manual do Tesoureiro também é efetivado no `save`, sem etapa rascunho/aprovação. Processamento técnico/retry no inbox pode estar pendente, **mas o lançamento de negócio não possui estágio “pendente de conferência”**. Correções e exclusões por UI preservam trilha e integridade do livro; para reconciliação externa preferir reversão/retificação em vez de apagar eventos.
+
 ### 8.2. ASAAS e conciliação
 
 ```mermaid
@@ -803,6 +922,14 @@ flowchart LR
 | Divergência | Criar pendência de conciliação, nunca forçar fechamento automático |
 
 A segurança exata do webhook ASAAS deverá respeitar os mecanismos da documentação e configuração da conta efetiva; não presumir assinatura HMAC específica sem conferência.
+
+### Configuração web de integrações e rotinas
+
+Root excepcional e administração do Coordenador Geral/Secretário Geral podem manter **URLs, nomes de integração, endpoint de webhook, credenciais, rotas, templates, horários, ativação/desativação e parâmetros não secretos** no `/admin`. Secretos devem ficar criptografados via infraestrutura de segredos/driver próprio; UI oferece troca e teste de conectividade, nunca retorno do segredo em claro, log ou export. Todo ajuste identifica conta, operador, hora, campos alterados e teste executado. Habilitar/desabilitar por integração e por rotina; job de cron verifica flag persistida antes de cada envio para evitar mensagens após desligamento. Previews dos templates devem sanitizar dados privados. **Não implementar uma plataforma visual de workflows equivalente ao n8n:** para `!ajuda`, `!vago` e outros, usar roteamento explícito PHP para handlers simples e auditáveis; cron do Apps Script vira `Schedule` + Jobs/Notifications Laravel.
+
+### Google Drive e armazenamento opcional
+
+O **Google Drive é a integração documental principal** para atas de serviço, PDFs, manuais e registros institucionais quando a política do grupo permitir. `documentos`/`arquivos` guardam metadados, hash, versão, `provider=google_drive`, `external_file_id`, localização lógica e visibilidade; o Laravel autentica na Drive API com credencial institucional com escopos mínimos e fornece links de acesso controlado, sem ACL pública por padrão. Drive não guarda tabelas operacionais nem substitui PostgreSQL. **MinIO/S3** é apenas opção posterior para binários privados, se volume/custo/disponibilidade justificar; não subir MinIO obrigatório. **Redis** idem: só habilitar quando fila/cache PostgreSQL demonstrar gargalo e houver definição de backup, HA e operação.
 
 ### 8.3. Evolution API: comandos e mensagens
 
@@ -901,6 +1028,9 @@ As fórmulas concretas do Looker exigem comparação com os relatórios originai
 
 ### Regras do template a respeitar
 
+**Diretriz documental:** documentação **permanente** de implementação vive em `AGENTS.md` e `docs/banco/db.md` (gerado), decisões do produto em apenas cinco Markdown. Não criar pastas `docs/research`, `docs/decisions`, `docs/status`, duplicatas de arquitectura, nem dezenas de logs narrativos por agente. Histórico exato das mudanças já existe no Git/PRs e nas migrations. Os workflows BMAD podem usar arquivos temporários operacionais durante execução, mas devem manter como canônico apenas o material indispensável ao handoff.
+
+
 - Manter `America/Bahia` como timezone IANA em PHP, Laravel, testes e containers; usar timestamps adequados no PostgreSQL, nunca offset fixo em configuração de regra de negócio.
 - `postgres:5432` via DNS interno Compose; **não publicar 5432** em rede pública.
 - `database/schema/pgsql-schema.sql` e `docs/banco/db.md` são **gerados do PostgreSQL real** após migrations, por `./scripts/banco-atualizar.sh`, não copiados deste documento.
@@ -968,13 +1098,13 @@ A base normativa da proteção de dados pessoais inclui a **LGPD** (Lei 13.709/2
 | PHP 8.5, Laravel 13, PostgreSQL 17 | **Herdada do template inspecionado** | Conferir commit/lock na criação do projeto |
 | Modular monolith e banco único | **Recomendação técnica** | Evita complexidade distribuída precoce |
 | Queue via PostgreSQL inicialmente | **Recomendação técnica** | Reavaliar por volume e confiabilidade |
-| 52 tabelas de domínio candidatas | **Proposta lógica de modelagem** | Validar entidades antes de gerar migrations |
-| Paleta visual/estrutura de navegação | **Proposta UX** | `UX-Design.md`, validar em protótipos |
-| Permissões detalhadas, regras de governança e retenção | **Critério operacional a definir nos controles** | Não substituir decisões da mesa e consciência coletiva |
+| 52 tabelas de domínio candidatas | **Modelo de domínio aprovado, sujeito à verificação por migrations** | Tabelas físicas só existem após implementação e testes PostgreSQL |
+| Paleta visual/estrutura de navegação | **UX aprovado** | Logo original preservada; exportações vetoriais requerem revisão de fidelidade |
+| Permissões de encargos/fluxos financeiros e do kit | **Aprovadas pelo usuário** | Políticas de retenção e detalhes de contingência continuam configuráveis |
 
 ## 14. Próximo passo BMAD
 
-`Arquitetura.md` constitui a proposta de **spine** e catálogo de dados para alimentar os próximos contratos de implementação, mas **não é resultado de executar `bmad-architecture` dentro do repositório**. Em implementação, a saída oficial do workflow deve herdar as decisões transversais aqui registradas, fazer inspeção do commit do template efetivamente adotado e citar as migrations geradas.
+`Arquitetura.md` constitui o **spine aprovado** e catálogo de dados para alimentar os próximos contratos de implementação, mas **não é resultado de executar `bmad-architecture` dentro do repositório**. Em implementação, a saída oficial do workflow deve herdar as decisões transversais aqui registradas, fazer inspeção do commit do template efetivamente adotado e citar as migrations geradas.
 
 Na sequência: consolidar/validar UX em interação com usuários → revisar arquitetura e segurança → executar `bmad-spec` para contratos de Epic (sem replicar todo este catálogo) → `bmad-create-epics-and-stories` → gate `bmad-sprint-planning` com resultado PASS/CONCERNS/FAIL. Não iniciar deploy nem migração definitiva só pela aprovação documental.
 

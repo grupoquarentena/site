@@ -4,7 +4,7 @@ project: Grupo QuarenteNA — Plataforma Web
 artifact: prd
 method: "BMAD 6.12.4 — artefato canônico de planejamento"
 status: "APROVADO"
-date: "2026-10-17"
+date: "2026-10-18"
 source_window: "2026-03 a 2026-05"
 ---
 
@@ -14,7 +14,7 @@ source_window: "2026-03 a 2026-05"
 
 ## 1. Declaração do produto, escopo e status
 
-A plataforma v2 terá **home pública sem autenticação** e **painel `/admin` protegido**, consolidando os processos de ata, serviço, kit ingresso, tesouraria, relatórios, permissões e integrações atualmente distribuídos. O objetivo é um produto operacional completo, a ser construído por incrementos verificáveis e ativado somente após migração/reconciliação; **todo fluxo de planilha, script ou automação legada com função ativa deve ter equivalente ou descontinuação formal aprovada**.
+A plataforma terá **home pública sem autenticação** e **painel `/admin` protegido**, consolidando os processos de ata, serviço, kit ingresso, tesouraria, relatórios, permissões e integrações atualmente distribuídos. O objetivo é um produto operacional completo, a ser construído por incrementos verificáveis e ativado somente após migração/reconciliação; **todo fluxo de planilha, script ou automação legada com função ativa deve ter equivalente ou descontinuação formal aprovada**.
 
 **Status de aprovação: APROVADO.** Este documento define *o quê, para quem e com qual condição de aceite*. Laravel (adaptado do template oficial indicado pelo projeto), PostgreSQL e Docker são decisões de tecnologia aprovadas; schema físico, limites de domínio, filas e infraestrutura são detalhados em `Arquitetura.md`. Não executar migração nem expor dados particulares por inferência documental.
 
@@ -26,7 +26,7 @@ A plataforma v2 terá **home pública sem autenticação** e **painel `/admin` p
 | Site acessível | Zoom e agenda encontram-se sem login e sem depender de API externa na renderização crítica |
 | Fonte autoritativa | Alteração operacional refletida nos módulos interessados sem cópias manuais conflitantes |
 | Cadastro contextual | Pessoa operacional não precisa ser membro Zoom nem ter credenciais |
-| Dados mínimos | Exposição pública limitada a números agregados e material aprovado |
+| Dados mínimos | Exposição pública limitada a agregados e primeiro nome/apelido de ingressante editorialmente permitido; nunca contato/endereço |
 | Auditabilidade | Operações de escrita produzem histórico autorizável/consultável |
 | Reversibilidade | Exportação e restore reais, não apenas documentação de backup |
 | Automação humana | Sugestão e automação nunca impossibilitam revisão humana |
@@ -37,12 +37,12 @@ A plataforma v2 terá **home pública sem autenticação** e **painel `/admin` p
 
 | Papel / entidade | Acesso geral esperado | Restrições |
 |---|---|---|
-| Visitante ou membro público | Home, informações, links e relatórios autorizados | Sem cadastro necessário; nenhuma lista nominal |
+| Visitante ou membro público | Home, informações, links e relatórios autorizados | Sem cadastro; somente apelidos/primeiros nomes de ingressantes autorizados, sem contato/endereço |
 | Pessoa no cadastro operacional | Registro de contexto | Não possui login por padrão |
 | Servidor autenticado | Ata/consulta e módulos conforme encargo | Sem acesso automático a kit ou finanças |
 | Mesa | Gestão e supervisão do grupo | Auditoria e controles proporcionais; não elimina separação de deveres |
-| Tesoureiro / responsável kit / RSG / Secretário Geral | Acesso por permissão adicional e finalidade | Apenas domínios necessários |
-| SuperAdmin técnico | Configuração e manutenção conforme delegação | Não substitui poder deliberativo da mesa |
+| Tesoureiro / Coordenador Kit / RSG / RSG Suplente | Capacidades estritamente vinculadas à designação vigente | Tesoureiro exclusivo em finanças; Coordenador Kit exclusivo no kit |
+| Admin técnico (Coordenador Geral/Secretário Geral) | Usuários, integrações, configurações e auditoria | Não tem edição financeira nem acesso operacional ao kit |
 | Conta institucional de contingência | Recuperação controlada | Procedimento break-glass, controles fortes e trilha específica |
 
 ### Diagrama de contexto funcional
@@ -116,44 +116,44 @@ Este é o **único PRD canônico**. A tabela seguinte apresenta seus domínios e
 | Família | Área | Nº de requisitos |
 |---|---|---:|
 | `RF-PUBLICO` | Portal e conteúdo público | 5 |
-| `RF-ACESSO` | Identidade, autenticação e autorizações | 10 |
+| `RF-ACESSO` | Identidade, autenticação e autorizações | 13 |
 | `RF-AUDITORIA` | Auditoria | 6 |
-| `RF-ATA` | Ata das reuniões regulares | 25 |
-| `RF-ATASERVICO` | Ata e reuniões de serviço | 9 |
-| `RF-RELATORIOS` | Dashboards e relatórios | 19 |
+| `RF-ATA` | Ata das reuniões regulares | 28 |
+| `RF-ATASERVICO` | Ata e reuniões de serviço | 10 |
+| `RF-RELATORIOS` | Dashboards e relatórios | 20 |
 | `RF-MIGRACAO` | Migração e reconciliação | 15 |
-| `RF-SERVIDORES` | Servidores, mandatos e escalas | 14 |
-| `RF-KIT` | Kit ingresso | 17 |
-| `RF-TESOURARIA` | Tesouraria e ASAAS | 15 |
+| `RF-SERVIDORES` | Servidores, mandatos e escalas | 17 |
+| `RF-KIT` | Kit ingresso | 18 |
+| `RF-TESOURARIA` | Tesouraria e ASAAS | 17 |
 | `RF-WHATSAPP` | WhatsApp / Evolution API | 10 |
 | `RF-ZOOM` | Zoom e eventos | 10 |
-| `RF-ADMINISTRACAO` | Administração e configurações | 7 |
+| `RF-ADMINISTRACAO` | Administração e configurações | 10 |
 | `RF-BACKUP` | Backup, recuperação e operações | 6 |
 | `RF-DOCUMENTACAO` | Documentação e replicabilidade | 5 |
-| `RF-AUTOMACOES` | Rotinas operacionais migradas | 15 |
-| **Total** | | **188** |
+| `RF-AUTOMACOES` | Rotinas operacionais migradas | 16 |
+| **Total** | | **206** |
 
 ### Distribuição dos requisitos por domínio (contagem, não percentagem de progresso)
 
 ```mermaid
 pie showData
-  title Requisitos funcionais aprovados (188)
+  title Requisitos funcionais aprovados (206)
   "PUBLICO" : 5
-  "ACESSO" : 10
+  "ACESSO" : 13
   "AUDITORIA" : 6
-  "ATA" : 25
-  "ATASERVICO" : 9
-  "RELATORIOS" : 19
+  "ATA" : 28
+  "ATASERVICO" : 10
+  "RELATORIOS" : 20
   "MIGRACAO" : 15
-  "SERVIDORES" : 14
-  "KIT" : 17
-  "TESOURARIA" : 15
+  "SERVIDORES" : 17
+  "KIT" : 18
+  "TESOURARIA" : 17
   "WHATSAPP" : 10
   "ZOOM" : 10
-  "ADMINISTRACAO" : 7
+  "ADMINISTRACAO" : 10
   "BACKUP" : 6
   "DOCUMENTACAO" : 5
-  "AUTOMACOES" : 15
+  "AUTOMACOES" : 16
 ```
 
 ### Mapa visual de domínios, dados e automações
@@ -188,20 +188,23 @@ flowchart TB
 | `RF-PUBLICO-004` | Acesso ao painel | A página pública deve permitir acesso ao painel administrativo em /admin. |
 | `RF-PUBLICO-005` | Mobile-first | A página pública e o painel devem ser responsivos e priorizar boa experiência em celular. |
 
-### RF-ACESSO — Identidade, autenticação e autorizações (10)
+### RF-ACESSO — Identidade, autenticação e autorizações (13)
 
 | ID | Capacidade | Condição/requisito da fonte consolidada |
 |---|---|---|
 | `RF-ACESSO-001` | Login | O sistema deve permitir login para usuários com senha cadastrada e status ativo. |
 | `RF-ACESSO-002` | Logout | O sistema deve permitir logout seguro. |
 | `RF-ACESSO-003` | Redefinição de senha | O sistema deve permitir redefinir senha por fluxo administrativo, e futuramente por e-mail se configurado. |
-| `RF-ACESSO-004` | Usuário sem senha | O sistema deve permitir registros em usuarios sem senha, para pessoas cadastradas apenas como referência operacional. |
-| `RF-ACESSO-005` | Gestão de usuários | Usuários com permissão de mesa, SuperAdmin ou root devem poder criar e editar registros em usuarios. |
-| `RF-ACESSO-006` | Proteção do root | O usuário root id 1 não pode ser apagado. |
-| `RF-ACESSO-007` | Proteção de SuperAdmin | A remoção ou rebaixamento de SuperAdmin deve exigir permissão adequada, auditoria explícita e validação de contingência técnica. |
-| `RF-ACESSO-008` | Permissões extras | O sistema deve permitir atribuir permissões extras a usuários, como tesouraria, kit ingresso, revisão de atas, RSG, Secretário Geral, administração técnica e outras. |
-| `RF-ACESSO-009` | Controle por módulo | Cada módulo deve verificar permissão antes de permitir visualização, criação, edição, exclusão, exportação ou acesso a dados sensíveis. |
+| `RF-ACESSO-004` | Usuário sem senha | Pessoas operacionais sem login ficam em `pessoas`, separadas de `usuarios` (login exige credencial); não gerar contas de login por ingresso ou Zoom. |
+| `RF-ACESSO-005` | Gestão de usuários | Coordenador Geral e Secretário Geral podem administrar usuários e mandatos; root institucional atua apenas em contingência justificada, sem uso cotidiano. |
+| `RF-ACESSO-006` | Proteção do root | A conta institucional root de contingência é única e protegida contra exclusão/bloqueio acidental; não depender de ID numérico fixo, com MFA e auditoria. |
+| `RF-ACESSO-007` | Proteção de SuperAdmin | A remoção ou rebaixamento de admin técnico ou root exige permissão específica, auditoria e garantia de recuperação institucional; papéis técnicos não concedem poderes de Tesouraria ou Kit. |
+| `RF-ACESSO-008` | Permissões extras | O sistema atribui capacidades automaticamente por encargo ativo; delegações excepcionais exigem prazo, justificativa e auditoria, sem contornar exclusividade de Tesouraria e Kit. |
+| `RF-ACESSO-009` | Controle por módulo | Toda operação deve usar Policy/Gate e encargo **vigente**; tesouraria com edição exclusiva do tesoureiro e kit com acesso exclusivo do coordenador kit; contas administrativas não recebem acesso por padrão. |
 | `RF-ACESSO-010` | Relatórios públicos | O sistema deve permitir relatórios públicos sem login, desde que definidos como públicos e sem dados sensíveis. |
+| `RF-ACESSO-011` | Privilégios por mandato vigente | Ao nomear servidor para encargo, conceder automaticamente capacidades daquele encargo; encerramento por prazo, entrega ou destituição revoga acesso imediatamente na Policy e remove flags/cache/sessões privilegiadas. |
+| `RF-ACESSO-012` | Root institucional excepcional | Prover conta genérica `root` protegida por MFA/segredo guardado, apenas para recuperação de administradores da mesa ou manutenção técnica excepcional; registrar operador, justificativa e alerta de sessão. |
+| `RF-ACESSO-013` | Segregação de encargos | Coordenador Geral e Secretário Geral administram acessos e integrações, mas não herdam edição financeira nem acesso operacional ao kit; tesoureiro edita finanças; Coordenador Kit é o único que vê e gere dados privados do kit. |
 
 ### RF-AUDITORIA — Auditoria (6)
 
@@ -210,19 +213,19 @@ flowchart TB
 | `RF-AUDITORIA-001` | Auditar toda modificação | Toda operação que altere o banco de dados deve gerar registro de auditoria. |
 | `RF-AUDITORIA-002` | Dados mínimos do log | Cada log deve registrar: ; usuário responsável; ; data e hora; ; IP ou origem da requisição quando disponível; ; user-agent quando disponível; ; módulo; ; entidade; ; id do registro; ; ação realizada; ; valores anteriores; ; valores novos; ; justificativa quando aplicável. |
 | `RF-AUDITORIA-003` | Justificativa em edição posterior | Edições em registros oficiais já enviados, como atas enviadas, devem exigir justificativa. |
-| `RF-AUDITORIA-004` | Consulta de auditoria | Usuários mesa, SuperAdmin e root devem poder consultar logs de auditoria. |
+| `RF-AUDITORIA-004` | Consulta de auditoria | Coordenador Geral e Secretário Geral podem consultar auditoria institucional; root apenas excepcionalmente, e Tesoureiro apenas registros financeiros pertinentes ao seu serviço. Logs do Kit permanecem sem PII para terceiros. |
 | `RF-AUDITORIA-005` | Auditoria de automações | Ações feitas por jobs, webhooks ou integrações devem ser registradas como ações de sistema, identificando origem como ASAAS, Zoom, Evolution API, job de rastreamento, job de serviços etc. |
 | `RF-AUDITORIA-006` | Auditoria não editável | Logs de auditoria não devem ser editáveis pela interface comum. |
 
-### RF-ATA — Ata das reuniões regulares (25)
+### RF-ATA — Ata das reuniões regulares (28)
 
 | ID | Capacidade | Condição/requisito da fonte consolidada |
 |---|---|---|
-| `RF-ATA-001` | Criar ata | Usuários mesa ou servidores com login podem criar uma ata. |
+| `RF-ATA-001` | Criar ata | A dupla moderadora escalada para a ocorrência, ou administrador em contingência justificada, pode criar a ata; autenticação pessoal e mandato/escala vigente são obrigatórios. |
 | `RF-ATA-002` | Ata pré-preenchida | O formulário de ata deve vir pré-preenchido quando houver dados disponíveis. Campos candidatos para pré-preenchimento: ; data atual ou data da reunião selecionada; ; horário padrão; ; tipo/formato da reunião; ; secretário provável; ; coordenador provável; ; presença total sugerida pelo Zoom; ; lista de participantes capturada pelo Zoom, apenas para conferência restrita; ; informações adicionais padrão; ; dados relacionados à 7ª tradição quando aplicável. |
 | `RF-ATA-003` | Editar dados pré-preenchidos | Todo dado pré-preenchido deve ser editável antes do envio. |
-| `RF-ATA-004` | Secretário sugerido | Quem se logar para preencher a ata provavelmente deve ser sugerido como secretário da reunião. |
-| `RF-ATA-005` | Coordenador sugerido | Se houver outro servidor escalado para o dia/horário, ele pode ser sugerido como coordenador. Se houver apenas um servidor e outro encargo estiver vago, o mesmo servidor pode ser sugerido como secretário e coordenador. |
+| `RF-ATA-004` | Secretário sugerido | Sugerir a função de chat/secretaria da ocorrência conforme escala, com possibilidade de troca entre os dois moderadores. |
+| `RF-ATA-005` | Coordenador sugerido | Escalar sempre dupla de moderadores quando houver cobertura; designar por ocorrência as funções de fala (coordenação) e chat/ata (secretaria), intercambiáveis em caso de substituição. |
 | `RF-ATA-006` | Presença sugerida pelo Zoom | O sistema pode sugerir total de presenças com base nos participantes capturados pelo Zoom, mas o servidor pode modificar se julgar pertinente. |
 | `RF-ATA-007` | Conferência antes de envio | Antes do envio oficial, o sistema deve exibir uma tela de revisão/rascunho para conferência. |
 | `RF-ATA-008` | Rascunho automático | Ao iniciar o preenchimento, o sistema deve salvar automaticamente como rascunho e atualizar o rascunho durante o preenchimento. |
@@ -234,7 +237,7 @@ flowchart TB
 | `RF-ATA-014` | Campos subjetivos | Campos como observações e informações adicionais podem ser texto livre. |
 | `RF-ATA-015` | Opção “outro” | Quando necessário, seletores devem permitir opção “outro” com campo adicional de texto. |
 | `RF-ATA-016` | Relação visita/ingresso | Sempre que houver ingresso, objetivamente houve visita. Pode haver visita sem ingresso. O sistema pode sugerir coerência, mas não deve impedir visita sem ingresso. |
-| `RF-ATA-017` | Ingressos | Quando houver ingressos na ata, o sistema deve permitir relacionar ou cadastrar usuários correspondentes. |
+| `RF-ATA-017` | Ingressos | Quando houver ingresso, registrar apelido/primeiro nome em `ingressos` sem criar login automaticamente; vínculo com pessoa já conhecida exige confirmação humana contextual. |
 | `RF-ATA-018` | Kit ingresso automático | Ao registrar ingresso, o sistema deve gerar pendência no módulo kit ingresso quando aplicável. |
 | `RF-ATA-019` | Conquistas | Quando houver conquistas, o sistema deve permitir registrar quantidade e, opcionalmente, relacionar usuários e tempo limpo. |
 | `RF-ATA-020` | Visitas | Quando houver visitas, o sistema deve registrar quantidade, origem da visita e informações textuais quando necessário. |
@@ -243,8 +246,11 @@ flowchart TB
 | `RF-ATA-023` | Envio de resumo | O sistema deve poder enviar o resumo da ata via Evolution API e/ou Telegram, se configurado. |
 | `RF-ATA-024` | Histórico | O sistema deve permitir consultar histórico de atas por período, tipo, dia, horário, servidor, visitas, ingressos, conquistas e outros filtros. |
 | `RF-ATA-025` | Exportação | O sistema deve permitir exportar atas em CSV e gerar relatório imprimível. |
+| `RF-ATA-026` | Dupla de moderação e substituição | A reunião regular diária 20h–22h possui dois moderadores treinados; um responde por fala/coordenação e outro por chat/ata, funções intercambiáveis sem criação de dois encargos fixos. |
+| `RF-ATA-027` | Identidade e nomes normalizados | Selecionar servidor por cadastro/escala, não por texto livre; sugerir reconciliação de nomes com caixa/espaços/acentos divergentes sem fundir homônimos automaticamente. |
+| `RF-ATA-028` | Paridade com formulário antigo | Preservar data, horário, tipo, presenças, partilhas, visitas/origens, ingressos/nomes, conquistas/tempo, temática/partilhador, 7ª Tradição/referência, despesas, adicionais, eleições e observações; PII de contatos permanece só no Kit restrito. |
 
-### RF-ATASERVICO — Ata e reuniões de serviço (9)
+### RF-ATASERVICO — Ata e reuniões de serviço (10)
 
 | ID | Capacidade | Condição/requisito da fonte consolidada |
 |---|---|---|
@@ -256,9 +262,10 @@ flowchart TB
 | `RF-ATASERVICO-006` | Dados da reunião de serviço | A ata de serviço deve registrar servidores presentes, faltas, justificativas, membros interessados, decisões e links/documentos relacionados. |
 | `RF-ATASERVICO-007` | Histórico e relatórios | O sistema deve permitir consultar reuniões de serviço por data, tipo, presença, faltas, justificativas e decisões. |
 | `RF-ATASERVICO-008` | Decisões e consciências  | O sistema deve permitir registrar decisões ou consciências coletivas, com data, contexto e link de ata. |
-| `RF-ATASERVICO-009` | Consulta pública ou restrita  | Algumas decisões podem ser públicas; dados internos de faltas e justificativas devem ser restritos. |
+| `RF-ATASERVICO-009` | Consulta pública ou restrita  | Decisões autorizadas podem ser públicas, mas dados internos de faltas e justificativas são restritos; PDF e versão oficial devem permanecer vinculados ao Google Drive institucional. |
+| `RF-ATASERVICO-010` | Template editável da Secretaria Geral | Secretário Geral mantém modelo padronizado de ata de serviço com histórico de versões, prévia, geração de PDF e arquivamento privado no Google Drive institucional. |
 
-### RF-RELATORIOS — Dashboards e relatórios (19)
+### RF-RELATORIOS — Dashboards e relatórios (20)
 
 | ID | Capacidade | Condição/requisito da fonte consolidada |
 |---|---|---|
@@ -281,6 +288,7 @@ flowchart TB
 | `RF-RELATORIOS-017` | Relatório financeiro público | O relatório financeiro pode ser público como prestação de contas, exibindo data, valor, categorias e saldo, mas sem expor nomes de contribuintes. |
 | `RF-RELATORIOS-018` | Exportação | Relatórios devem poder ser exportados em CSV quando autorizado. |
 | `RF-RELATORIOS-019` | Impressão/PDF via navegador | Relatórios devem ter visualização amigável para impressão ou geração de PDF pelo navegador. |
+| `RF-RELATORIOS-020` | Nomes permitidos no relatório de ingresso | Relatórios públicos podem mostrar apenas primeiro nome ou apelido de ingressante autorizado pelo grupo, sem telefone/endereço, contato privado ou informação do kit. |
 
 ### RF-MIGRACAO — Migração e reconciliação (15)
 
@@ -303,13 +311,13 @@ flowchart TB
 | `RF-MIGRACAO-014` | Migração de workflows n8n | Exportar, catalogar e substituir cada workflow ativo por endpoints, eventos, jobs, comandos ou telas próprias; documentar fluxos descontinuados e motivo. |
 | `RF-MIGRACAO-015` | Substituição de visões Google Docs/Looker | Reconstituir `VAGO`, `Relação de Servidores`, documentos operacionais e relatórios/dashboards a partir dos dados normalizados, sem cópias manuais. |
 
-### RF-SERVIDORES — Servidores, mandatos e escalas (14)
+### RF-SERVIDORES — Servidores, mandatos e escalas (17)
 
 | ID | Capacidade | Condição/requisito da fonte consolidada |
 |---|---|---|
 | `RF-SERVIDORES-001` | Cadastro de encargos | O sistema deve permitir cadastrar encargos e funções de serviço. |
 | `RF-SERVIDORES-002` | Cadastro de reuniões/horários | O sistema deve permitir cadastrar dias, horários e tipos de reunião vinculados a encargos. Hoje há reunião principal às 20h, mas o sistema deve suportar múltiplos horários no mesmo dia. |
-| `RF-SERVIDORES-003` | Encargos configuráveis | O sistema deve permitir criar, extinguir e reativar encargos, como ocorreu com Kit Ingresso, Secretário Geral e Coordenador Geral. |
+| `RF-SERVIDORES-003` | Encargos configuráveis | O sistema permite cadastrar e gerir encargos preservando seis cargos atuais da mesa: Coordenador Geral, Secretário Geral, Tesoureiro, RSG, RSG Suplente e Coordenador Kit Ingresso; mudanças futuras exigem decisão registrada. |
 | `RF-SERVIDORES-004` | Associação de servidor | O sistema deve associar um usuário servidor a um encargo, dia, horário e reunião. |
 | `RF-SERVIDORES-005` | Datas de serviço | A associação deve registrar data de início e previsão/data de término. |
 | `RF-SERVIDORES-006` | Status do serviço | O serviço deve ter status como ativo, vago, temporário, concluído, entregue, destituído e suspenso. |
@@ -321,13 +329,16 @@ flowchart TB
 | `RF-SERVIDORES-012` | Encargo concluído, entregue ou destituído | Quando o encargo termina, é entregue ou há destituição, a mesa deve poder registrar o motivo, manter histórico e atualizar a vaga. |
 | `RF-SERVIDORES-013` | Comando !vago | O comando !vago deve retornar dados gerados do banco, não de Google Docs manual. |
 | `RF-SERVIDORES-014` | Comando !servidores | O comando !servidores deve retornar relação atual de servidores gerada do banco. |
+| `RF-SERVIDORES-015` | Encargos da mesa | Cadastrar Coordenador Geral, Secretário Geral, Tesoureiro, RSG, RSG Suplente e Coordenador Kit Ingresso como encargos distintos com responsabilidades/mandatos definidos. |
+| `RF-SERVIDORES-016` | Moderação diária em dupla | Modelar moderador de reunião como função de serviço com duas pessoas por ocorrência, alternando papéis de fala e chat; não confundir cargos gerais da mesa com papéis do dia. |
+| `RF-SERVIDORES-017` | Término e destituição com revogação | Conceder permissões pelo encargo quando ativado; expiração automática ou entrega/destituição manual revoga direito na mesma operação, guardando autor, motivo, data e histórico. |
 
-### RF-KIT — Kit ingresso (17)
+### RF-KIT — Kit ingresso (18)
 
 | ID | Capacidade | Condição/requisito da fonte consolidada |
 |---|---|---|
 | `RF-KIT-001` | Criar pendência de kit | Quando uma ata registrar ingresso, o sistema deve criar pendência de kit ingresso. |
-| `RF-KIT-002` | Relacionar ingressante | Cada pendência deve estar relacionada a um usuário cadastrado. |
+| `RF-KIT-002` | Relacionar ingressante | Cada pendência deve estar vinculada ao registro de ingresso; o ingressante não precisa ter conta de login em `usuarios`. |
 | `RF-KIT-003` | Dados do ingressante | O módulo deve permitir registrar telefone, CEP, endereço, status, observações, responsáveis e código de rastreio. |
 | `RF-KIT-004` | Busca de CEP | O sistema deve permitir buscar/preencher endereço com base no CEP, quando integração estiver disponível. |
 | `RF-KIT-005` | Status do kit | O status deve suportar verificar, falta endereço, falta enviar, enviado, recebido, devolvido e cancelado. |
@@ -337,15 +348,16 @@ flowchart TB
 | `RF-KIT-009` | Rastreamento | O sistema deve consultar rastreamento de objetos enviados por job configurado. |
 | `RF-KIT-010` | Eventos de rastreio | Eventos de rastreio devem ser armazenados no banco. |
 | `RF-KIT-011` | Atualização automática de status | Quando rastreamento indicar entrega, devolução ou evento relevante, o sistema deve atualizar status e notificar. |
-| `RF-KIT-012` | Permissão de edição | Apenas mesa, SuperAdmin, root ou usuários com permissão extra de kit ingresso podem editar dados do kit. |
-| `RF-KIT-013` | Proteção de telefone e endereço | Telefone e endereço do ingressante devem ser visíveis apenas para usuários autorizados. Nem todos os servidores devem ter acesso. |
+| `RF-KIT-012` | Permissão de edição | **Somente o Coordenador Kit Ingresso com mandato ativo** pode acessar e modificar dados operacionais do kit. Administradores gerais e root não herdam esse acesso. |
+| `RF-KIT-013` | Proteção de telefone e endereço | Telefone e endereço do ingressante devem ser visíveis exclusivamente ao Coordenador Kit Ingresso em mandato vigente, sob justificativa de finalidade e trilha de acesso. |
 | `RF-KIT-014` | Auditoria | Toda alteração em kit ingresso deve gerar auditoria. |
 
 | `RF-KIT-015` | Serviço dedicado de rastreamento | Integrar o serviço [opastorello/correios-rastreamento](https://github.com/opastorello/correios-rastreamento) por API REST autenticada em rede privada; as informações oficiais de remessa permanecem no PostgreSQL do QuarenteNA. |
 | `RF-KIT-016` | Atualização agendada e reprocessamento | Consultar periodicamente remessas não finalizadas com idempotência, limites, tratamento de falhas e mecanismo de reconsulta manual. |
 | `RF-KIT-017` | Proteção e consistência do rastreio | Normalizar eventos, rejeitar duplicatas, registrar data/hora e não divulgar destinatário, endereço ou telefone em interfaces e logs públicos. |
+| `RF-KIT-018` | Exclusividade do coordenador do kit | Somente Coordenador Kit Ingresso com mandato vigente pode acessar filas, contatos, endereços e remessas; mesa e root não possuem acesso de negócio ordinário. |
 
-### RF-TESOURARIA — Tesouraria e ASAAS (15)
+### RF-TESOURARIA — Tesouraria e ASAAS (17)
 
 | ID | Capacidade | Condição/requisito da fonte consolidada |
 |---|---|---|
@@ -355,15 +367,17 @@ flowchart TB
 | `RF-TESOURARIA-004` | Tipos de lançamento | O sistema deve suportar entradas e saídas. |
 | `RF-TESOURARIA-005` | Descrição e categorização automática | Quando o webhook enviar descrição do PIX recebido ou enviado, essa descrição deve alimentar automaticamente a categorização inicial do lançamento, permitindo edição posterior pelo tesoureiro. |
 | `RF-TESOURARIA-006` | Categorias | Lançamentos devem ter categorias, como 7ª Tradição, literatura, reserva prudente, despesas, Zoom, doação, transferência e outras definidas pela mesa/tesoureiro. |
-| `RF-TESOURARIA-007` | Revisão pelo tesoureiro | Usuários com permissão de tesouraria devem poder revisar e categorizar lançamentos. |
+| `RF-TESOURARIA-007` | Revisão pelo tesoureiro | Somente o Tesoureiro com designação ativa pode corrigir ou categorizar lançamentos já efetivados, com auditoria. |
 | `RF-TESOURARIA-008` | Edição com auditoria | Qualquer edição em lançamento financeiro deve gerar auditoria com valor anterior, valor novo e justificativa quando aplicável. |
-| `RF-TESOURARIA-009` | Lançamento manual | O sistema deve permitir lançamentos manuais. |
+| `RF-TESOURARIA-009` | Lançamento manual | Somente o Tesoureiro pode criar lançamento manual com efeito imediato após salvar, sem rascunho ou conferência obrigatória. |
 | `RF-TESOURARIA-010` | Reserva prudente | O sistema deve controlar reserva prudente, inclusive lançamentos manuais, pois essa parte pode não ter webhook. |
 | `RF-TESOURARIA-011` | Saldo | O sistema deve calcular saldo por período, conta, categoria e visão geral. |
 | `RF-TESOURARIA-012` | Dashboard financeiro | O sistema deve exibir dashboard financeiro com entradas, saídas, saldo, categorias, evolução, média de contribuição e projeções de autossustentabilidade. |
-| `RF-TESOURARIA-013` | Visualização restrita | Servidores e usuários comuns podem visualizar apenas relatórios permitidos. Edição é restrita a tesouraria, mesa, root e SuperAdmin. |
+| `RF-TESOURARIA-013` | Visualização restrita | Servidores podem consultar apenas projeções autorizadas. A edição financeira é **exclusiva do Tesoureiro com encargo vigente**, sem herança por Mesa, root ou administrador técnico. |
 | `RF-TESOURARIA-014` | Relatório financeiro público | O relatório financeiro público deve omitir nomes de contribuintes, exibindo apenas informações agregadas ou transacionais permitidas, como data, valor, categoria e saldo. |
 | `RF-TESOURARIA-015` | Comando !saldo | O comando !saldo deve responder com saldo ou relatório resumido autorizado, sem expor dados restritos indevidos. |
+| `RF-TESOURARIA-016` | Lançamento financeiro imediato | Evento ASAAS autenticado e financeiramente elegível gera lançamento confirmado idempotente; formulário manual salvo pelo tesoureiro gera lançamento direto, sem rascunho ou etapa de aprovação. |
+| `RF-TESOURARIA-017` | Correção, estorno e exclusão auditáveis | Somente tesoureiro edita, estorna ou exclui logicamente lançamento; preservar origem, evento, valores antes/depois, responsável, motivo e impacto no saldo. |
 
 ### RF-WHATSAPP — WhatsApp / Evolution API (10)
 
@@ -395,7 +409,7 @@ flowchart TB
 | `RF-ZOOM-009` | Não vigilância individual | O sistema não deve usar dados do Zoom para criar controle público ou operacional comum de frequência individual de membros. |
 | `RF-ZOOM-010` | Pesquisa técnica futura | Na fase de arquitetura, deve-se consultar a documentação atual do Zoom para verificar outros eventos úteis além de participant_joined. |
 
-### RF-ADMINISTRACAO — Administração e configurações (7)
+### RF-ADMINISTRACAO — Administração e configurações (10)
 
 | ID | Capacidade | Condição/requisito da fonte consolidada |
 |---|---|---|
@@ -405,7 +419,10 @@ flowchart TB
 | `RF-ADMINISTRACAO-004` | Textos de comandos  | O sistema deve permitir configurar textos retornados por comandos WhatsApp quando aplicável. |
 | `RF-ADMINISTRACAO-005` | Integrações  | O sistema deve permitir configurar credenciais e status de integrações em ambiente seguro, sem expor segredos publicamente. |
 | `RF-ADMINISTRACAO-006` | Jobs  | O sistema deve permitir ver status de jobs automáticos, como rastreamento, avisos de serviço e backups. |
-| `RF-ADMINISTRACAO-007` | Logs técnicos  | SuperAdmin/root devem poder consultar logs técnicos relevantes. |
+| `RF-ADMINISTRACAO-007` | Logs técnicos  | Coordenador Geral e Secretário Geral podem consultar logs técnicos; root somente em sessão excepcional registrada. Nenhuma dessas permissões expõe dados privados de kit ou tesouraria. |
+| `RF-ADMINISTRACAO-008` | Painel de integrações | Coordenador Geral, Secretário Geral e root excepcional podem configurar URL, API, webhook, parâmetros e testes; segredos mascarados/criptografados e alteração auditada. |
+| `RF-ADMINISTRACAO-009` | Armazenamento Google Drive | Documentos institucionais e PDFs devem ser armazenados no Google Drive com controles de acesso e metadados no PostgreSQL; Drive não substitui o banco. |
+| `RF-ADMINISTRACAO-010` | Serviços opcionais | Usar MinIO/S3 e Redis apenas se houver necessidade medida; configuração e falhas aparecem na administração quando habilitados. |
 
 ### RF-BACKUP — Backup, recuperação e operações (6)
 
@@ -428,7 +445,7 @@ flowchart TB
 | `RF-DOCUMENTACAO-004` | Documentação técnica | Responsáveis técnicos devem ter documentação de instalação, deploy, backup, restore, jobs, webhooks e variáveis de ambiente. |
 | `RF-DOCUMENTACAO-005` | Adaptação para outro grupo | O projeto deve incluir instruções versionadas para adaptação por fork, explicando como adaptar um fork para outro grupo, alterando nome, domínio, e-mail, Zoom, Evolution API, ASAAS, textos, links, cores, logo, .env, usuário root e configurações iniciais. |
 
-### RF-AUTOMACOES — Migração de rotinas e integrações operacionais (15)
+### RF-AUTOMACOES — Migração de rotinas e integrações operacionais (16)
 
 Os itens abaixo formalizam a decisão aprovada de migrar **todas as funções ativas** hoje dependentes de n8n, Sheets e Apps Script para o sistema, sem copiar literalmente scripts inseguros. Cada rotina deve ter origem, gatilho, destino, entradas, saídas, tratamento de erro, testes e responsável.
 
@@ -449,6 +466,7 @@ Os itens abaixo formalizam a decisão aprovada de migrar **todas as funções at
 | `RF-AUTOMACOES-013` | Dashboards e relatórios | Reproduzir agregações, filtros e cálculos atualmente usados no Looker e Sheets com rastreabilidade de fórmula. |
 | `RF-AUTOMACOES-014` | Mensageria Telegram | Manter equivalência do resumo para Telegram quando a operação confirmar esse canal como ativo. |
 | `RF-AUTOMACOES-015` | Desativação segura | Desligar cada workflow/script legado somente após comparação funcional, backup, reprocessamento e aceite específico. |
+| `RF-AUTOMACOES-016` | Rotinas e modelos configuráveis | Cada cron/job migrado deve permitir ativar/desativar, editar modelo de mensagem, frequência e destinos permitidos, inspecionar execução e reprocessar falhas sem duplicar envios; comandos Evolution tratados por handlers Laravel. |
 
 ```mermaid
 flowchart LR
@@ -501,14 +519,24 @@ flowchart LR
 | RB-04 | Corrigir, anular ou revisar ata preserva origem, justificativa, autor e anterior/posterior |
 | RB-05 | Usuário cadastrado operacionalmente pode não ter login; não autogerar contas por participação Zoom |
 | RB-06 | Root institucional é contingência protegida; dados nominais/IDs fixos devem ser revisados fora de material público |
-| RB-07 | Kit ingresso usa dados de contato/endereço apenas para cumprimento da finalidade operacional e autorização específica |
-| RB-08 | ASAAS pode sugerir categoria; conciliação e retificação dependem de tesouraria com trilha |
+| RB-07 | Kit ingresso usa contato/endereço exclusivamente para entrega, com acesso restrito ao Coordenador Kit; relatório público de ingressos admite nome/apelido autorizado, não PII de entrega |
+| RB-08 | ASAAS gera lançamento financeiro efetivo por evento validado; divergências/correções posteriores competem somente ao tesoureiro com trilha |
 | RB-09 | Comandos respondem dentro de grupo e permissões configuradas; `!saldo` não pode vazar detalhes proibidos |
 | RB-10 | Publicação de relatórios exige revisão editorial de privacidade; apenas agregados públicos aprovados |
 | RB-11 | Encargos podem ser criados, encerrados, entregues ou destituídos, com histórico sem exclusão destrutiva |
 | RB-12 | Todos os dados, tabelas, scripts, funções, workflows e relatórios ativos são transferidos para operações nativas e auditáveis; `n8n`, Sheets, Apps Script e Looker perdem função operacional **após** cutover aceito, não antes |
 | RB-13 | Nenhum fluxo automático substitui decisão de consciência coletiva ou validação humana sensível |
 | RB-14 | Cadastro/fusão de pessoas demanda prevenção de colisão e validação, especialmente homônimos |
+
+| RB-15 | Mesa = Coordenador Geral, Secretário Geral, Tesoureiro, RSG, RSG Suplente e Coordenador Kit. Moderadores do dia compõem dupla escalada e podem alternar fala/chat, sem cargos fixos independentes |
+| RB-16 | Permissão é derivada de encargo vigente: concessão na designação, revogação automática no término e imediata na entrega/destituição; usuário usa conta pessoal |
+| RB-17 | Apenas tesoureiro altera finanças; apenas Coordenador Kit lê/gerencia contatos, endereços e remessas; admins da mesa/root cuidam de acessos, mas não ganham esses privilégios rotineiros |
+| RB-18 | Root genérico institucional é excepcional para recuperação/configuração, com MFA, sessão justificada e operador identificado; jamais substituir login nominal habitual |
+| RB-19 | Financeiro: salvar lança; ASAAS validado lança; alteração/exclusão lógica posterior gera auditoria completa, sem rascunho ou pendência de aprovação |
+| RB-20 | Nome/apelido de ingressante pode aparecer no relatório público autorizado; telefone, endereço e dados do kit não podem ser públicos |
+| RB-21 | Ciro/ciro/CIRO e espaços divergentes são equivalências de busca, não identidade única; homônimos não são mesclados automaticamente |
+| RB-22 | Modelo de ata de serviço editável pelo Secretário Geral; documentos no Google Drive institucional, com PostgreSQL autoritativo para metadados e regras |
+| RB-23 | Rotinas de Apps Script/n8n migram para jobs/handlers Laravel com flags, agendamento e template editável; Redis/MinIO não são serviços obrigatórios |
 
 ## 6. Casos de aceitação ponta a ponta
 
@@ -518,7 +546,7 @@ flowchart LR
 | CA-02 | Secretário inicia ata, perde conexão e retorna | Rascunho preservado ou falha explicitada sem perda silenciosa; revisão e envio registrados |
 | CA-03 | Zoom indisponível ou sugere contagem incorreta | Secretário pode inserir/corrigir presença; público não recebe lista nominal |
 | CA-04 | Mesma mensagem ASAAS reapresentada | Um evento lógico não cria lançamentos duplicados; erro auditável |
-| CA-05 | Usuário sem permissão acessa kit/tesouraria/Zoom | Acesso recusado em interface e endpoint; sem dados sensíveis em logs públicos |
+| CA-05 | Usuário sem encargo vigente acessa kit/tesouraria/Zoom | Policies recusam leitura de kit e escrita financeira em interface e endpoint, inclusive para administração geral; sem PII nos logs |
 | CA-06 | Ata enviada corrigida com justificativa | Alteração anterior/nova registrada; indicadores recalculados com status correto |
 | CA-07 | Ingresso gera pendência de kit | Responsável autorizado acompanha pendência e expedição; dados pessoais invisíveis aos demais |
 | CA-08 | Encargo se encerra ou está vago | Escala e comandos `!vago`/`!servidores` refletem estado atual |
@@ -533,6 +561,14 @@ flowchart LR
 | CA-16 | Rastreamento de remessa com serviço indisponível | A consulta entra em retry controlado; kit continua acessível e atualizável; não há duplicidade de eventos nem vazamento de endereço. |
 | CA-17 | Workflow migrado de n8n e Apps Script | A mesma entrada produz resultado equivalente e rastreável; erros geram incidentes reprocessáveis; fluxo anterior só é desligado após aceite. |
 | CA-18 | Planilha com fórmulas e abas adicionais | Cada aba/campo/regra ativa é mapeada para destino ou descarte justificado; totais e cálculo do dashboard são comparados com a fonte. |
+
+| CA-19 | Designação, fim e destituição de encargo | Atribuição habilita funções certas; prazo encerra direito mesmo sem execução de cron; entrega/destituição revoga imediatamente; histórico íntegro. |
+| CA-20 | Dupla de moderadores da reunião diária | Dois escalados aptos a fala/chat alternam funções na ocorrência; ata usa usuários estáveis e nomes não duplicam cadastro. |
+| CA-21 | Financeiro ASAAS e manual | Webhook válido contabiliza uma única vez; tesoureiro salva lançamento manual com efeito imediato; correção/exclusão lógica preserva antes/depois sem outro usuário conseguir editar. |
+| CA-22 | Kit e relatório público | Apenas Coordenador Kit vê telefone/endereço; relatório público pode mostrar apelido/primeiro nome editorialmente permitido, jamais contato/destino. |
+| CA-23 | Administração técnica e root | Admins da mesa configuram APIs/webhooks com segredos mascarados; root usado só excepcionalmente com MFA, justificativa e operador identificável. |
+| CA-24 | Template de serviço e Drive | Secretário Geral edita modelo, gera ata/PDF, armazena no Drive privado e vê versão; PostgreSQL mantém ID/metadados. |
+| CA-25 | Rotinas Laravel substituem cron e n8n | Desabilitar rotina impede envio; editar template altera próxima mensagem; `!ajuda`/`!vago` são roteados pelo webhook Evolution; replays não duplicam ações. |
 
 ## 7. Entidades conceituais (NÃO é o schema físico)
 
@@ -609,12 +645,12 @@ flowchart LR
 | Nº | Parâmetro que demanda definição operacional ou verificação técnica | Responsabilidade |
 |---|---|---|
 | 01 | Agenda exata, tipos e definição de ocorrência para múltiplos horários | Conferência operacional |
-| 02 | Matriz de acesso por mesa, servidor, RSG, Tesouraria, Kit e SuperAdmin | Conferência operacional |
+| 02 | Matriz de acesso de mesa, moderadores, Tesoureiro exclusivo, Coordenador Kit exclusivo e mandato temporário **aprovada**; parametrizar prazos exatos | Parametrização da implementação |
 | 03 | Política de retenção e finalidade de Zoom, mensagens e PII de ingressantes | Conferência operacional |
-| 04 | Modelo institucional de conta root / gestão de segredos / seed nominal | Arquitetura e segurança |
+| 04 | Conta root excepcional aprovada; definir cofre de credenciais, MFA e custódia sem ID fixo | Arquitetura e segurança |
 | 05 | Conciliação de visitas × ingresso × conquista e regra para homônimos | Conferência operacional |
 | 06 | Critérios de correção/anulação de ata e quóruns/fluxos de aprovação | Conferência operacional |
-| 07 | Categorias e publicação de dados financeiros agregados | Tesouraria e mesa |
+| 07 | Financeiro com lançamento imediato aprovado; mapear categorias e limites de divulgação agregada | Tesouraria e mesa |
 | 08 | Inventário integral de comandos WhatsApp e resposta por grupo | Conferência operacional |
 | 09 | Formatos, acesso e aceite da migração das fontes históricas | Conferência operacional |
 | 10 | Domínio final, conteúdo público e ownership técnico | Conferência operacional |
@@ -644,8 +680,8 @@ Este é o **único documento `PRD.md`**. Cada ID é único e permanente dentro d
 | Product Brief | Problema, público, valor, metas e não objetivos | **APROVADO** |
 | PRD | Funcionalidades com IDs, regras, RNFs e casos de aceite | **APROVADO** |
 | Validação técnica do PRD | Testabilidade, segurança, rastreabilidade e contratos | A executar no gate BMAD, sem reabrir aprovação do escopo |
-| UX Design | Fluxos/telas e acessibilidade de áreas público e admin | Elaborado em `UX-Design.md`; requer teste com usuários |
-| Arquitetura | Decisões de runtime, banco, APIs, permissão, deploy, webhooks e recuperação | Elaborado em `Arquitetura.md`; homologação técnica pendente |
+| UX Design | Fluxos/telas e acessibilidade de áreas público e admin | **APROVADO** em `UX-Design.md`; testes práticos integram homologação |
+| Arquitetura | Decisões de runtime, banco, APIs, permissão, deploy, webhooks e recuperação | **APROVADA** em `Arquitetura.md`; migrations/infra ainda não executadas |
 | Epics/stories | Slicing de ponta a ponta a partir de PRD **aprovado** | Não gerados nesta entrega |
 | Implementation | Construção, testes, migração e cutover | Não iniciada por estes artefatos |
 

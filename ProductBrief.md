@@ -4,7 +4,7 @@ project: Grupo QuarenteNA — Plataforma Web
 artifact: product-brief
 method: "BMAD 6.12.4 — artefato canônico de planejamento"
 status: "APROVADO"
-date: "2026-10-17"
+date: "2026-10-18"
 source_window: "2026-03 a 2026-05"
 ---
 
@@ -57,11 +57,31 @@ flowchart LR
 |---|---|---|
 | Recém-chegado | Entender o grupo e acessar a reunião | Acha horário, regras e Zoom sem criar conta |
 | Participante recorrente | Entrar rápido e consultar informações públicas | Home confiável e leve |
-| Secretário/coordenador do dia | Registrar a reunião | Ata pré-preenchida, editável, rascunho e envio seguro no celular |
-| Mesa e responsáveis por serviço | Administrar encargos, documentação, atas e decisões | Menos planilhas, controle de alterações e continuidade |
-| Tesoureiro | Conciliar entradas/saídas e prestar contas | ASAAS auditável; divulgação pública sem identificação |
-| Responsável pelo kit ingresso | Acompanhar pendências e expedições | Acesso limitado a contatos/endereço; status e rastreio |
+| Dupla de moderadores escalada | Conduzir Zoom e registrar a reunião | Ambos conseguem coordenar e secretariar; o responsável pelo chat envia a ata, com substituição entre pares |
+| Mesa e responsáveis por serviço | Administrar encargos, documentação, atas e decisões | Acessos automáticos vinculados ao mandato; responsabilidades separadas e auditadas |
+| Tesoureiro | Administrar entradas/saídas e prestar contas | Webhook ASAAS registra automaticamente; lançamento manual é imediato; apenas tesoureiro edita/exclui logicamente |
+| Coordenador Kit Ingresso | Contatar ingressantes, organizar envios e acompanhar rastreamento | Acesso exclusivo aos dados de endereço/contato; remessas e eventos rastreáveis |
 | Responsável técnico | Manter a plataforma e recuperar o serviço | Backup testado, logs, exportação, instalação documentada |
+
+
+### Estrutura de servidores e responsabilidades aprovada
+
+O grupo possui **seis encargos de mesa** e, separadamente, dois **moderadores escalados por reunião**. Um cargo na mesa não equivale a uma função exercida na reunião diária.
+
+| Encargo na mesa | Responsabilidade | Autorização institucional predominante |
+|---|---|---|
+| Coordenador Geral | Coordenação geral, supervisão administrativa, apoio a todos os serviços | Administração funcional/técnica e gestão de acessos; **não edita tesouraria nem kit** |
+| Secretário Geral | Documentos, registros, atas mensais de serviço, acervo e apoio à administração técnica | Gestão documental, modelo editável de ata de serviço, administração funcional/técnica; **não edita tesouraria nem kit** |
+| Tesoureiro | Escrituração e movimentações financeiras, conferência de entradas/saídas | **Único encargo que cria, edita e exclui logicamente lançamentos financeiros**, com auditoria |
+| RSG | Representação do grupo perante NA e a sociedade | Consulta/ações de representação conforme designação; sem acesso financeiro ou aos dados do kit por padrão |
+| RSG Suplente | Auxílio e substituição do RSG | Permissões de representação durante substituição autorizada, sem privilégios administrativos implícitos |
+| Coordenador Kit Ingresso | Contato com ingressantes, montagem, envio e acompanhamento dos kits | **Único encargo com acesso operacional ao kit, telefones, endereços e remessas** |
+
+**Moderadores das reuniões regulares:** todos os dias, das **20h às 22h**, há uma dupla escalada. Ambos devem saber configurar a sala Zoom, coordenar pela fala e secretariar pelo chat. Em cada ocorrência, um atua como coordenador (partilhas, falas e avisos) e outro como secretário (chat, lista de partilhas, contagens e ata), mas **essas são funções intercambiáveis na escala, não dois encargos/mandatos independentes**. Se um faltar ou tiver dificuldade, o outro pode substituí-lo. Não confundir Coordenador Geral e Secretário Geral com essas funções temporárias.
+
+**Acesso dinâmico por encargo:** designação ativa concede apenas as capacidades daquele encargo; término do período revoga automaticamente; entrega/destituição/revogação manual por administrador é efetiva imediatamente. O histórico da designação, da concessão e da revogação é preservado. Uma designação expirada jamais pode ser usada para autorizar uma requisição, mesmo antes da execução do job de limpeza.
+
+**Conta `root` institucional:** acesso genérico de contingência, reservado à recuperação de acesso, gestão excepcional de administradores da mesa e manutenção/configuração de integrações. Não é conta de trabalho cotidiano nem substitui identidades pessoais; deve ter MFA, credencial sob guarda segura, justificativa de uso, alerta e registro de sessão com identificação do operador para rastreabilidade. Sessão `root` **não deve ser caminho normal de edição de tesouraria ou kit**.
 
 ### Jornada-síntese: ata do dia
 
@@ -99,17 +119,17 @@ journey
 | Núcleo | Capacidades incluídas |
 |---|---|
 | Portal público | Landing page, agenda, Zoom, informações NA, relatórios públicos aprovados |
-| Pessoas e acesso | Pessoas operacionais, contas com login quando apropriado, permissões e contas de contingência |
+| Pessoas e acesso | Encargos da mesa, duplas moderadoras por ocorrência, permissões temporárias por mandato, contas pessoais e root excepcional |
 | Atas regulares | Pré-preenchimento, rascunho, conferência, envio, correção e histórico |
-| Atas de serviço | Modelo, presenças, ausências, decisões e exportação em PDF |
+| Atas de serviço | Template editável pelo Secretário Geral, presenças, ausências, decisões e PDF arquivado no Google Drive institucional |
 | Gestão de serviço | Encargos, reuniões, escalas, vagas, histórico e vencimentos |
 | Indicadores | Dashboards operacionais, visitas, ingresso, conquistas, temáticas e filtros |
-| Tesouraria | ASAAS, entradas/saídas, conciliação, reserva prudente e relatório público agregado |
+| Tesouraria | Lançamentos automáticos imediatos via ASAAS e manuais imediatos; tesoureiro exclusivo para correção/exclusão lógica com trilha, reserva prudente e agregados públicos |
 | Kit ingresso | Pendência, coleta restrita, entrega, expedição e rastreamento automático via serviço `opastorello/correios-rastreamento` |
 | Comunicações | Evolution API, WhatsApp, comandos e notificação autorizada |
 | Presença Zoom | Webhook, eventos separados, sugestão de contagem; não vigilância individual |
 | Migração | Importar legado, deduplicar com revisão humana, comparar totais |
-| Operação | Auditoria, logs mínimos, documentação, exportação, backup e restauração |
+| Operação | Auditoria, logs mínimos, configurações de integrações via root/admin autorizado, documentos no Google Drive, MinIO/Redis somente se necessários, backup e restauração |
 
 ### Migração integral do ecossistema operacional
 
@@ -143,6 +163,16 @@ flowchart TB
   DB --> EXPORT[Backups / exportação / contingência]
   DB --> AUD[Auditoria restrita]
 ```
+
+### Regras financeiras e divulgação pública
+
+O **tesoureiro é o único titular da permissão de edição financeira**. Evento ASAAS validado gera lançamento confirmado conforme a regra do evento, sem fila de aprovação humana; registro manual salvo pelo tesoureiro também produz lançamento imediatamente. Divergência posterior é corrigida/estornada/excluída logicamente mediante justificativa, mantendo a trilha histórica e o evento de origem. Filas de processamento de webhook não representam “lançamento financeiro pendente”.
+
+A identidade de ingressantes pode figurar em **relatório público de ingresso apenas como primeiro nome ou apelido editorialmente autorizado**; endereço, telefone, dados de contato e detalhes do kit nunca integram a projeção pública. Homônimos e grafias diferentes não autorizam fusão automática de pessoas.
+
+### Governança de comunicação e documentos
+
+Avisos dos antigos cron jobs e rotinas do n8n serão jobs/eventos Laravel com **ativação/desativação por rotina**, programação editável, modelos de mensagem editáveis por responsável autorizado, trilha de envio e idempotência. Comandos Evolution API (`!ajuda`, `!vago` etc.) serão despachados por um roteador de comandos PHP, sem dependência de n8n em produção. Google Drive permanece integração de armazenamento institucional de documentos, **não banco operacional**.
 
 ## 6. Não objetivos e limites éticos
 

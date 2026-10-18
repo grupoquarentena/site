@@ -4,7 +4,7 @@ project: Grupo QuarenteNA — Plataforma Web
 artifact: analysis-context
 method: "BMAD 6.12.4 — artefato canônico de planejamento"
 status: "APROVADO"
-date: "2026-10-17"
+date: "2026-10-18"
 source_window: "2026-03 a 2026-05"
 ---
 
@@ -71,7 +71,7 @@ Acesso rápido ao Zoom; legitimidade e acolhimento do grupo; divulgação de age
 | Frequência e partilhas | Sheets → Looker | Agregados no painel próprio | Comparação de métricas por período/horário | Indicadores históricos observados |
 | Serviço/encargos | Sheets + Docs `VAGO` / `Relação de Servidores` | Cadastro, vagas, mandatos e notificações | Vagas e escalas reconciliadas | Planilhas/roteiros descritos |
 | Kit ingresso | Planilha + mensagens e rastreamento | Fila, status, endereço restrito, expedição e serviço Correios REST | Conferência de kits pendentes/enviados | Fluxos e campos descritos |
-| Tesouraria | Planilhas + ASAAS + automações | Lançamentos auditáveis e conciliação | Saldo, reserva prudente e categorias conferidos | Regras pretendidas + fontes antigas |
+| Tesouraria | Planilhas + ASAAS + automações | Lançamento imediato por ASAAS/manual, edição somente do Tesoureiro | Saldo, reserva prudente e categorias conferidos | Novo fluxo aprovado + fontes antigas |
 | WhatsApp | n8n + Evolution API | Comandos PHP sobre dados autorizados | Mesmo conjunto de comandos essenciais | Dependência funcional descrita |
 | Zoom | Webhooks e scripts auxiliares | Eventos restritos; sugestões agregadas | Contagens por reunião com correção humana | Integração documentada; payload a confirmar |
 | Reuniões de serviço | Planilha + PDFs + Docs | Ata de serviço estruturada com PDF | Histórico e decisões reconciliados | Dados descritos |
@@ -104,7 +104,7 @@ flowchart LR
   N --> K
 ```
 
-### Diagrama de capacidades desejadas (não é arquitetura aprovada)
+### Diagrama de capacidades aprovadas (estrutura técnica documentada em Arquitetura.md)
 
 ```mermaid
 flowchart TB
@@ -129,19 +129,50 @@ Os registros históricos de maio de 2026, agora reconciliados com o Brief e PRD 
 | Tema | Formulação canônica | Status documental |
 |---|---|---|
 | Identidade do projeto | Site público em `GrupoQuarenteNA.org` e painel em `/admin` | Planejado; domínio não verificado |
-| Arquitetura tecnológica pretendida | PHP, PostgreSQL e Docker | Diretriz de produto; framework e desenho a definir |
-| Servidores | Mesa: Secretário Geral, Tesoureiro, RSG, RSG Suplente e Kit Ingresso; Coordenador Geral extinto, mas configurável | Descrição histórica de cargos, confirmar composição vigente |
-| Moderação do dia | Secretário registra ata; coordenador conduz; uma pessoa pode acumular quando necessário | Regra de proposta, sujeita a validação |
+| Arquitetura tecnológica pretendida | Laravel derivado do template, PostgreSQL e Docker; BMAD e Laravel Boost | Arquitetura documental aprovada; não implantada |
+| Servidores | **Mesa atual confirmada:** Coordenador Geral, Secretário Geral, Tesoureiro, RSG, RSG Suplente e Coordenador Kit Ingresso | **Confirmado pelo responsável do projeto em 18/10/2026** |
+| Moderação do dia | **Dupla diária 20h–22h**: ambos treinados; papéis de fala/coordenação e chat/secretaria rotativos, com substituição recíproca | **Confirmado em 18/10/2026** |
 | Agenda | Reuniões diárias 20h–22h no recorte relatado, mas suportar múltiplos horários | Informação histórica, agenda vigente por confirmar |
 | Identidade de pessoas | Pessoas operacionais cadastradas separadamente de participantes Zoom | Diretriz de privacidade |
-| Permissões | Root institucional de contingência, SuperAdmin técnico, mesa, servidor e permissões granulares | Modelo a validar; não publicar seeds nominais |
+| Permissões | Encargo ativo concede flag/capacidade; término/entrega/destituição revoga. Admin técnica pela Coordenação Geral e Secretaria Geral; root excepcional e auditado | **Aprovado; detalhes de MFA/cofre a implantar** |
 | Ata | Login, dados sugeridos/editáveis, rascunho automático, revisão, correção justificada | Requisito aprovado |
-| Ata de serviço | Template, rascunho, campos de presença/decisões e PDF | Requisito aprovado |
-| Financeiro | ASAAS sugere categoria, tesoureiro confere, painel público sem identificação | Requisito aprovado |
+| Ata de serviço | Secretário Geral mantém template editável, gera PDF e organiza arquivos no Google Drive institucional | **Aprovado em 18/10/2026** |
+| Financeiro | **ASAAS lança automaticamente** e tesoureiro lança manualmente sem rascunho/aprovação; somente tesoureiro pode retificar/excluir logicamente com log | **Aprovado em 18/10/2026** |
 | Zoom | Uso agregado e revisão humana; identidade nominal exclusivamente restrita quando indispensável | Limite de privacidade |
 | Migração | Varredura, normalização, sugestão de mesclagem, revisão humana, importação e reconciliação | Gate obrigatório |
 | Reversibilidade | Exportações, backup e retorno temporário à operação manual | Requisito transversal |
 | Replicabilidade | Single-group e fork parametrizado; multi-tenant/SaaS fora do escopo | Decisão de delimitação |
+
+### Regras de serviço confirmadas posteriormente (18/10/2026)
+
+**Atualização de precedência:** quando o inventário histórico abaixo mencionar “Coordenador Geral extinto”, “tesouraria pendente de conciliação” ou moderação dividida em encargos distintos, trata-se de descrição antiga **substituída** pelas decisões desta seção. Não reinterpretar o passado; usar estas regras para o novo sistema.
+
+### Estrutura de servidores e responsabilidades aprovada
+
+O grupo possui **seis encargos de mesa** e, separadamente, dois **moderadores escalados por reunião**. Um cargo na mesa não equivale a uma função exercida na reunião diária.
+
+| Encargo na mesa | Responsabilidade | Autorização institucional predominante |
+|---|---|---|
+| Coordenador Geral | Coordenação geral, supervisão administrativa, apoio a todos os serviços | Administração funcional/técnica e gestão de acessos; **não edita tesouraria nem kit** |
+| Secretário Geral | Documentos, registros, atas mensais de serviço, acervo e apoio à administração técnica | Gestão documental, modelo editável de ata de serviço, administração funcional/técnica; **não edita tesouraria nem kit** |
+| Tesoureiro | Escrituração e movimentações financeiras, conferência de entradas/saídas | **Único encargo que cria, edita e exclui logicamente lançamentos financeiros**, com auditoria |
+| RSG | Representação do grupo perante NA e a sociedade | Consulta/ações de representação conforme designação; sem acesso financeiro ou aos dados do kit por padrão |
+| RSG Suplente | Auxílio e substituição do RSG | Permissões de representação durante substituição autorizada, sem privilégios administrativos implícitos |
+| Coordenador Kit Ingresso | Contato com ingressantes, montagem, envio e acompanhamento dos kits | **Único encargo com acesso operacional ao kit, telefones, endereços e remessas** |
+
+**Moderadores das reuniões regulares:** todos os dias, das **20h às 22h**, há uma dupla escalada. Ambos devem saber configurar a sala Zoom, coordenar pela fala e secretariar pelo chat. Em cada ocorrência, um atua como coordenador (partilhas, falas e avisos) e outro como secretário (chat, lista de partilhas, contagens e ata), mas **essas são funções intercambiáveis na escala, não dois encargos/mandatos independentes**. Se um faltar ou tiver dificuldade, o outro pode substituí-lo. Não confundir Coordenador Geral e Secretário Geral com essas funções temporárias.
+
+**Acesso dinâmico por encargo:** designação ativa concede apenas as capacidades daquele encargo; término do período revoga automaticamente; entrega/destituição/revogação manual por administrador é efetiva imediatamente. O histórico da designação, da concessão e da revogação é preservado. Uma designação expirada jamais pode ser usada para autorizar uma requisição, mesmo antes da execução do job de limpeza.
+
+**Conta `root` institucional:** acesso genérico de contingência, reservado à recuperação de acesso, gestão excepcional de administradores da mesa e manutenção/configuração de integrações. Não é conta de trabalho cotidiano nem substitui identidades pessoais; deve ter MFA, credencial sob guarda segura, justificativa de uso, alerta e registro de sessão com identificação do operador para rastreabilidade. Sessão `root` **não deve ser caminho normal de edição de tesouraria ou kit**.
+
+### Projeção pública dos ingressos e privacidade
+
+O relatório público de ingresso **pode mostrar apenas primeiro nome ou apelido** informado e editorialmente permitido. Telefones, endereços, dados do kit, IDs pessoais e histórico privado nunca serão públicos. Grafias `Ciro`, `ciro`, `CIRO`, `Ciro  ` geram **chave auxiliar de busca** para identificar candidatos ao mesmo cadastro, sem criar nem fundir homônimos automaticamente. O acesso do Coordenador Kit Ingresso é exclusivo e por mandato vigente; cadastro de ingresso não concede login.
+
+### Fluxos financeiros e documentação do grupo
+
+O webhook ASAAS autenticado produz lançamento efetivo quando representa evento financeiro elegível; o Tesoureiro registra lançamentos manuais **com efeito imediato** e pode corrigir/estornar/excluir logicamente depois, com auditoria. O Google Drive permanece o repositório institucional de **arquivos/PDFs** (não de dados transacionais), integrado ao sistema Laravel. Opcionalmente usar MinIO/S3 e Redis só se necessário. Cron jobs da antiga planilha e comandos do n8n são reimplementados como Scheduler/Jobs/handlers Laravel configuráveis com flag, template editável, histórico e idempotência.
 
 ### Governança de evidências e inconsistências
 
@@ -1695,6 +1726,34 @@ sequenceDiagram
 | Privacidade | Acesso restrito, dados minimizados e ausência de PII no dashboard público |
 | Recuperação | Backup restaurado e procedimento de retorno manual disponível |
 | Aceite | Responsáveis autorizam desligamento da rotina antiga individualmente |
+
+### Conferência operacional e migração por coluna
+
+A tabela abaixo complementa o inventário histórico original, evitando transportar colunas com nomes e pessoas duplicadas como se fossem chaves confiáveis.
+
+| Origem de dados | Colunas/semântica documentadas | Entidades de destino no PostgreSQL | Regra de limpeza e aceite |
+|---|---|---|---|
+| Forms / Responses A–Z | Data, horário, presenças, partilhas, visitas, ingressos, conquistas, temáticas, secretário/coordenador, 7ª Tradição, despesas, observações, eleições, contato | `atas`, `ocorrencias_reuniao`, `visitas`, `ingressos`, `conquistas`, `atas_tematicas`, `escalas_reuniao` | Contagens conciliadas; nomes padronizados para busca; PII só no kit; dados financeiros declarativos não geram lançamento duplo |
+| Kit Ingresso A–K | Nome, data, telefone, status, servidor, atualização, observações, CEP/endereço, rastreio/eventos | `kits_ingresso`, `contatos_kit`, `enderecos_kit`, `remessas`, `eventos_rastreio` | Contato cifrado, status determinístico, eventos normalizados e deduplicados |
+| Atas de Serviço A–G | PDF, data, tipo, presentes, faltas, justificativas, interessados | `reunioes_servico`, `atas_servico`, `presencas_servico`, `arquivos` | PDF privado no Drive, template editável pela Secretaria Geral, totais reconciliados |
+| Serviço Grupo Quarentena | Encargo, pessoa, datas, status, contato | `encargos`, `designacoes_servico`, `escalas_reuniao` | Não copiar a linha para “Concluído”; usar histórico temporal de designações e vaga calculada |
+| Tesouraria | Transações, data, valor, categoria, saldo e detalhes do ASAAS | `lancamentos_financeiros`, `eventos_asaas`, `contas_financeiras`, `categorias_financeiras` | Dinheiro DECIMAL, idempotência de evento, lançamento efetivo e correções auditadas; comparar com extrato histórico |
+| Docs `VAGO`/`Relação` | Listagem de vagas e titulares | Consultas derivadas de `designacoes_servico` | Documento deixa de ser fonte de dados; robô `!vago` consulta Laravel |
+| Apps Script / n8n | `ata-resumo`, `ata-kitingresso`, `kit-ingresso`, `servico-terminio`, comandos e disparos por cron | Jobs, agendamentos, webhooks, templates, eventos persistidos | Conferir ativar/desativar, regra de decisão, destinatários e idempotência; desligar legado após paridade |
+
+```mermaid
+flowchart TD
+  A[Escala de moderadores 20h–22h] --> B[Registro da ata sem nomes digitados livremente]
+  B --> C[Normalização e revisões autorizadas]
+  C --> D[(PostgreSQL)]
+  D --> E[Indicadores públicos sem dados de contato]
+  D --> F[Kit privado exclusivo do Coordenador Kit]
+  D --> G[Tesouraria: ASAAS e tesoureiro]
+  D --> H[Docs PDF no Google Drive institucional]
+  I[Encargo vigente] --> J[Policy: permissão efetiva]
+  K[Entrega / destituição / término] --> L[Revogação]
+  L --> J
+```
 
 ## Encerramento e handoff BMAD
 
