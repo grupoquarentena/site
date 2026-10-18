@@ -123,6 +123,10 @@ function assert_valid_zoom_join_url(string $url): void
     if (isset($parts['user']) || isset($parts['pass'])) {
         throw new RuntimeException('meeting.join_url nao pode conter credenciais embutidas.');
     }
+
+    if (isset($parts['port']) && (int) $parts['port'] !== 443) {
+        throw new RuntimeException('meeting.join_url nao pode usar porta alternativa.');
+    }
 }
 
 /** @return list<string> */

@@ -52,7 +52,7 @@ php tests/run.php              # suíte completa
 ```
 
 Estado verificado em 18/10/2026: lint sem erros em 20 arquivos PHP e
-`PASS: 309 verificacoes` na suíte (inclui allowlists de domínio para Zoom e
+`PASS: 310 verificacoes` na suíte (inclui allowlists de domínio para Zoom e
 links de apoio, resolução de destino por contrato, gate de relógio de teste
 via `APP_ENV=test`, concorrência do contador com `flock` e ausência de dados
 operacionais reais no HEAD).

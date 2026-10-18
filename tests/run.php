@@ -289,6 +289,7 @@ $invalidJoinUrls = [
     'https://example.com/j/000' => 'destino generico',
     'join-url-malformada' => 'URL malformada',
     'https://user:senha@zoom.us/j/000' => 'credenciais embutidas',
+    'https://zoom.us:8443/j/000' => 'porta alternativa',
 ];
 
 foreach ($invalidJoinUrls as $invalidJoinUrl => $reason) {
