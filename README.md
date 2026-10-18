@@ -20,7 +20,7 @@ O código está arquivado na branch `legado/site-2026` (tag anotada
   removidos no arquivamento (18/10/2026); os campos nulos registram a ausência
   de agenda e o card mostra "Não divulgado"/"Não divulgada".
 - Pendências abertas durante o MVP foram registradas na issue
-  [grupoquarentena/website#28](https://github.com/grupoquarentena/website/issues/28)
+  [grupoquarentena/site#28](https://github.com/grupoquarentena/site/issues/28)
   e resolvidas neste arquivamento.
 - A plataforma nova está em desenvolvimento na branch `site-v2` (que depois
   será promovida a `main`/`dev`).
@@ -85,5 +85,5 @@ Smoke manual executado com `php -S 127.0.0.1:8099 -t public`:
 
 - Branch: `legado/site-2026`
 - Tag: `site-2026-legado`
-- Issue: [#28 — Problemas do MVP público](https://github.com/grupoquarentena/website/issues/28)
+- Issue: [#28 — Problemas do MVP público](https://github.com/grupoquarentena/site/issues/28)
 - Plataforma nova: branch `site-v2` (promoção posterior a `main`/`dev`)
