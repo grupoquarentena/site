@@ -5,15 +5,22 @@ artifact: ux-design
 method: "BMAD 6.12.4 — DESIGN + EXPERIENCE em especificação única"
 status: "APROVADO PELO RESPONSÁVEL DO PROJETO; validação de usabilidade durante homologação"
 date: "2026-10-18"
+updated: "2026-10-19"
+revision: "Integração de contratos e auditoria cruzada BMAD 6.12.4"
 ---
+
 
 # UX Design — Site e Administração do Grupo QuarenteNA
 
+
 > **Origem normativa:** [`ProductBrief.md`](ProductBrief.md) e [`PRD.md`](PRD.md), ambos **APROVADOS**. Inventário operacional: [`QuarenteNA.md`](QuarenteNA.md). **UX VALIDADO E APROVADO pelo responsável do projeto.** Protótipos e testes de usabilidade com servidores permanecem como atividades de homologação da implementação; a aprovação documental não os substitui. Mantém em um único Markdown a visão **DESIGN** (visual) e **EXPERIENCE** (comportamento) que o workflow oficial `bmad-ux` 6.12.4 normalmente produz em dois arquivos distintos. O template Laravel não define a aparência final.
+
 
 ## 1. Experiência desejada
 
+
 A plataforma terá duas experiências distintas: **entrada pública simples e acolhedora**, sem login; e **administração orientada a tarefas**, pensada principalmente para servidores voluntários que usam celular. A interface acompanha o serviço, sem produzir vigilância de membros ou privilegiar conhecimento técnico.
+
 
 | Público | Necessidade prioritária | Resultado observável | RF principais |
 |---|---|---|---|
@@ -26,9 +33,13 @@ A plataforma terá duas experiências distintas: **entrada pública simples e ac
 | Administrador técnico | Manter sistema saudável | Enxerga jobs, integrações, incidentes, backup e auditoria | `RF-ADMINISTRACAO-*`, `RF-BACKUP-*` |
 
 
+
+
 ### Estrutura de servidores e responsabilidades aprovada
 
+
 O grupo possui **seis encargos de mesa** e, separadamente, dois **moderadores escalados por reunião**. Um cargo na mesa não equivale a uma função exercida na reunião diária.
+
 
 | Encargo na mesa | Responsabilidade | Autorização institucional predominante |
 |---|---|---|
@@ -39,13 +50,18 @@ O grupo possui **seis encargos de mesa** e, separadamente, dois **moderadores es
 | RSG Suplente | Auxílio e substituição do RSG | Permissões de representação durante substituição autorizada, sem privilégios administrativos implícitos |
 | Coordenador Kit Ingresso | Contato com ingressantes, montagem, envio e acompanhamento dos kits | **Único encargo com acesso operacional ao kit, telefones, endereços e remessas** |
 
+
 **Moderadores das reuniões regulares:** todos os dias, das **20h às 22h**, há uma dupla escalada. Ambos devem saber configurar a sala Zoom, coordenar pela fala e secretariar pelo chat. Em cada ocorrência, um atua como coordenador (partilhas, falas e avisos) e outro como secretário (chat, lista de partilhas, contagens e ata), mas **essas são funções intercambiáveis na escala, não dois encargos/mandatos independentes**. Se um faltar ou tiver dificuldade, o outro pode substituí-lo. Não confundir Coordenador Geral e Secretário Geral com essas funções temporárias.
+
 
 **Acesso dinâmico por encargo:** designação ativa concede apenas as capacidades daquele encargo; término do período revoga automaticamente; entrega/destituição/revogação manual por administrador é efetiva imediatamente. O histórico da designação, da concessão e da revogação é preservado. Uma designação expirada jamais pode ser usada para autorizar uma requisição, mesmo antes da execução do job de limpeza.
 
-**Conta `root` institucional:** acesso genérico de contingência, reservado à recuperação de acesso, gestão excepcional de administradores da mesa e manutenção/configuração de integrações. Não é conta de trabalho cotidiano nem substitui identidades pessoais; deve ter MFA, credencial sob guarda segura, justificativa de uso, alerta e registro de sessão com identificação do operador para rastreabilidade. Sessão `root` **não deve ser caminho normal de edição de tesouraria ou kit**.
+
+**Elevação `root` institucional:** acesso excepcional integral como elevação de uma conta pessoal previamente autenticada; não existe login root direto. Requer segredo, MFA, justificativa, sessão limitada e autoria individual auditada; credencial sob guarda segura, justificativa de uso, alerta e registro de sessão com identificação do operador para rastreabilidade. Sessão `root` **não deve ser caminho normal de edição de tesouraria ou kit**.
+
 
 ### Princípios de interface
+
 
 | Prioridade | Princípio | Consequência no design |
 |---|---|---|
@@ -58,7 +74,9 @@ O grupo possui **seis encargos de mesa** e, separadamente, dois **moderadores es
 | 7 | Acessibilidade | Teclado, leitores de tela, foco e responsividade desde o primeiro componente |
 | 8 | Linguagem do grupo | “Ata”, “Encargo”, “Vago”, “Kit ingresso”, “7ª Tradição”; explicar jargões técnicos |
 
+
 ## 2. Estrutura da informação
+
 
 ```mermaid
 flowchart TD
@@ -75,11 +93,16 @@ flowchart TD
   PAINEL --> AS[Atas de serviço / decisões]
   PAINEL --> REL[Relatórios autorizados]
   PAINEL --> CONFIG[Administração técnica]
+  CONFIG --> USR[Usuarios e permissoes]
+  CONFIG --> PED[Atendimento Fale Conosco]
   CONFIG --> JOBS[Jobs / mensagens / integrações]
-  CONFIG --> HIST[Auditoria / migração / backups]
+  CONFIG --> HIST[Auditoria / backups]
+  CLI[Migracao historica: scripts + IA assistida, fora do painel] -. resultados auditados .-> HIST
 ```
 
+
 ### Navegação pública
+
 
 | Ordem | Bloco | Objetivo | Conteúdo mínimo |
 |---:|---|---|---|
@@ -92,7 +115,9 @@ flowchart TD
 | 7 | Apoio e transparência | Referências complementares | Diretório, relatórios agregados e contatos autorizados |
 | 8 | Rodapé | Acesso institucional | Privacidade, referências e link de administração discreto |
 
+
 ### Navegação `/admin`
+
 
 | Entrada de menu | Exibir para | Prioridade móvel | Observação |
 |---|---|---|---|
@@ -102,18 +127,38 @@ flowchart TD
 | Encargos e vagas | Mesa/serviço | Alta | Escala, histórico e término |
 | Kit ingresso | Coordenador Kit Ingresso com designação vigente | Alta | Tela integral exclusiva, contatos e endereços restritos |
 | Tesouraria | Tesoureiro com designação vigente | Alta | Edição exclusivamente do tesoureiro; gestão de valores sem rascunho de lançamento |
-| Reuniões de serviço | Serviço autorizado | Média | Pauta, ata, decisões, PDF |
+| Reuniões de serviço | Secretário Geral (edição) e consultas autorizadas | Média | Template versionado, rascunho persistente, finalização, PDF privado, revisão/retificação e totais históricos |
 | Indicadores | Públicos ou restritos conforme política | Média | Agregações sem PII |
+| Usuários e permissões | Coordenador Geral, Secretário Geral ou root elevado | Média | Busca de pessoa existente, criação de login pessoal vinculado, mandato, revogação, status e auditoria; sem perfis comerciais do template |
+| Fale Conosco | Coordenador Geral, Secretário Geral ou root elevado | Média | Caixa de entrada **geral**, protocolo, leitura restrita, atribuição, vínculo opcional com registro, decisão/resposta humana e trilha |
 | Configurações | Coordenador Geral, Secretário Geral e root excepcional | Baixa | Configurar APIs, URL, webhook, rotinas e templates, com segredos mascarados e auditados |
-| Auditoria / integrações | Coordenador Geral, Secretário Geral e root excepcional | Baixa | Páginas protegidas; logs sem PII e marcação visível do executor |
+| Auditoria / integrações | Coordenador Geral, Secretário Geral e root excepcional | Baixa | Páginas protegidas; logs sem PII e identificação visível do executor. **Sem tela de migração:** importação histórica é atividade extraordinária offline/CLI com IA assistiva, relatório técnico de reconciliação e aprovação humana, sem exposição no menu. |
+
 
 > O menu é **filtrado pela permissão**, mas o backend faz a verificação real em cada ação. Esconder item de menu não autoriza nem protege endpoints.
 
+
+### Acesso ao site oficial e estados visíveis
+
+| Elemento | Contrato de experiência | Exemplo de texto para pessoas leigas |
+|---|---|---|
+| Endereço público | **GrupoQuarenteNA.org**, HTTPS via Cloudflare Tunnel em Docker Swarm | “Grupo QuarenteNA — reuniões e informações” |
+| Botão prioritário | Reunião disponível sem login | “Entrar na reunião” |
+| Área administrativa | Mesmo domínio, rota `/admin`, autenticação pessoal | “Área dos servidores” |
+| Integração indisponível | Túnel/Zoom/IA não devem ser confundidos com erro de conta | “Não foi possível carregar esta informação. Tente novamente.” |
+| Dados publicados | Relatório de ingresso/conquista com nome mínimo e Fale Conosco | “Solicitar correção ou ocultação do meu nome” |
+
+O Tunnel é um detalhe de infraestrutura: nenhum visitante precisa saber o que é Swarm, DNS ou Cloudflare para usar o site. Não bloquear o portal público com autenticação geral da Cloudflare; manter controle de `/admin` na aplicação e proteção adicional quando compatível.
+
+
 ## 3. DESIGN — direção visual
+
 
 ### Identidade e diretrizes
 
+
 O site provisório e o planejamento antigo oferecem uma direção útil (azul profundo, branco e amarelo), mas **o site BMAD antigo nunca foi publicado**. A direção abaixo é **proposta de design**, não uma identidade visual homologada. A marca e o conteúdo oficial de NA precisam de conferência editorial do grupo.
+
 
 | Token proposto | Valor ilustrativo | Finalidade | Observação |
 |---|---|---|---|
@@ -128,13 +173,18 @@ O site provisório e o planejamento antigo oferecem uma direção útil (azul pr
 | `--cor-erro` | `#B42318` | Erros relevantes | Explicitar consequência e resolução |
 | `--cor-painel` | `#F7F9FC` | Superfícies administrativas claras | Proposta: admin claro para reduzir densidade |
 
+
 **Tipografia:** sistema nativo acessível com fonte sans-serif de boa legibilidade; testar Inter disponível na referência HTML. O uso de fontes externas não pode impedir leitura quando CDN falhar. Base 16px; controles com alvo de toque confortável; hierarquia por tamanho, peso e espaçamento, não só por cor.
+
 
 **Grid e espaçamento:** sistema de 4/8/12/16/24/32/48px; coluna única para formulários móveis; cards de largura limitada no desktop; tabelas complexas com versão resumida em cards e opção de detalhar/baixar sem rolagem horizontal obrigatória para tarefas essenciais.
 
+
 ### Identidade visual homologada e arquivos de origem
 
+
 A marca existente do Grupo QuarenteNA **deve ser preservada**: escudo, ave/águia, asas, azul predominante, amarelo e lettering conforme os originais CorelDRAW. As variantes fornecidas (`final BA`, `final amarelo`, `azul e branco`) são fontes de design; o screenshot é referência visual, **não arte-final vetorial**. Não propor um rebranding que substitua o símbolo do grupo. Aplicar a marca sobre fundo compatível e ajustar a paleta e espaçamentos do site **ao logotipo**, não o inverso.
+
 
 | Entrega de branding | Origem | Verificação indispensável |
 |---|---|---|
@@ -144,11 +194,15 @@ A marca existente do Grupo QuarenteNA **deve ser preservada**: escudo, ave/águi
 | Favicon | Versão compacta do escudo, sem lettering ilegível | Testes reais em 16/32/48 px e tema claro/escuro |
 | Uso no site/painel | Logo aprovada | Header desktop/mobile, login, rodapé e OpenGraph |
 
+
 **Nota de produção:** a importação automática dos CDR neste ambiente distorceu parte do texto, provavelmente por substituição de fontes. Os derivados entregues são **pré-visualizações técnicas**, não uma substituição fiel homologada do original. O SVG final deve ser revisado/corrigido em editor vetorial antes de publicação.
+
 
 **Arquivos de marca gerados:** `QuarenteNA-Marca/originais/` preserva os CDR; `png/` utiliza a prévia *incorporada dentro do próprio CDR* (aparência mais fiel do que exportação automática com fontes substituídas); `svg/*-previa-raster.svg` é **container SVG de PNG e não arte vetorial editável**; `svg/logo-bahia-conversao-vetorial-REVISAR.svg` contém conversão para vetores, mas **a tipografia precisa ser corrigida**; `favicon/` traz ICO e PNG pequenos provisórios. Esses ativos devem passar por homologação visual antes de integrar `public/` da aplicação.
 
+
 ### Comparação entre as duas superfícies
+
 
 | Característica | Página pública | Administração |
 |---|---|---|
@@ -159,7 +213,9 @@ A marca existente do Grupo QuarenteNA **deve ser preservada**: escudo, ave/águi
 | Dados pessoais | Primeiro nome/apelido de ingressante autorizado pode ser exibido publicamente; nunca contato/endereço | Exibição sob finalidade/permissão |
 | Gráficos | Apenas agregados aprovados | Agregados + operações dentro da autorização |
 
+
 ## 4. Padrões de componentes
+
 
 | Componente | Estados obrigatórios | Regras |
 |---|---|---|
@@ -175,7 +231,9 @@ A marca existente do Grupo QuarenteNA **deve ser preservada**: escudo, ave/águi
 | Aviso financeiro | Efetivado, divergência posterior, corrigido, estornado ou excluído logicamente | Não há rascunho de lançamento financeiro; dados do contribuinte não são públicos |
 | Gráfico | Sem dados, dados parciais, carregando, disponível | Eixos, unidades, período, fonte e tabela alternativa |
 
+
 ## 5. EXPERIENCE — fluxo principal da página pública
+
 
 ```mermaid
 flowchart TD
@@ -189,7 +247,9 @@ flowchart TD
   G -->|Falha| H[Reexibir ID, senha e orientação de entrada]
 ```
 
+
 ### Wireframe informativo (proposta, desktop)
+
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -209,7 +269,9 @@ flowchart TD
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
+
 ### Wireframe informativo (proposta, smartphone)
+
 
 ```text
 ┌────────────────────────────┐
@@ -228,9 +290,14 @@ flowchart TD
 └────────────────────────────┘
 ```
 
+
 **Homologação complementar recomendada:** teste real em 360px, 375px, 768px, 1024px e 1440px; zoom de 200%; navegação apenas por teclado, sem JS; leitura por tecnologia assistiva.
 
+
 ## 6. EXPERIÊNCIA — ata regular pelo celular
+
+**Retificação após envio oficial:** mostrar a ação “Corrigir ata” **apenas** ao usuário que realizou o envio (`enviada_por_usuario_id`), Coordenador Geral, Secretário Geral ou usuário com elevação root ativa. Exigir motivo, comparar versões e atualizar indicadores; demais moderadores e membros da Mesa não herdam edição após envio.
+
 
 ```mermaid
 flowchart TD
@@ -246,20 +313,25 @@ flowchart TD
   N --> J[Jobs de resumo, kit e indicadores]
 ```
 
+
 ### Etapas propostas para o assistente de ata
+
 
 | Etapa | Campos/elementos | Validação em interface | Persistência |
 |---:|---|---|---|
 | 1. Reunião | Data, horário, tipo, secretário, coordenador | Mostrar ocorrência; conferir permissão e fuso | Rascunho inicial |
-| 2. Indicadores | Membros, partilhas, visitantes, ingressos e conquistas | Números inteiros não negativos; explicar totais | Salvamento incremental |
-| 3. Detalhes | Origem de visitas, nomes mínimos de ingressos, temática e partilhador autorizado | Se necessário, dados pessoais em seção protegida | Sub-registros vinculados |
-| 4. Resumo | Texto gerado/editável, observações | Visualização prévia e alerta sobre anonimato | Rascunho do resumo |
-| 5. Conferência | Dados completos, contagem Zoom como sugestão | Comparar valores; mostrar divergências sem impedir correção humana | Versão pronta para envio |
+| 2. Indicadores | Membros, partilhas, visitantes, ingressos, conquistas e declaração de 7ª Tradição | Inteiros não negativos; moeda decimal; valores da ata são **informativos**, não criam lançamento financeiro | Salvamento incremental |
+| 3. Detalhes | Origens, primeiro nome/apelido de ingressos/conquistas, temática, partilhador, referência/data da 7ª Tradição, despesas declaradas e discriminação, eleições | Seletores e textos acessíveis; buscar pessoas antes de vincular, sem fusão automática; **contato e endereço só no Kit** | Sub-registros e campos declarativos da ata |
+| 4. Resumo | Texto gerado/editável, informações adicionais institucionais, observações, eleições e previsão de divulgação | Prévia sanitizada, sem contatos pessoais, conferindo publicação opt-out | Rascunho do resumo |
+| 5. Conferência | Todas as informações da ata histórica, totais e contagem Zoom sugerida | Lista Zoom nominal temporária **somente restrita**, permitir corrigir total; validar campos exigidos e avisar sobre efeito no Kit | Versão pronta para envio |
 | 6. Confirmação | Recibo, status, hora e identificador da ata | Feedback após commit bem-sucedido | Ata enviada + trilha |
 
-**Autossalvamento:** salvar localmente apenas informação não sensível temporária quando necessário e de modo consciente; a persistência definitiva deve ser do servidor. Não armazenar telefone/endereço sem necessidade em localStorage. Exibir status “Salvando”, “Salvo” e “Falha ao salvar”; prevenir envio duplo.
+
+**Autossalvamento:** a persistência definitiva é no servidor com sessão autenticada; **não guardar dados de ata, nomes Zoom, contato ou endereço em `localStorage` persistente**. Cache temporário excepcional deve ser in-memory, limitado e expurgado ao encerrar a sessão. Exibir status “Salvando”, “Salvo” e “Falha ao salvar”; prevenir envio duplo.
+
 
 ### Estados e comportamentos da ata
+
 
 ```mermaid
 stateDiagram-v2
@@ -274,7 +346,30 @@ stateDiagram-v2
   Corrigida --> Anulada: anulação autorizada
 ```
 
+
+### Retificação de ata com efeitos sobre um Kit já existente
+
+```mermaid
+flowchart TD
+  A[Ata oficial gerou ingresso] --> K[Kit criado para o ingresso]
+  K --> R{Ata retificada ou anulada?}
+  R -->|Não| C[Fluxo de remessa normal]
+  R -->|Sim| N[Aviso PRIVADO ao Coordenador Kit]
+  N --> H[Revisão humana da pendência]
+  H --> E{Remessa já expedida?}
+  E -->|Sim| M[Preservar envio e rastreio; registrar providência]
+  E -->|Não| S[Ajustar/cancelar pendência se autorizado]
+  M --> T[Histórico e auditoria]
+  S --> T
+```
+
+Em nenhuma hipótese a retificação da ata elimina automaticamente uma remessa ou expõe telefone/endereço a outro encargo. A administração geral acompanha somente estados agregados sem acesso ao conteúdo privado.
+
+
 ## 7. EXPERIÊNCIA — kit ingresso e rastreamento
+
+O painel restrito do Coordenador Kit oferece **Observações do Kit** (texto com controle de acesso e criptografia na aplicação), histórico de alterações e referência à revisão de pendência causada por ata retificada/anulada. Não publicar observações em mensagens de grupo nem relatório público.
+
 
 ```mermaid
 flowchart TB
@@ -294,6 +389,7 @@ flowchart TB
   FIM -->|Em trânsito| JOB
 ```
 
+
 | Tela / ação | Público autorizado | Dado exibido | Proteção |
 |---|---|---|---|
 | Fila de kits | Apenas Coordenador Kit Ingresso (mandato vigente) | Status, pendência, dias de espera | Sem acesso operacional da mesa por padrão |
@@ -302,9 +398,12 @@ flowchart TB
 | Eventos de rastreio | Apenas Coordenador Kit Ingresso | Data, evento, cidade/UF e estado | Sem PII pública; histórico institucional |
 | Integração indisponível | Apenas Coordenador Kit Ingresso | Última consulta e próximo retry | Atualização manual permitida e rastreável |
 
+
 O rastreio é processado pelo projeto [correios-rastreamento](https://github.com/opastorello/correios-rastreamento). **A interface não chama a API externa diretamente do navegador**: Laravel consulta o serviço por rede privada e aplica suas autorizações.
 
+
 ## 8. EXPERIÊNCIA — tesouraria e relatórios
+
 
 ```mermaid
 flowchart LR
@@ -320,34 +419,40 @@ flowchart LR
   H -->|Não| F
 ```
 
+
 | Visualização | Público | Filtros | Restrições |
 |---|---|---|---|
 | Resumo financeiro público | Qualquer visitante | Período, categoria pública | Sem contribuinte, instrumento financeiro individual ou referência privada |
 | Gestão financeira | Apenas Tesoureiro para alterações | Datas, origem ASAAS/manual, categoria, histórico | Salvar publica o lançamento imediatamente; correções posteriores são auditadas |
 | Dashboard de ata | Mesa/serviço autorizado | Reunião, dia, horário, período | Contagens agregadas, sem rastrear indivíduos Zoom |
-| Quadro de encargos | Públicos/restritos conforme regra editorial | Data, encargo, reunião | Publicar apenas primeiro nome/apelido se autorizado |
-| Dados de visitantes/ingresso | Público: somente projeção aprovada; operadores conforme autorização | Período, origem, total, primeiro nome/apelido de ingressantes quando autorizado | Nunca incluir contato/endereço nem dados do kit |
+| Quadro de encargos | Publicação condicionada a diretriz de serviços | Data, encargo, reunião | Exibir apenas nome/apelido mínimo segundo decisão editorial específica; não confundir com política de ingresso opt-out |
+| Dados de visitantes/ingresso | Público: números e primeiro nome/apelido mínimo por prática opt-out; operadores conforme Policy | Período, origem e total; pedido de correção via Fale Conosco | Dados de kit e Zoom nunca publicados; ocultação após revisão humana |
+
 
 ### Especificações de gráficos
+
 
 | Gráfico | Eixos/medidas | Fonte | Alternativa acessível |
 |---|---|---|---|
 | Presença por data | X=ocorrência; Y=total de participantes | Atas confirmadas | Tabela data/horário/total |
 | Visitas/ingressos/conquistas | X=período; Y=contagens | Sub-registros de ata | Tabela de indicadores |
 | Distribuição semanal | X=dia/horário; Y=total/média | Ocorrências e atas | Tabela com total e média |
-| Saldo financeiro | X=período; Y=valor e saldo | Lançamentos conciliados | Tabela de totais |
+| Saldo financeiro | X=período; Y=valor e saldo | **Lançamentos efetivos**, com ajustes/estornos posteriores auditados | Tabela de totais e divergências de conciliação |
 | Kits por estado | Categorias de status e quantidade | Kits/remessas | Tabela status/quantidade |
 | Encargos | Ativos, vagos e próximos ao fim | Designações | Tabela de cargos e datas |
 
+
 ### Gestão de templates, rotinas e configurações
+
 
 | Tela | Quem opera | Comportamento obrigatório |
 |---|---|---|
 | Integrações | Coordenador Geral, Secretário Geral; root excepcional | Host/URL/webhook, estado, últimos eventos, mascaramento de segredo, teste de conexão, rotação auditada |
 | Rotinas programadas | Administração funcional autorizada | Ativar/desativar, frequência, próximo disparo, última execução, retry, impedir duplo envio |
 | Modelos de mensagem | Administração funcional autorizada | Edição, variáveis permitidas, prévia sanitizada, aprovação e histórico de versões |
-| Conta root | Contingência | Tela separada com justificativa, operador identificado, aviso e encerramento de sessão emergencial |
+| Elevação root | Usuário já autenticado | **Segundo login institucional `root` sobre sessão pessoal** (segredo separado + MFA + justificativa); acesso irrestrito temporário, aviso claro de poderes totais, saída da elevação e auditoria vinculada ao usuário pessoal |
 | Template da ata de serviço | Secretário Geral | Editar pauta, seções, texto padrão, gerar prévia/PDF, histórico do template |
+
 
 ```mermaid
 sequenceDiagram
@@ -364,7 +469,26 @@ sequenceDiagram
   Sistema-->>Usuario: Próxima ação recebe 403
 ```
 
+
+### Jornada da ata de serviço e histórico
+
+```mermaid
+stateDiagram-v2
+  [*] --> Rascunho
+  Rascunho --> Finalizada: Secretaria Geral conclui
+  Finalizada --> Revisada: conferência sem mudança
+  Finalizada --> Corrigida: alteração justificada
+  Revisada --> Corrigida: alteração justificada
+  Corrigida --> Revisada: conferência
+  Finalizada --> Anulada: decisão autorizada
+  Revisada --> Anulada: decisão autorizada
+  Corrigida --> Anulada: decisão autorizada
+```
+
+A tela de Serviço mostra **template selecionado, status de salvamento, presentes/faltas/justificadas, versão atual, histórico de versões e PDFs privados**. Na migração, totais preservados sem registros individuais continuam filtráveis como agregados. A finalização gera o PDF versionado no Drive; correção/anulação exige justificativa, nova revisão e preservação do arquivo anterior.
+
 ## 9. Erros, privacidade e acessibilidade
+
 
 | Situação | Mensagem ao usuário | Comportamento requerido |
 |---|---|---|
@@ -378,11 +502,15 @@ sequenceDiagram
 | Desativação de usuário | “Acesso desativado.” | Revogar tokens/sessões conforme política |
 | Ausência de dados | “Nenhum registro no período selecionado.” | Não exibir zeros como se fossem dados validados |
 
+
 **Acessibilidade exigida pelo projeto:** estrutura semântica, contraste conforme WCAG 2.1 AA como alvo, labels associadas, erros anunciados, foco visível, navegação teclado, conteúdo sem cor como único significado, botões/tabelas operáveis em celular, respeito a preferência por movimento reduzido e gráficos com tabela acessível. As metas numéricas finais serão ensaiadas no gate de UX.
+
 
 **Privacidade:** não registrar em analytics público nome de ingressante, telefone, endereço, identificação Zoom, dados de pagador ou conteúdo integral de mensagens. Nunca mostrar segredos em logs, toast, relatórios ou exportações comuns.
 
+
 ## 10. Critérios de aceite de UX
+
 
 | Teste | Roteiro objetivo | Aceite |
 |---|---|---|
@@ -396,12 +524,106 @@ sequenceDiagram
 | Teclado e leitores de tela | Executar rotas e formulários críticos | Ordem de foco/labels/erros coerentes |
 | Navegação responsiva | 360px e desktop | Tarefas concluíveis sem zoom ou rolagem horizontal essencial |
 
+
 ## 11. Detalhes para homologação prática durante a implementação
+
 
 O Brief e PRD estão **aprovados**. Os seguintes pontos são decisões de apresentação que exigem teste, não reabertura do escopo: correção técnica da exportação do CDR e contraste da paleta; disposição do menu; ordem exata das telas; quantidade de passos da ata; textos de validação; acessibilidade real; terminologia e permissões de visualização por encargo. Prototipar as telas críticas e confrontar com servidores em contexto real.
 
+
 ## 12. Vinculação ao método e às fontes
+
 
 - BMAD 6.12.4: [Design UX and Architecture](https://github.com/bmad-code-org/BMAD-METHOD/blob/v6.12.4/docs/plan/design-ux-and-architecture.md), com separação conceitual entre visual (`DESIGN.md`) e funcionamento (`EXPERIENCE.md`).
 - Referências internas canônicas: [`ProductBrief.md`](ProductBrief.md), [`PRD.md`](PRD.md), [`QuarenteNA.md`](QuarenteNA.md), [`Arquitetura.md`](Arquitetura.md).
 - Framework-base: [template-laravel-bmad](https://github.com/cirinho/template-laravel-bmad); **a UX não precisa herdar interface comercial de clientes** do template.
+
+---
+
+## Experiências complementares — cadastros, comunicações e IA
+
+### Buscar antes de cadastrar uma pessoa
+
+```mermaid
+flowchart TD
+  A[Registro em ata / novo servidor] --> B[Buscar pessoa ou servidor - lupa]
+  B --> C{Localizou candidato?}
+  C -->|Sim| D[Conferir detalhes contextuais]
+  D --> E{Mesma pessoa?}
+  E -->|Confirmado| F[Vincular ID da pessoa]
+  E -->|Não / incerto| G[Cadastro distinto ou pendência de revisão]
+  C -->|Não| H[Cadastrar nova pessoa]
+  F --> I[Registrar ingresso / ficha / serviço]
+  H --> I
+  G --> I
+```
+
+Campos da pessoa: nome/apelido, contatos opcionais e localização geral; nunca exigir login para cadastro. **Ao se tornar operador/servidor da plataforma**, criar `usuario` pessoal com credencial e vínculo obrigatório à `pessoa`, sem contas fictícias para webhooks ou jobs. A confirmação de que dois registros históricos pertencem à mesma pessoa é humana; a interface deve exibir pistas úteis sem revelar dados restritos a quem não possui autorização.
+
+### Elevação root sem conta compartilhada de login
+
+```mermaid
+sequenceDiagram
+  actor U as Usuário pessoal
+  participant W as Painel
+  participant P as Política de acesso
+  participant A as Auditoria
+  U->>W: Login pessoal comum
+  U->>W: Solicita elevação root
+  W->>U: Exige senha institucional, MFA e justificativa
+  W->>P: Autoriza sessão elevada de curta duração
+  P->>A: Registra usuário, elevação, IP, momento, motivo
+  P-->>U: Interface mostra estado elevado e botão Encerrar
+  U->>P: Altera área antes restrita
+  P->>A: Registra ação e antes/depois
+  U->>W: Encerra elevação ou expira
+```
+
+O login comum continua independente do mandato, mas somente expõe funcionalidades públicas quando não houver encargo vigente. A elevação nunca pode ficar implícita ou sobreviver a logout e encerramento de sessão.
+
+### Solicitação pública e triagem humana
+
+```mermaid
+flowchart LR
+  F[Fale Conosco] --> P[Protocolo]
+  P --> C[Confirmação ao solicitante]
+  P --> N[Aviso privado a Coordenador Geral e Secretário Geral]
+  N --> V[Revisão humana pelos responsáveis]
+  V --> D{Decisão humana}
+  D -->|Retificar| R[Alteração rastreável]
+  D -->|Não proceder| J[Justificativa + resposta]
+```
+
+O **Fale Conosco não se limita a anonimato**: também acolhe dúvidas, sugestões e problemas. O corpo da solicitação explica livremente o assunto; o vínculo com um registro específico pode ser incluído na triagem e é opcional. As solicitações poderão conter WhatsApp/e-mail para resposta. O solicitante recebe um protocolo e retorno; **Coordenador Geral e Secretário Geral** recebem alerta de triagem sem PII em grupo. Cabe a eles analisar pedidos editoriais, ocultar ou corrigir *a posteriori* quando procedente e registrar auditoria. **Não há ocultação automática por formulário.** A informação privativa do Kit é encaminhada somente ao Coordenador Kit, sem ampliar o acesso dos administradores aos contatos.
+
+### Administração de automações para pessoas leigas
+
+**Contrato mínimo de tela — gestão de usuários:** listar/buscar pessoas, criar/ativar/desativar acesso pessoal, designar encargo, mostrar vigência e justificar revogação; impedir duas contas humanas para a mesma pessoa. **Contrato mínimo de tela — Fale Conosco:** caixa de entrada com protocolo, categoria geral, assunto, situação e responsável; detalhe restrito, associação opcional a registro, decisão e resposta. Em ambos, exigir Policy e trilha de auditoria. **Migração é via scripts/CLI + IA assistida com revisão humana**, sem funcionalidade de gestão de lotes no `/admin` nesta versão.
+
+
+| Tela | Componentes | Permissão usual |
+|---|---|---|
+| Lista de automações | Nome, tipo, ativo, última/próxima execução, falha, proprietário | Administração geral e dono do módulo |
+| Editor visual básico | Gatilho → condição → ação; menus de atividades permitidas, sem código | Responsável autorizado |
+| Modelos | Variáveis por lista, prévia, teste, histórico de mudanças | Responsável do módulo |
+| Integrações | URL, versão, mascaramento de segredo, teste e notificações de falha | Coordenação/Secretaria; delegação por área |
+| Tesouraria | Alertas e mensagens financeiras, sem alterar o motor de webhook | Tesoureiro |
+| Kit | Selecionar ingressantes, período, template, conferir e disparar | Coordenador Kit |
+| IA | Endpoint compatível OpenAI, modelo, token mascarado; flag desativada | Administração de IA |
+| NotebookLM | Selecionar notebook por finalidade, prompt editável, agenda, grupos e estado de saúde | Administração e responsável designado |
+
+### Relatórios e módulo RSG
+
+| Tela | Visuais para humanos | Ação |
+|---|---|---|
+| Resumo e dados de reuniões | Cards + gráfico por dia + tabela filtrável | Ver ocorrências que compõem o total |
+| Ingressos/conquistas | Evolução + nomes/apelidos mínimos (opt-out), com histórico importado revisado | Ação clara **“Solicitar ocultação ou correção”** via Fale Conosco, protocolo e revisão humana |
+| Temáticas e visitas | Séries temporais, categoria, tabela alternativa | Consultar sem nomes sensíveis |
+| Quadro de serviço | Calendário, mandatos, vagas, histórico e atividade confirmada | Filtrar por período/encargo |
+| Serviço e atas de serviço | Histórico, presença, justificativas e PDF | Abrir documentos permitidos |
+| Tesouraria pública | Livro por data/valor/categoria e gráfico de evolução | Conferência sem contribuintes |
+| RSG | Período bimestral livre, métricas, texto complementar e prévia PDF | Conferir, exportar e arquivar |
+
+### Zoom: conferência temporária
+
+A ata apresenta nomes exibidos pelo Zoom somente a servidores autorizados, com grupos de possível duplicação indicados como **sugestão**, nunca fusão automática. O secretário ajusta a quantidade de presenças e pode concluir mesmo com Zoom indisponível. O painel indica retenção configurada (inicial de 365 dias) e os nomes nunca integram relatório público.
