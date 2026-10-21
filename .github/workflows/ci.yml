@@ -1,0 +1,77 @@
+name: Validação Laravel
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev]
+permissions:
+  contents: read
+jobs:
+  qualidade:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: quarentena_test
+          POSTGRES_USER: quarentena_test
+          POSTGRES_PASSWORD: ci_descartavel_nao_producao
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U quarentena_test -d quarentena_test"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      APP_ENV: testing
+      APP_DEBUG: "true"
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      DB_CONNECTION: pgsql
+      QUARENTENA_TEST_DRIVER: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: quarentena_test
+      DB_TEST_DATABASE: quarentena_test
+      APP_CONFIG_CACHE: /tmp/quarentena-tests-config.php
+      DB_USERNAME: quarentena_test
+      DB_PASSWORD: ci_descartavel_nao_producao
+      DB_URL: ""
+      SESSION_DRIVER: array
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Ambiente descartável de CI sem credenciais reais
+        run: test ! -e .env && install -m 600 .env.example .env
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, intl, pdo_sqlite, pdo_pgsql, zip, bcmath
+          coverage: none
+      - name: Conferir lockfile
+        run: test -s composer.lock && composer validate --strict
+      - name: Cliente PostgreSQL para restaurar o snapshot Laravel
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl --fail --silent --show-error -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          . /etc/os-release
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends postgresql-client-17
+          echo '/usr/lib/postgresql/17/bin' >> "$GITHUB_PATH"
+      - name: Instalar dependências travadas
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Auditoria e qualidade
+        run: |
+          composer audit --locked
+          vendor/bin/pint --test
+          vendor/bin/phpstan analyse --configuration=ferramentas/phpstan.neon --no-progress
+      - name: PHPUnit PostgreSQL com migrations diretas
+        run: QUARENTENA_TEST_SCHEMA=direct php artisan test
+      - name: PHPUnit PostgreSQL com restauração do snapshot
+        run: QUARENTENA_TEST_SCHEMA=snapshot php artisan test
+  imagem:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Verificar build de produção sem publicar/deploy
+        run: docker build -f docker/Dockerfile --target producao -t quarentena:pr .

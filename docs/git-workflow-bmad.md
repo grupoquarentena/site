@@ -79,7 +79,7 @@ Refs #42 | Story 3.2
 ## 5. GitHub, promoção e implantação
 
 - **Templates `.github/`**: como `main` é a branch padrão congelada, templates apenas na `dev` **não aparecem automaticamente** na interface de novas Issues/PRs. Sua disponibilização exige **uma autorização expressa e específica para bootstrap administrativo mínimo da `main`** (somente templates necessários), com PR/validação e posterior reconciliação `main → dev`. Até lá, criar Issue/PR com corpo explícito/manual; não mudar a branch padrão nem promover código de aplicação para ativar templates.
-- Configurar branch protection/rulesets em `main` e `dev` quando o plano permitir: PR obrigatório, checks efetivos, bloqueio de force-push/exclusão, conversas resolvidas; se indisponível, **não alegar proteção técnica**. CI Laravel/Boost será introduzida na futura Issue de adaptação da fundação.
+- Configurar branch protection/rulesets em `main` e `dev` quando o plano permitir: PR obrigatório, checks efetivos, bloqueio de force-push/exclusão, conversas resolvidas; se indisponível, **não alegar proteção técnica**. A CI Laravel já foi adicionada na branch da Issue #33; validar os checks efetivos antes de integrá-la na `dev`.
 - **Promoção `dev → main`**: exclusivamente PR e autorização humana expressa, com testes/release/rollback. Preferir **merge commit** para registrar promoção; depois reconciliar `main` de volta na `dev` e verificar a ancestralidade. Hotfix originado de `main` segue exceção autorizada e retorna à `dev`.
 - **Build ≠ deploy**: tags mutáveis `dev`/`latest` são aliases; releases e rollback devem identificar imagem imutável por SHA/digest. Publicar imagem não autoriza migrations, Cloudflare, Swarm ou deploy; produção exige autorização separada.
 
