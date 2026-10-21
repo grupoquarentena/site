@@ -40,6 +40,8 @@ jobs:
       QUEUE_CONNECTION: sync
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Ambiente descartável de CI sem credenciais reais
+        run: test ! -e .env && install -m 600 .env.example .env
       - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: '8.5'
