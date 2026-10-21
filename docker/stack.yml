@@ -22,6 +22,7 @@ services:
       CACHE_STORE: database
       QUEUE_CONNECTION: database
       SESSION_SECURE_COOKIE: "true"
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS:?Informe os hosts públicos e o host de healthcheck aprovado}
       TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
     secrets: [quarentena_db_password, quarentena_app_key]
     networks: [quarentena_internal, quarentena_edge]

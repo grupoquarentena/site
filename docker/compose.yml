@@ -10,6 +10,8 @@ services:
     env_file: ../.env
     volumes:
       - ../:/var/www/html
+      - quarentena_storage:/var/www/html/storage
+      - quarentena_bootstrap_cache:/var/www/html/bootstrap/cache
     working_dir: /var/www/html
     depends_on:
       postgres:
@@ -50,6 +52,8 @@ services:
     env_file: ../.env
     volumes:
       - ../:/var/www/html
+      - quarentena_storage:/var/www/html/storage
+      - quarentena_bootstrap_cache:/var/www/html/bootstrap/cache
     command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--timeout=90"]
     depends_on:
       postgres:
@@ -63,9 +67,13 @@ services:
     env_file: ../.env
     volumes:
       - ../:/var/www/html
+      - quarentena_storage:/var/www/html/storage
+      - quarentena_bootstrap_cache:/var/www/html/bootstrap/cache
     command: ["php", "artisan", "schedule:work"]
     depends_on:
       postgres:
         condition: service_healthy
 volumes:
+  quarentena_storage:
+  quarentena_bootstrap_cache:
   pgdata:

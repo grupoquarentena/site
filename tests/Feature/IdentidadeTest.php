@@ -25,6 +25,7 @@ class IdentidadeTest extends TestCase
         $this->expectException(QueryException::class);
         DB::table('usuarios')->insert([
             'pessoa_id' => 999999, 'email' => 'teste@example.invalid', 'password' => 'hash', 'ativo' => true,
+            'created_at' => now(), 'updated_at' => now(),
         ]);
     }
 
@@ -34,6 +35,20 @@ class IdentidadeTest extends TestCase
         Usuario::query()->create(['pessoa_id' => $pessoa->id, 'email' => 'a@example.invalid', 'password' => 'uma-senha-exemplo']);
         $this->expectException(QueryException::class);
         Usuario::query()->create(['pessoa_id' => $pessoa->id, 'email' => 'b@example.invalid', 'password' => 'outra-senha-exemplo']);
+    }
+
+    public function test_email_unico_sem_diferenciar_maiusculas_no_banco(): void
+    {
+        $pessoaA = Pessoa::query()->create(['nome_exibicao' => 'Primeira pessoa']);
+        $pessoaB = Pessoa::query()->create(['nome_exibicao' => 'Segunda pessoa']);
+        Usuario::query()->create(['pessoa_id' => $pessoaA->id, 'email' => 'lia@example.invalid', 'password' => 'senha-de-exemplo']);
+
+        $this->expectException(QueryException::class);
+        DB::table('usuarios')->insert([
+            'pessoa_id' => $pessoaB->id, 'email' => 'LIA@example.invalid',
+            'password' => 'hash-de-exemplo', 'ativo' => true,
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
     }
 
     public function test_senha_e_armazenada_com_hash(): void

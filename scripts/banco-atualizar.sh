@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 source "$(dirname "$0")/_comum.sh"
 [[ -s composer.lock ]] || { echo 'Fundação não preparada.' >&2; exit 1; }
-[[ "$(sed -n 's/^DB_HOST=//p' .env | tail -1)" == 'postgres' && -z "$(sed -n 's/^DB_URL=//p' .env | tail -1)" ]] || { echo 'Somente banco Docker local postgres, sem DB_URL externo.' >&2; exit 1; }
+[[ "$(env_valor DB_HOST)" == 'postgres' && "$(env_valor DB_CONNECTION)" == 'pgsql' && -z "$(env_valor DB_URL)" ]] || { echo 'Somente banco Docker local postgres, sem DB_URL externo.' >&2; exit 1; }
 mkdir -p database/schema docs/banco tmp
 schema_tmp="$(mktemp "$RAIZ/tmp/pgsql-schema.XXXXXX")"
 doc_tmp="$(mktemp "$RAIZ/tmp/db.XXXXXX")"

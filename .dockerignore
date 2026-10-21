@@ -13,3 +13,14 @@ storage/framework/cache
 storage/framework/sessions
 storage/framework/views
 tests
+
+# Materiais de desenvolvimento e planejamento não pertencem à imagem.
+.github
+.ai
+_bmad-output
+docs
+ferramentas
+scripts
+AGENTS.md
+README.md
+CHANGELOG.md

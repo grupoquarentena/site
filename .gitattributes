@@ -5,3 +5,4 @@
 *.yaml text eol=lf
 *.md text eol=lf
 *.sql text eol=lf
+.env* text eol=lf

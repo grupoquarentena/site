@@ -23,7 +23,7 @@ class AutenticacaoController extends Controller
         ]);
 
         if (! Auth::attempt([
-            'email' => $credenciais['email'],
+            'email' => mb_strtolower(trim($credenciais['email'])),
             'password' => $credenciais['password'],
             'ativo' => true,
         ])) {

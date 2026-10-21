@@ -14,7 +14,7 @@ case "${1:-}" in
       "${C[@]}" run --rm --no-deps app composer update --no-interaction --prefer-dist --no-progress
     fi
     "${C[@]}" run --rm --no-deps app composer audit --locked
-    if [[ -z "$(sed -n 's/^APP_KEY=//p' .env | tail -1)" ]]; then
+    if [[ -z "$(env_valor APP_KEY)" ]]; then
       "${C[@]}" run --rm --no-deps app php artisan key:generate --no-interaction
     else
       echo 'APP_KEY existente preservada.'
@@ -26,9 +26,9 @@ case "${1:-}" in
     if [[ ! -s composer.lock || ! -f vendor/autoload.php ]]; then
       echo 'Execute --preparar antes.' >&2; exit 1
     fi
-    dbhost="$(grep -E '^DB_HOST=' .env | tail -1 | cut -d= -f2- | tr -d '\r')"
-    dbconn="$(sed -n 's/^DB_CONNECTION=//p' .env | tail -1)"
-    dburl="$(sed -n 's/^DB_URL=//p' .env | tail -1)"
+    dbhost="$(env_valor DB_HOST)"
+    dbconn="$(env_valor DB_CONNECTION)"
+    dburl="$(env_valor DB_URL)"
     if [[ "$dbhost" != 'postgres' || "$dbconn" != 'pgsql' || -n "$dburl" ]]; then
       echo 'Proteção: inicialização somente para DB_CONNECTION=pgsql, DB_HOST=postgres e DB_URL vazio.' >&2; exit 1
     fi

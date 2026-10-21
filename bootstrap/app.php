@@ -19,10 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(fn () => route('entrar.form'));
         $middleware->redirectUsersTo(fn () => route('admin.inicio'));
 
-        $proxies = array_values(array_filter(array_map(
-            'trim',
-            explode(',', (string) env('TRUSTED_PROXIES', '')),
-        )));
+        $middleware->trustHosts(at: fn (): array => array_map(
+            fn (string $host): string => '^'.preg_quote($host, '/').'$',
+            config('app.trusted_hosts', []),
+        ), subdomains: false);
+        $proxies = config('app.trusted_proxies', []);
         if ($proxies !== []) {
             $middleware->trustProxies(at: $proxies);
         }

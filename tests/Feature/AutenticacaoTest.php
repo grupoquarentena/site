@@ -50,6 +50,14 @@ class AutenticacaoTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_email_com_caixa_alta_e_aceito_apos_normalizacao(): void
+    {
+        $this->usuario();
+        $this->post('/entrar', ['email' => '  LIA@EXAMPLE.INVALID  ', 'password' => 'uma-senha-segura'])
+            ->assertRedirect('/admin');
+        $this->assertAuthenticated();
+    }
+
     public function test_usuario_inativo_nao_entra(): void
     {
         $this->usuario(false);
