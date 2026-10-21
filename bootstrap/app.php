@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\CriarUsuario;
 use App\Http\Middleware\UsuarioAtivo;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -12,7 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withCommands([
-        App\Console\Commands\CriarUsuario::class,
+        CriarUsuario::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias(['usuario.ativo' => UsuarioAtivo::class]);
@@ -23,10 +24,6 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (string $host): string => '^'.preg_quote($host, '/').'$',
             config('app.trusted_hosts', []),
         ), subdomains: false);
-        $proxies = config('app.trusted_proxies', []);
-        if ($proxies !== []) {
-            $middleware->trustProxies(at: $proxies);
-        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Não expor dados sensíveis; configurações detalhadas virão com as Stories.

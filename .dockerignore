@@ -24,3 +24,10 @@ scripts
 AGENTS.md
 README.md
 CHANGELOG.md
+opencode.json
+opencode.jsonc
+boost.json
+.mcp.json
+.codex
+bootstrap/cache/*.php
+storage/app

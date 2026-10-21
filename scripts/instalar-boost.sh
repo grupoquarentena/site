@@ -6,5 +6,5 @@ source "$(dirname "$0")/_comum.sh"
 backup="$(mktemp)"
 cp AGENTS.md "$backup"
 trap 'cp "$backup" "$RAIZ/AGENTS.md"; rm -f "$backup"' EXIT
-"${C[@]}" run --rm --no-deps app php artisan boost:install
+"${C[@]}" run --rm -T --no-deps app php artisan boost:install --guidelines --no-interaction
 printf '\nBoost instalado; rode ./scripts/configurar-boost-opencode.sh somente se desejar MCP local.\n'

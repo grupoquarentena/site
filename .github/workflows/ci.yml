@@ -26,9 +26,12 @@ jobs:
       APP_DEBUG: "true"
       APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
       DB_CONNECTION: pgsql
+      QUARENTENA_TEST_DRIVER: pgsql
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
       DB_DATABASE: quarentena_test
+      DB_TEST_DATABASE: quarentena_test
+      APP_CONFIG_CACHE: /tmp/quarentena-tests-config.php
       DB_USERNAME: quarentena_test
       DB_PASSWORD: ci_descartavel_nao_producao
       DB_URL: ""
@@ -44,6 +47,11 @@ jobs:
           coverage: none
       - name: Conferir lockfile
         run: test -s composer.lock && composer validate --strict
+      - name: Cliente PostgreSQL para restaurar o snapshot Laravel
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+          echo '/usr/lib/postgresql/17/bin' >> "$GITHUB_PATH"
       - name: Instalar dependências travadas
         run: composer install --no-interaction --prefer-dist --no-progress
       - name: Auditoria e qualidade
@@ -51,10 +59,10 @@ jobs:
           composer audit --locked
           vendor/bin/pint --test
           vendor/bin/phpstan analyse --configuration=ferramentas/phpstan.neon --no-progress
-      - name: Migrations em banco de CI descartável
-        run: php artisan migrate:fresh --force
-      - name: Testes PHPUnit
-        run: php artisan test
+      - name: PHPUnit PostgreSQL com migrations diretas
+        run: QUARENTENA_TEST_SCHEMA=direct php artisan test
+      - name: PHPUnit PostgreSQL com restauração do snapshot
+        run: QUARENTENA_TEST_SCHEMA=snapshot php artisan test
   imagem:
     runs-on: ubuntu-latest
     steps:

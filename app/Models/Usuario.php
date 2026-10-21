@@ -27,6 +27,7 @@ class Usuario extends Authenticatable
         return Attribute::make(set: fn (string $value): string => mb_strtolower(trim($value)));
     }
 
+    /** @return BelongsTo<Pessoa, $this> */
     public function pessoa(): BelongsTo
     {
         return $this->belongsTo(Pessoa::class);

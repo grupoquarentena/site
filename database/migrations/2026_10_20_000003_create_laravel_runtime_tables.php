@@ -60,7 +60,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        foreach (['failed_jobs','job_batches','jobs','sessions','cache_locks','cache'] as $table) {
+        foreach (['failed_jobs', 'job_batches', 'jobs', 'sessions', 'cache_locks', 'cache'] as $table) {
             Schema::dropIfExists($table);
         }
     }

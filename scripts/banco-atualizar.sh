@@ -9,6 +9,11 @@ doc_tmp="$(mktemp "$RAIZ/tmp/db.XXXXXX")"
 trap 'rm -f "$schema_tmp" "$doc_tmp"' EXIT
 # Dump do PostgreSQL em execução: nunca simular o schema a partir do PRD.
 "${C[@]}" exec -T postgres sh -ec 'exec pg_dump --schema-only --no-owner --no-privileges -U "$POSTGRES_USER" -d "$POSTGRES_DB"' > "$schema_tmp"
+# Laravel carrega automaticamente pgsql-schema.sql em bancos vazios. Preservar
+# somente o histórico técnico evita reaplicar migrations sobre tabelas restauradas.
+"${C[@]}" exec -T postgres sh -ec 'exec pg_dump --data-only --table=public.migrations --no-owner --no-privileges -U "$POSTGRES_USER" -d "$POSTGRES_DB"' >> "$schema_tmp"
+# Normalizar apenas a linha vazia final emitida pelo pg_dump para o gate Git.
+sed -i '${/^$/d;}' "$schema_tmp"
 {
   printf '# Banco de dados — Grupo QuarenteNA\n\nCatálogo gerado do PostgreSQL local pelo script `scripts/banco-atualizar.sh`. Não editar manualmente.\n\n| Tabela | Coluna | Tipo | Nulo |\n|---|---|---|---|\n'
   "${C[@]}" exec -T postgres sh -ec 'exec psql -X -A -t -F "|" -U "$POSTGRES_USER" -d "$POSTGRES_DB"' <<'SQL' | awk -F '|' '{printf "| %s | %s | %s | %s |\n", $1, $2, $3, $4}'

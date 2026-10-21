@@ -23,6 +23,7 @@ class Pessoa extends Model
         ];
     }
 
+    /** @return HasOne<Usuario, $this> */
     public function usuario(): HasOne
     {
         return $this->hasOne(Usuario::class);

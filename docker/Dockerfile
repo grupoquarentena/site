@@ -3,8 +3,8 @@ FROM composer:2 AS composer_binary
 FROM php:8.5-apache-trixie AS base
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public TZ=America/Bahia
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev libicu-dev libzip-dev libsqlite3-dev libonig-dev unzip ca-certificates \
-    && docker-php-ext-install -j"$(nproc)" pdo_pgsql pdo_sqlite intl mbstring zip bcmath opcache pcntl \
+    libpq-dev libicu-dev libzip-dev libsqlite3-dev libonig-dev unzip ca-certificates postgresql-client-17 \
+    && docker-php-ext-install -j"$(nproc)" pdo_pgsql pdo_sqlite intl mbstring zip bcmath pcntl \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=composer_binary /usr/bin/composer /usr/local/bin/composer

@@ -23,22 +23,30 @@ class CriarUsuario extends Command
         // "0" e valores inválidos não podem ser tratados como ausência da opção.
         if ($temPessoa && (! ctype_digit((string) $opcaoPessoa) || (int) $opcaoPessoa < 1)) {
             $this->error('Informe um ID positivo de pessoa existente.');
+
             return self::FAILURE;
         }
         $pessoaId = $temPessoa ? (int) $opcaoPessoa : null;
 
         if ($temPessoa && ! Pessoa::query()->whereKey($pessoaId)->where('ativo', true)->exists()) {
             $this->error('Pessoa existente e ativa não encontrada.');
+
             return self::FAILURE;
         }
         if ($temPessoa && Pessoa::query()->whereKey($pessoaId)->whereHas('usuario')->exists()) {
             $this->error('Essa pessoa já possui conta pessoal.');
+
             return self::FAILURE;
         }
 
         $nome = $temPessoa ? null : trim((string) ($this->option('nome') ?? $this->ask('Primeiro nome ou apelido da pessoa')));
         // A senha só é fornecida em prompt oculto, nunca por argumento de linha de comando.
         $senha = (string) $this->secret('Senha de acesso (mínimo 12 caracteres)');
+        if (strlen($senha) > 72) {
+            $this->error('Senha deve ter no máximo 72 bytes UTF-8 (limite bcrypt).');
+
+            return self::FAILURE;
+        }
         $dados = ['email' => $email, 'senha' => $senha];
         if (! $temPessoa) {
             $dados['nome'] = $nome;
@@ -51,6 +59,7 @@ class CriarUsuario extends Command
         ]);
         if ($validator->fails()) {
             $this->error($validator->errors()->first());
+
             return self::FAILURE;
         }
 

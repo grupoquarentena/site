@@ -4,16 +4,15 @@ namespace Tests\Feature;
 
 use App\Models\Pessoa;
 use App\Models\Usuario;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class AutenticacaoTest extends TestCase
 {
-    use RefreshDatabase;
-
     private function usuario(bool $usuarioAtivo = true, bool $pessoaAtiva = true): Usuario
     {
         $pessoa = Pessoa::query()->create(['nome_exibicao' => 'Lia Exemplo', 'ativo' => $pessoaAtiva]);
+
         return Usuario::query()->create([
             'pessoa_id' => $pessoa->id,
             'email' => 'lia@example.invalid',
@@ -65,6 +64,33 @@ class AutenticacaoTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_login_nao_aceita_sufixo_apos_limite_bcrypt(): void
+    {
+        $usuario = $this->usuario();
+        $senha = str_repeat('á', 36);
+        $usuario->update(['password' => $senha]);
+        $this->post('/entrar', ['email' => $usuario->email, 'password' => $senha.'x'])->assertSessionHasErrors('email');
+        $this->assertGuest();
+    }
+
+    public function test_login_aceita_email_gravado_em_caixa_alta_por_sql(): void
+    {
+        $usuario = $this->usuario();
+        DB::table('usuarios')->where('id', $usuario->id)->update(['email' => 'LIA@EXAMPLE.INVALID']);
+        $this->post('/entrar', ['email' => 'lia@example.invalid', 'password' => 'uma-senha-segura'])
+            ->assertRedirect('/admin');
+        $this->assertAuthenticated();
+    }
+
+    public function test_usuario_inativado_perde_acesso_com_sessao_existente(): void
+    {
+        $usuario = $this->usuario();
+        $this->actingAs($usuario)->get('/admin')->assertOk();
+        $usuario->update(['ativo' => false]);
+        $this->get('/admin')->assertRedirect('/entrar');
+        $this->assertGuest();
+    }
+
     public function test_pessoa_inativa_perde_acesso_mesmo_com_sessao(): void
     {
         $usuario = $this->usuario(true, false);
@@ -80,8 +106,12 @@ class AutenticacaoTest extends TestCase
 
     public function test_login_invalido_nao_revela_existencia_da_conta(): void
     {
-        $this->usuario();
-        $this->post('/entrar', ['email' => 'lia@example.invalid', 'password' => 'incorreta'])->assertSessionHasErrors('email');
+        $usuario = $this->usuario();
+        $erro = ['email' => 'Credenciais inválidas ou conta indisponível.'];
+        $this->post('/entrar', ['email' => 'lia@example.invalid', 'password' => 'incorreta'])->assertSessionHasErrors($erro);
+        $this->post('/entrar', ['email' => 'inexistente@example.invalid', 'password' => 'incorreta'])->assertSessionHasErrors($erro);
+        $usuario->update(['ativo' => false]);
+        $this->post('/entrar', ['email' => 'lia@example.invalid', 'password' => 'uma-senha-segura'])->assertSessionHasErrors($erro);
         $this->assertGuest();
     }
 }

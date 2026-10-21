@@ -5,14 +5,12 @@ namespace Tests\Feature;
 use App\Models\Pessoa;
 use App\Models\Usuario;
 use Illuminate\Database\QueryException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class IdentidadeTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_pessoa_pode_existir_sem_usuario(): void
     {
         $pessoa = Pessoa::query()->create(['nome_exibicao' => 'Pessoa Exemplo']);
@@ -37,6 +35,20 @@ class IdentidadeTest extends TestCase
         Usuario::query()->create(['pessoa_id' => $pessoa->id, 'email' => 'b@example.invalid', 'password' => 'outra-senha-exemplo']);
     }
 
+    public function test_usuario_nao_aceita_pessoa_nula(): void
+    {
+        $this->expectException(QueryException::class);
+        DB::table('usuarios')->insert(['pessoa_id' => null, 'email' => 'nulo@example.invalid', 'password' => 'hash']);
+    }
+
+    public function test_pessoa_com_usuario_nao_pode_ser_excluida(): void
+    {
+        $pessoa = Pessoa::query()->create(['nome_exibicao' => 'Pessoa vinculada']);
+        Usuario::query()->create(['pessoa_id' => $pessoa->id, 'email' => 'vinculo@example.invalid', 'password' => 'uma-senha-exemplo']);
+        $this->expectException(QueryException::class);
+        $pessoa->delete();
+    }
+
     public function test_email_unico_sem_diferenciar_maiusculas_no_banco(): void
     {
         $pessoaA = Pessoa::query()->create(['nome_exibicao' => 'Primeira pessoa']);
@@ -56,5 +68,6 @@ class IdentidadeTest extends TestCase
         $pessoa = Pessoa::query()->create(['nome_exibicao' => 'Lia Exemplo']);
         $usuario = Usuario::query()->create(['pessoa_id' => $pessoa->id, 'email' => 'a@example.invalid', 'password' => 'uma-senha-exemplo']);
         $this->assertNotSame('uma-senha-exemplo', $usuario->getRawOriginal('password'));
+        $this->assertTrue(Hash::check('uma-senha-exemplo', $usuario->getRawOriginal('password')));
     }
 }

@@ -1,0 +1,79 @@
+# Homologação isolada; imagem previamente construída no CIRO, sem ingress público.
+version: "3.8"
+services:
+  app:
+    image: ${QUARENTENA_DEV_IMAGE:?Informe a imagem de homologação por hash}
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_NAME: Grupo QuarenteNA
+      APP_URL: http://localhost
+      APP_TIMEZONE: America/Bahia
+      APP_KEY_FILE: /run/secrets/quarentena_dev_swarm_app_key
+      LOG_CHANNEL: stderr
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_DATABASE: quarentena_dev_swarm
+      DB_USERNAME: quarentena_dev_swarm
+      DB_PASSWORD_FILE: /run/secrets/quarentena_dev_swarm_db_password
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+      TRUSTED_HOSTS: localhost,127.0.0.1,app
+      TRUSTED_PROXIES: ""
+      SESSION_SECURE_COOKIE: "false"
+    secrets: [quarentena_dev_swarm_db_password, quarentena_dev_swarm_app_key]
+    networks: [internal]
+    volumes:
+      - app_storage:/var/www/html/storage
+      - app_bootstrap_cache:/var/www/html/bootstrap/cache
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1/up') === false ? 1 : 0);"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.hostname == CIRO]
+      resources:
+        limits: {cpus: "1.0", memory: 512M}
+      restart_policy: {condition: on-failure}
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: quarentena_dev_swarm
+      POSTGRES_USER: quarentena_dev_swarm
+      POSTGRES_PASSWORD_FILE: /run/secrets/quarentena_dev_swarm_db_password
+    secrets: [quarentena_dev_swarm_db_password]
+    networks: [internal]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.hostname == CIRO]
+      resources:
+        limits: {cpus: "1.0", memory: 512M}
+      restart_policy: {condition: on-failure}
+networks:
+  internal:
+    driver: overlay
+    attachable: true
+    internal: true
+volumes:
+  pgdata:
+  app_storage:
+  app_bootstrap_cache:
+secrets:
+  quarentena_dev_swarm_db_password:
+    external: true
+  quarentena_dev_swarm_app_key:
+    external: true

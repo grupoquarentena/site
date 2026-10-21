@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,8 +23,8 @@ class AutenticacaoController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (! Auth::attempt([
-            'email' => mb_strtolower(trim($credenciais['email'])),
+        if (strlen($credenciais['password']) > 72 || ! Auth::attempt([
+            'email' => fn (Builder $query) => $query->whereRaw('lower(email) = ?', [mb_strtolower(trim($credenciais['email']))]),
             'password' => $credenciais['password'],
             'ativo' => true,
         ])) {
