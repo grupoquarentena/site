@@ -49,8 +49,12 @@ jobs:
         run: test -s composer.lock && composer validate --strict
       - name: Cliente PostgreSQL para restaurar o snapshot Laravel
         run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl --fail --silent --show-error -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          . /etc/os-release
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
           sudo apt-get update
-          sudo apt-get install -y postgresql-client-17
+          sudo apt-get install -y --no-install-recommends postgresql-client-17
           echo '/usr/lib/postgresql/17/bin' >> "$GITHUB_PATH"
       - name: Instalar dependências travadas
         run: composer install --no-interaction --prefer-dist --no-progress

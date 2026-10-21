@@ -9,6 +9,7 @@ Histórico sintético do projeto. Registrar mudanças relevantes na versão corr
 - Homologados SQLite e PostgreSQL 17, login case-insensitive, constraints de identidade, HTTP com CSRF e persistência de sessão após restart.
 - Adicionado ambiente `.env.dev` por link local protegido, integração MCP OpenCode v2/WSL e stack de homologação interna isolada no CIRO, sem portas ou redes públicas.
 - Gerados snapshot e catálogo reais; incluídos histórico técnico de migrations e cliente PostgreSQL 17 para restauração Laravel, também na CI.
+- Configurado o repositório oficial PGDG com assinatura na CI descartável após falha real de disponibilidade do cliente PostgreSQL 17 no Ubuntu do runner.
 - Endurecidos os gates após review independente: preflight antes de migrations destrutivas, cache de testes isolado (validado com sentinela persistente), variantes PostgreSQL direta/snapshot, credenciais dotenv citadas, CSRF negativo e limite bcrypt em bytes; PHPUnit falha também em warnings/risky.
 
 - Preparada a aplicação mínima Laravel 13 / PHP 8.5 / PostgreSQL 17, com Docker Compose, configuração inicial do Swarm, testes e CI.
