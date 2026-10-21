@@ -13,7 +13,7 @@ revision: "Integração de contratos e auditoria cruzada BMAD 6.12.4"
 # Arquitetura — Grupo QuarenteNA
 
 
-> O **Brief**, o **PRD** e o **inventário QuarenteNA** estão **APROVADOS**. Esta arquitetura **foi aprovada pelo responsável do projeto**, com os ajustes de governança e integrações descritos aqui. O schema abaixo é **proposta lógica/física de referência**, não dump PostgreSQL gerado, migrations executadas ou homologação de produção. O código-fonte analisado foi o template em `main` na consulta de 17/10/2026; suas convenções deverão ser conferidas novamente no commit adotado pelo novo repositório.
+> O **Brief**, o **PRD** e o **inventário QuarenteNA** estão **APROVADOS**. Esta arquitetura **foi aprovada pelo responsável do projeto**, com os ajustes de governança e integrações descritos aqui. O schema abaixo é **proposta lógica/física de referência**, não dump PostgreSQL gerado, migrations executadas ou homologação de produção. A fundação Laravel será incorporada de forma seletiva a `grupoquarentena/site` na branch vinculada à Issue #33, mediante testes e PR para `dev`, preservando estes contratos.
 
 
 ## 1. Objetivos, restrições e princípios
@@ -36,13 +36,13 @@ revision: "Integração de contratos e auditoria cruzada BMAD 6.12.4"
 ### Fronteira de evidência
 
 
-**Confirmado no template:** PHP `^8.5`, `laravel/framework ^13.17`, `laravel/sanctum ^4`, `laravel/boost ^2` (dev), PostgreSQL com `DB_CONNECTION=pgsql`, tabelas `usuarios`, `clientes`, `cliente_usuario`, `personal_access_tokens`, `jobs`, `job_batches`, `failed_jobs`, e `password_reset_tokens`; migrations com comentários; fluxo de schema/documentação e Docker/Swarm. **Não consta** no template um modelo de dados do QuarenteNA; as tabelas de domínio descritas abaixo serão novas.
+**Referência de fundação:** PHP `^8.5`, Laravel 13, PostgreSQL 17, PHPUnit e Laravel Boost no ambiente de desenvolvimento. O projeto **não importa** clientes, pivots comerciais, permissões comerciais nem Sanctum sem uma Story de API. A fundação cria `pessoas`, `usuarios` pessoais e tabelas técnicas de sessão/cache/fila; os demais domínios seguem este planejamento e serão concretizados por Story.
 
 
 **Confirmado no rastreador escolhido:** `opastorello/correios-rastreamento` implementa serviço Python/FastAPI que disponibiliza REST e MCP; rotas `POST /rastreamento/objeto`, `/rastreamento/multiplos`, `/health` e histórico interno. Usa scraping e resolução de CAPTCHA, portanto sua disponibilidade depende de mudanças dos Correios e requer monitoramento e alternativa de consulta manual. Não incorporar o Python ao processo PHP.
 
 
-Fontes primárias: [README do template](https://github.com/cirinho/template-laravel-bmad/blob/main/README.md), [AGENTS.md](https://github.com/cirinho/template-laravel-bmad/blob/main/AGENTS.md), [config/database.php](https://github.com/cirinho/template-laravel-bmad/blob/main/config/database.php), [migrations](https://github.com/cirinho/template-laravel-bmad/tree/main/database/migrations), [README Correios](https://github.com/opastorello/correios-rastreamento/blob/master/README.md).
+Referências: [fundação Laravel de inspiração](https://github.com/cirinho/template-laravel-bmad), [documentação Laravel](https://laravel.com/docs) e [README Correios](https://github.com/opastorello/correios-rastreamento/blob/master/README.md). O contrato efetivo é o código adaptado neste repositório, não o estado remoto do template.
 
 
 ## 2. Diagramas de arquitetura
@@ -87,7 +87,7 @@ flowchart TB
 ```
 
 
-**Escolha inicial recomendada:** PostgreSQL como fila (`QUEUE_CONNECTION=database`) para simplificar o início; Redis permanece **opcional** conforme a carga medida. O template atualmente vem com `QUEUE_CONNECTION=sync`, que **deve mudar** antes de executar jobs reais de webhooks, notificações e rastreio. Em Swarm, ativar réplicas para worker e scheduler; este último deve garantir execução única ou coordenação distribuída.
+**Escolha inicial recomendada:** PostgreSQL como fila (`QUEUE_CONNECTION=database`) para simplificar o início; Redis permanece **opcional** conforme a carga medida. A fundação adota `QUEUE_CONNECTION=database`; antes de usar jobs reais, ativar e testar workers, idempotência e tratamento de falhas. Em Swarm, ativar réplicas para worker e scheduler; este último deve garantir execução única ou coordenação distribuída.
 
 
 ### Limites por funcionalidade
@@ -132,14 +132,14 @@ flowchart TD
 | Migração | Snapshot imutável, batch, origem e reconciliação | Apagar dados históricos antes do aceite |
 
 
-### Estrutura definida para a derivação do template Laravel (preservar convenções do framework)
+### Estrutura definida para a fundação Laravel no mesmo repositório (preservar convenções do framework)
 
 
-**Decisão de arquitetura:** criar **um novo repositório de aplicação derivado** de `cirinho/template-laravel-bmad`, sem alterar o template genérico nem sobrescrever a `main` do site BMAD antigo. Esta é a estrutura alvo obrigatória, com diretórios criados **quando sua primeira classe/feature existir**; não gerar pastas vazias, arquivos placeholder ou “um documento por componente”.
+**Decisão de arquitetura:** integrar a fundação Laravel **no próprio repositório `grupoquarentena/site`**, via branch `chore/issue-33-fundacao-laravel` originada de `dev` e PR revisado; manter `main` congelada e preservar o template como referência externa. Esta é a estrutura alvo obrigatória, com diretórios criados **quando sua primeira classe/feature existir**; não gerar pastas vazias, arquivos placeholder ou “um documento por componente”.
 
 
 ```text
-projeto-quarentena/
+grupoquarentena/site/
 ├── AGENTS.md                      # uma regra canônica curta para agentes
 ├── .ai/guidelines/                # somente convenções do projeto necessárias ao Boost
 ├── _bmad-output/planning-artifacts/
@@ -158,8 +158,8 @@ projeto-quarentena/
 │   │   ├── Comunicacao/           # Evolution, comandos, templates e jobs
 │   │   ├── Relatorios/            # agregações seguras e projeções públicas
 │   │   └── Integracoes/           # adaptadores Zoom, Correios, Drive e config
-│   ├── Http/Controllers/          # controladores web/API e webhooks (Laravel)
-│   ├── Models/                    # modelos Eloquent conforme convenção Laravel
+│   ├── Http/Controllers/          # entrada HTTP; autenticação inicial sem API própria
+│   ├── Models/                    # Pessoa/Usuario no núcleo; demais modelos por Story
 │   ├── Policies/                  # autorização em toda ação e registro
 │   ├── Jobs/                      # filas (atividades assíncronas quando necessárias)
 │   └── Console/Commands/          # importação, verificação e rotinas operacionais
@@ -183,7 +183,7 @@ projeto-quarentena/
 **Não criar** um diretório próprio `Integracoes/` *e* uma segunda hierarquia duplicada de conectores em `app/Http`; a lógica externa vive num só lugar e os controllers apenas recebem/validam/encaminham. Não criar `app/Events/Listeners/Repositories/Services/` vazios por padrão. `app/Funcionalidades/` é a propriedade dos contratos de domínio; Eloquent permanece no `app/Models/` do framework, evitando duplicidade de modelos. Documentação de API só é adicionada se uma API própria, estável e publicada realmente precisar de contrato distinto.
 
 
-**Regras de atualização do projeto (repositório derivado):**
+**Regras de atualização do projeto (`grupoquarentena/site`):**
 
 
 | Mudança | Atualizar no mesmo PR/commit, sem arquivo histórico paralelo |
@@ -204,11 +204,11 @@ projeto-quarentena/
 
 | Recurso do template `main` | Estado inspecionado | Tratamento no QuarenteNA |
 |---|---|---|
-| `usuarios` | `nome`, `email` único, `password`, `papel`, `ativo`, timestamps | **Adaptar profundamente** o schema e autenticação para contas pessoais do grupo; `pessoa_id FK NOT NULL UNIQUE` para cada login humano, sem perfis comerciais do template; credenciais e permissões submetidas a Policies do QuarenteNA |
+| `usuarios` | Conta pessoal do QuarenteNA, sem `papel` comercial | **Fundação**: migration própria com `pessoa_id FK NOT NULL UNIQUE`, e-mail, senha com hash, `ativo` e timestampsTz, sem perfis comerciais; credenciais e permissões submetidas a Policies do QuarenteNA |
 | `password_reset_tokens` | Token de recuperação por email | **Reutilizar**, controlar expiração e mensagens sem vazamento |
-| `clientes` | Cadastro comercial PF/PJ com CPF/CNPJ e contato | **Não reaproveitar** para membros ou ingressantes: conceito comercial incompatível |
-| `cliente_usuario` | Associação comercial N:N | **Não utilizar** para identidade de serviço; retirar em projeto derivado ainda sem deploy, ou depreciar/migrar sem reescrever migration aplicada |
-| `personal_access_tokens` | API Sanctum e tokens com abilities | **Utilizar somente quando vinculado a um usuário humano identificado**, com escopos e validade; provedores/jobs técnicos usam autenticação de integração, credenciais sob segredo e `auditorias.ator_tipo`, sem criar `usuarios` fictícios |
+| `clientes` | Exemplo comercial do template, não adotado | **Não importar**: não existe no schema do QuarenteNA |
+| `cliente_usuario` | Exemplo comercial não adotado | **Não importar** |
+| `personal_access_tokens` | Recurso futuro opcional para APIs humanas | **Não incluir na fundação mínima**; adicionar Sanctum com escopo/validade por Story de API, sem usuários técnicos fictícios |
 | `jobs`, `job_batches`, `failed_jobs` | Tabelas do driver de fila | **Reutilizar** para jobs; não armazenar payload com PII desnecessária |
 | `database/schema/pgsql-schema.sql` | Snapshot real criado por script do template | **Gerar no projeto executável**, jamais substituir pela proposta deste documento |
 | `docs/banco/db.md` | Catálogo do banco regenerado do PG | **Gerar após migrations** e versionar junto com snapshot |
@@ -216,13 +216,13 @@ projeto-quarentena/
 | `./scripts/testar.sh --postgres` | Gate PostgreSQL | Obrigatório para migrations/consultas específicas do PG e antes de release |
 | Docker Compose / Swarm | app Apache, PG, profiles de filas e scheduler | Usar volumes e segredos; sem publicar porta PG externa |
 | Laravel Boost | Dependência de desenvolvimento; MCP via script | Instalar/ativar via scripts do template e consultar documentação na implementação |
-| BMAD | Instalado no projeto derivado, não versionado na base | Adotar **6.12.4** conforme decisão de planejamento e versionar `_bmad-output/` |
+| BMAD | Já instalado no ambiente do projeto | **Preservar** BMAD 6.12.4, sem executar instalador; versionar apenas artefatos `_bmad-output/` |
 
 
-### Adaptação de papéis
+### Adaptação de identidade e permissões
 
 
-O template existente utiliza `super_admin`, `admin` e `cliente`, mas **essas categorias serão removidas/substituídas no projeto derivado**, não herdadas como papéis de negócio. `pessoas` contém a identidade operacional, com ou sem conta; `usuarios` contém somente logins humanos e requer `pessoa_id NOT NULL UNIQUE`. Todos os servidores que operam o sistema usam seu login pessoal. Jobs, ASAAS, Zoom, Evolution e outras integrações são **atores técnicos em auditoria**, sem login humano artificial. Um usuário logado pode executar **segunda autenticação institucional root** para elevar apenas sua sessão pessoal e obter todos os poderes sem nova identidade anônima. **A fonte de permissão efetiva é a designação de encargo ativa**, complementada por uma exceção autorizada e auditada: o sistema pode materializar flags para performance, mas Policies devem sempre invalidá-las quando o mandato expirar ou for revogado.
+A fundação **não importa** papéis comerciais `super_admin`, `admin` ou `cliente`; eles não são papéis de negócio do QuarenteNA. `pessoas` contém a identidade operacional, com ou sem conta; `usuarios` contém somente logins humanos e requer `pessoa_id NOT NULL UNIQUE`. Todos os servidores que operam o sistema usam seu login pessoal. Jobs, ASAAS, Zoom, Evolution e outras integrações são **atores técnicos em auditoria**, sem login humano artificial. Um usuário logado pode executar **segunda autenticação institucional root** para elevar apenas sua sessão pessoal e obter todos os poderes sem nova identidade anônima. **A fonte de permissão efetiva é a designação de encargo ativa**, complementada por uma exceção autorizada e auditada: o sistema pode materializar flags para performance, mas Policies devem sempre invalidá-las quando o mandato expirar ou for revogado.
 
 
 - **Coordenador Geral e Secretário Geral:** gestão técnica/administrativa, usuários, escalas, modelos documentais, integrações e auditoria; **sem permissão de edição financeira nem acesso operacional ao Kit Ingresso**.
@@ -236,7 +236,7 @@ O template existente utiliza `super_admin`, `admin` e `cliente`, mas **essas cat
 **Acesso:** na gravação da designação, concessão automática; no fim da vigência, policy nega **mesmo se o scheduler estiver atrasado**, e o job remove cache/flags/tokens; entrega ou destituição revoga instantaneamente, termina sessões privilegiadas quando necessário e registra motivo, responsável e instante. Evitar dar permissão perpetuamente em `permissoes_usuario` se derivada de `designacoes_servico`.
 
 
-**Migrações iniciais:** se o repositório derivado ainda não tiver banco instalado, alterar o conjunto de migrations do **novo repositório** antes da primeira instalação, com revisão explícita. Se migrations já tiverem sido aplicadas em ambiente compartilhado, manter histórico e criar novas migrations (não reescrever as existentes), como exigem `AGENTS.md` e o README da fundação.
+**Migrações iniciais:** no próprio `grupoquarentena/site`, criar as migrations de `pessoas` e `usuarios` corretas **antes da primeira instalação em banco descartável**, com revisão explícita. Se migrations já tiverem sido aplicadas em ambiente compartilhado, manter histórico e criar novas migrations (não reescrever as existentes), como exigem `AGENTS.md` e o README da fundação.
 
 
 ## 5. Estratégia de PostgreSQL e modelagem
@@ -984,7 +984,7 @@ stateDiagram-v2
 | `personal_access_tokens` | Tokens Sanctum / API v1 | Somente escopos ligados a usuário humano pessoal; provedores/jobs autenticam-se por integrações assinadas/segredos próprios sem criar login fictício |
 | `jobs`, `job_batches`, `failed_jobs` | Fila e erros do Laravel | Usar filas sem payload integral de dados pessoais |
 | `migrations` | Lotes/histórico de schema Laravel | Não podar ou reescrever histórico aplicado |
-| `clientes`, `cliente_usuario` | Cadastro comercial e N:N com usuários | Não mapear para membros/ingressantes; remover/aposentar controladamente no projeto derivado |
+| `clientes`, `cliente_usuario` | Estruturas comerciais de referência | Não importar para o QuarenteNA |
 
 
 ### 6.10. Normalização dos nomes e correspondência com as planilhas

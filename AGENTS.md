@@ -1,26 +1,11 @@
-# AGENTS.md — Grupo QuarenteNA
+# Agentes — Grupo QuarenteNA
 
-## Instruções obrigatórias
-
-- Projeto: **Grupo QuarenteNA v2** (`GrupoQuarenteNA.org`); documentação/UX em pt-BR; fuso `America/Bahia`.
-- A política **APROVADA** de Issues, branches, revisões, commits, PRs, squash, merges e releases é **[`docs/git-workflow-bmad.md`](docs/git-workflow-bmad.md)**. Ler antes de qualquer operação Git. `main` é a **branch padrão do GitHub e permanece congelada**; `dev` integra trabalho por PR, sem push direto no fluxo normal.
-- Um agente/orquestrador conduz a tarefa; especialistas ou outros modelos são consultados somente sob demanda, **sem escrita simultânea nos mesmos arquivos**. Não presumir autorização para merge, deploy, mudança de escopo ou descarte de trabalho existente.
-
-## Contexto e ferramentas
-
-1. Ler esta política, a Issue/Story e **somente** as seções relevantes de `ProductBrief.md`, `PRD.md`, `UX-Design.md` e `Arquitetura.md` em `_bmad-output/planning-artifacts/`. `QuarenteNA.md` e `legado/*` são históricos, não requisitos normativos.
-2. **BMAD 6.12.4** para Epics/Stories, aceite, status, revisão e mudanças de curso. **Laravel Boost**, MCP e documentação do runtime para implementar e testar Laravel. Nenhum deles substitui decisões humanas ou testes reais.
-3. A aplicação fica em **`grupoquarentena/site`** e adaptará `cirinho/template-laravel-bmad` em uma futura branch baseada na `dev`, sem herdar indiscriminadamente os papéis comerciais do template. Uma mudança necessária nessa decisão de repositório deve ser conciliada na Arquitetura no mesmo PR da adaptação.
-
-## Menos artefatos, mais consistência
-
-- **Não gerar arquivos de relatório, changelog, ADR, resumo de review ou documentação paralela por Epic, Story ou fix.** Centralizar evolução e evidências na Issue, PR e artefatos BMAD ativos. Preferir **um `epics.md`** consolidado; permitir `sprint-status.yaml`, Story e `spec-{slug}.md` **somente quando realmente exigidos** pela versão instalada, atualizando-os em vez de criar duplicatas.
-- Mudanças em requisitos/UX/arquitetura atualizam os **documentos canônicos existentes** no mesmo PR. Mudanças no schema: nova migration, testes e documentação/snapshot reais do template; não sobrescrever migrations aplicadas.
-- `tmp/` é local/ignorado. **Após o uso, remover temporários criados pela tarefa que não sejam mais necessários**, sem eliminar material de outras tarefas ou evidências aguardando revisão.
-
-## Segurança e qualidade
-
-- Respeitar pessoa/usuário, encargo vigente, root excepcional auditável, segregação de Kit e tesouraria, anonimato, PII mínima e eventos idempotentes. Incluir testes de acesso negado quando pertinente.
-- Nunca versionar `.env`, credenciais, dados pessoais reais, backups, dumps produtivos ou artefatos temporários.
-- Antes de abrir PR: conferir diff completo da branch, inclusive arquivos novos; executar `git diff --check`, testes adequados e **review por outro modelo/sessão sem o histórico do implementador**, com evidências registradas na Issue/PR. Usar `./scripts/testar.sh` e `./scripts/testar.sh --postgres` conforme impacto **depois que a fundação estiver disponível**.
-- **`review` até aprovação e merge; `done` só depois.** Código, testes, documentos afetados e rastreamento BMAD devem concordar para encerrar a Story. Agente não aprova ou mescla PR sem autorização humana expressa.
+- Idioma `pt-BR`; fuso `America/Bahia`. Aplicação e governança no repositório `grupoquarentena/site`.
+- **Git e revisões:** seguir [`docs/git-workflow-bmad.md`](docs/git-workflow-bmad.md). `main` é padrão/congelada; desenvolvimento em branch de `dev` via Issue e PR; merge só com aprovação humana.
+- **Fontes normativas:** `_bmad-output/planning-artifacts/{ProductBrief,PRD,UX-Design,Arquitetura}.md`; `QuarenteNA.md` é inventário AS-IS. Consultar apenas trechos necessários da tarefa.
+- **BMAD 6.12.4** já instalado: não reinstalar; Epics/Stories somente após integrar a fundação. **Laravel Boost** orienta implementação via runtime Docker, sem substituir requisitos.
+- **Menos artefatos:** não gerar relatórios/ADR/documentos por Story; preferir `epics.md` consolidado e arquivos operacionais exigidos pelo BMAD. Atualizar os documentos existentes no mesmo PR quando mudar requisitos, UX ou arquitetura.
+- Pessoas existem sem login; cada `usuario` humano pertence a uma `pessoa` (`pessoa_id NOT NULL UNIQUE`). Sem conta root compartilhada, perfis comerciais, permissões implícitas ou usuário fictício para webhook.
+- Respeitar anonimato, segregação de kit/tesouraria, encargos vigentes e PII mínima; testar acessos negados. Não antecipar os demais módulos antes das Stories.
+- Não versionar segredos, `.env`, logs, dados reais, backups nem `tmp/`. Limpar temporários da própria tarefa após uso, sem apagar trabalhos alheios.
+- Validar testes/CI e diff completo antes do review independente; `review` até aprovação/merge, `done` depois. Nunca afirmar testes que não foram executados.

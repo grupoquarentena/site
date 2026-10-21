@@ -1,0 +1,71 @@
+name: ${COMPOSE_PROJECT_NAME:-quarentena}
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: desenvolvimento
+    ports:
+      - "127.0.0.1:${APP_HTTP_PORT:-8088}:80"
+    env_file: ../.env
+    volumes:
+      - ../:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-quarentena_dev}
+      POSTGRES_USER: ${DB_USERNAME:-quarentena}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  postgres_test:
+    image: postgres:17-alpine
+    profiles: [test]
+    environment:
+      POSTGRES_DB: ${DB_TEST_DATABASE:-quarentena_test}
+      POSTGRES_USER: ${DB_TEST_USERNAME:-quarentena_test}
+      POSTGRES_PASSWORD: ${DB_TEST_PASSWORD:?Defina DB_TEST_PASSWORD no .env}
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: desenvolvimento
+    profiles: [workers]
+    env_file: ../.env
+    volumes:
+      - ../:/var/www/html
+    command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--timeout=90"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+  scheduler:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: desenvolvimento
+    profiles: [workers]
+    env_file: ../.env
+    volumes:
+      - ../:/var/www/html
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+volumes:
+  pgdata:

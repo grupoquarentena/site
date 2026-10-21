@@ -1,27 +1,21 @@
-# Grupo QuarenteNA — Plataforma Web v2
+# Grupo QuarenteNA — Site v2
 
-Site público e sistema administrativo do **Grupo QuarenteNA**, para reuniões, atas, encargos, Kit Ingresso, tesouraria, relatórios e integrações, respeitando anonimato e responsabilidade humana.
+Plataforma web pública e administrativa do Grupo QuarenteNA. Planejamento aprovado em `_bmad-output/planning-artifacts/`; implementação Laravel modular, PHP 8.5, PostgreSQL 17 e Docker.
 
-- **Domínio previsto:** `https://GrupoQuarenteNA.org`
-- **Status:** planejamento-base aprovado; governança Git/BMAD aprovada; aplicação Laravel ainda não integrada.
-- **Método:** BMAD 6.12.4. **Implementação:** Laravel Boost + agentes coordenados.
-- **Infraestrutura planejada:** Laravel 13/PHP 8.5, PostgreSQL 17, Docker Compose local, Docker Swarm e Cloudflare Tunnel em produção.
+## Instalação local (WSL + Docker Compose)
 
-## Governança e desenvolvimento
+```bash
+cp .env.example .env  # definir DB_PASSWORD e DB_TEST_PASSWORD locais
+./scripts/instalar.sh --preparar    # imagem, dependências e APP_KEY; não migra banco
+./scripts/instalar.sh --inicializar # PostgreSQL e migrations; exige confirmação
+./scripts/testar.sh
+./scripts/testar.sh --postgres
+```
 
-- **`main`**: branch padrão GitHub, estável e congelada, com promoção apenas expressamente autorizada.
-- **`dev`**: integração por PR revisado, não branch de trabalho direto.
-- **Branches temporárias**: originadas da `dev`, uma Issue/escopo por alteração revisável.
-- **`legado/*`**: material histórico, não reutilizar como arquitetura da v2.
+**Primeira resolução de dependências (obrigatória antes do PR):** este pacote de geração não contém `composer.lock` porque não houve acesso a um resolvedor Composer PHP 8.5 neste ambiente. `--preparar` o gera; revisar e versionar o lockfile no mesmo PR antes de CI/merge. Não executar `--inicializar` em banco existente sem validar as conexões.
 
-**Instruções:** [`AGENTS.md`](AGENTS.md) · [Git workflow aprovado](docs/git-workflow-bmad.md). O fluxo normal é Issue → branch temporária → BMAD/Boost e testes → revisão independente → PR para `dev` → revisão e aprovação humanas → squash merge.
+Acesso: página pública `/`, login institucional `/entrar`, área pessoal `/admin`. Não existe cadastro público, seeder com usuário padrão, ou tela administrativa de encargos nesta fundação. Provisionamento humano inicial por console, conforme `./scripts/artisan.sh usuario:criar --help` dentro do Docker. Recursos funcionais serão construídos após os Epics/Stories.
 
-## Planejamento canônico
+**Governança:** [AGENTS.md](AGENTS.md) · [Git workflow](docs/git-workflow-bmad.md) · [Arquitetura](_bmad-output/planning-artifacts/Arquitetura.md). Fonte técnica de referência: [`cirinho/template-laravel-bmad`](https://github.com/cirinho/template-laravel-bmad), adaptada ao QuarenteNA; sem dependência operacional desse repositório.
 
-Arquivos em [`_bmad-output/planning-artifacts/`](_bmad-output/planning-artifacts/): `QuarenteNA.md` (AS-IS), `ProductBrief.md`, `PRD.md`, `UX-Design.md` e `Arquitetura.md` (decisões normativas). Epics, Stories e estado BMAD serão criados conforme o workflow oficial, evitando documentos paralelos.
-
-## Próxima etapa técnica
-
-A aplicação ficará **neste repositório** (`grupoquarentena/site`), por integração e adaptação controladas de [`cirinho/template-laravel-bmad`](https://github.com/cirinho/template-laravel-bmad) numa **branch temporária derivada de `dev`**, com testes iniciais, CI e PR para `dev`. A fundação precisa substituir os cadastros/papéis comerciais por pessoas, usuários e encargos do QuarenteNA.
-
-Após a integração, reutilizar os wrappers existentes do template, especialmente `./scripts/testar.sh` e `./scripts/testar.sh --postgres` quando aplicável. Esses comandos **ainda não representam testes executados no repositório atual**. Build de imagem, integração, promoção para `main` e implantação em produção são ações distintas.
+`main` permanece branch padrão e estável; PRs de trabalho destinam-se à `dev`. Build da imagem não é deploy. O `docker/stack.yml` é preparação e **não foi homologado em produção**.

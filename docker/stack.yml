@@ -1,0 +1,82 @@
+# Esqueleto Swarm, não implantar até homologação operacional e secrets externos.
+# Rede 'quarentena_edge' deve ser compartilhada apenas com o Cloudflare Tunnel.
+version: "3.8"
+services:
+  app:
+    image: ${QUARENTENA_IMAGE:?Informe imagem imutável por SHA ou digest}
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: ${APP_URL:?Informe APP_URL}
+      APP_TIMEZONE: America/Bahia
+      APP_NAME: Grupo QuarenteNA
+      LOG_CHANNEL: stderr
+      DB_CONNECTION: pgsql
+      DB_HOST: ${DB_HOST:?Informe DB_HOST privado}
+      DB_PORT: "5432"
+      DB_DATABASE: ${DB_DATABASE:?Informe DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME:?Informe DB_USERNAME}
+      DB_PASSWORD_FILE: /run/secrets/quarentena_db_password
+      APP_KEY_FILE: /run/secrets/quarentena_app_key
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+      SESSION_SECURE_COOKIE: "true"
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+    secrets: [quarentena_db_password, quarentena_app_key]
+    networks: [quarentena_internal, quarentena_edge]
+    deploy:
+      replicas: 1
+      update_config:
+        order: start-first
+      restart_policy:
+        condition: on-failure
+  worker:
+    image: ${QUARENTENA_IMAGE:?Informe imagem imutável por SHA ou digest}
+    command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--timeout=90"]
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY_FILE: /run/secrets/quarentena_app_key
+      DB_CONNECTION: pgsql
+      DB_HOST: ${DB_HOST:?Informe DB_HOST privado}
+      DB_PORT: "5432"
+      DB_DATABASE: ${DB_DATABASE:?Informe DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME:?Informe DB_USERNAME}
+      DB_PASSWORD_FILE: /run/secrets/quarentena_db_password
+      QUEUE_CONNECTION: database
+      CACHE_STORE: database
+      SESSION_DRIVER: database
+    secrets: [quarentena_db_password, quarentena_app_key]
+    networks: [quarentena_internal]
+    deploy:
+      replicas: 0  # Ativar só com fila homologada
+      restart_policy: {condition: on-failure}
+  scheduler:
+    image: ${QUARENTENA_IMAGE:?Informe imagem imutável por SHA ou digest}
+    command: ["php", "artisan", "schedule:work"]
+    environment:
+      APP_ENV: production
+      APP_KEY_FILE: /run/secrets/quarentena_app_key
+      DB_CONNECTION: pgsql
+      DB_HOST: ${DB_HOST:?Informe DB_HOST privado}
+      DB_DATABASE: ${DB_DATABASE:?Informe DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME:?Informe DB_USERNAME}
+      DB_PASSWORD_FILE: /run/secrets/quarentena_db_password
+      CACHE_STORE: database
+      SESSION_DRIVER: database
+    secrets: [quarentena_db_password, quarentena_app_key]
+    networks: [quarentena_internal]
+    deploy:
+      replicas: 0  # Apenas um scheduler após validar locks
+      restart_policy: {condition: on-failure}
+networks:
+  quarentena_internal:
+    external: true
+  quarentena_edge:
+    external: true
+secrets:
+  quarentena_db_password:
+    external: true
+  quarentena_app_key:
+    external: true
