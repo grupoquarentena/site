@@ -8,9 +8,12 @@ Site público e sistema administrativo do **Grupo QuarenteNA**, com relatórios 
 
 Referência técnica: [`cirinho/template-laravel-bmad`](https://github.com/cirinho/template-laravel-bmad). O planejamento funcional está em `_bmad-output/planning-artifacts/`.
 
+O backlog aprovado como planejamento condicionado usa [índice global](./_bmad-output/planning-artifacts/epics.md) e detalhes em `epics/epic-NN.md`: 15 Epics, 101 Stories e 483 critérios de aceite. A elaboração documental está encerrada; decisões institucionais, readiness e homologação do runtime/Boost continuam pendentes. Não há autorização de sprint, implementação ou deploy por esse aceite.
+
 ## Desenvolvimento e validação da fundação
 
-Use um checkout no filesystem Linux do WSL, Docker e Compose. PHP e Composer executam nos containers.
+A fundação foi homologada em checkout no filesystem Linux do WSL, Docker e Compose. PHP e Composer executam nos containers.
+O checkout de continuidade escolhido na #35 fica em `C:\backup\Documentos\repositorios\Sites\quarentena` (`/mnt/c/...` no WSL); a homologação histórica do checkout Linux não comprova os mounts, permissões ou Boost nesse caminho. Revalidar o ambiente antes de implementar, sem recriar o clone antigo ou sobrescrever configuração privada por inferência.
 Para o ambiente isolado, copie `.env.dev.example` para `.env.dev`, restrinja-o com `chmod 600`,
 configure senhas locais fortes e distintas e crie `.env` como link simbólico para `.env.dev`
 **somente se não houver `.env` anterior**. Ambos são ignorados; scripts, Compose e Laravel leem o mesmo arquivo.

@@ -5,8 +5,8 @@ artifact: product-brief
 method: "BMAD 6.12.4 — artefato canônico de planejamento"
 status: "APROVADO"
 date: "2026-10-18"
-updated: "2026-10-19"
-revision: "Conciliação final de requisitos, privacidade e infraestrutura Cloudflare Tunnel/Swarm"
+updated: "2026-10-21"
+revision: "Conciliação temporal pós-fundação na Issue #35; escopo aprovado preservado"
 source_window: "2026-03 a 2026-05"
 ---
 
@@ -106,7 +106,7 @@ O grupo possui **seis encargos de mesa** e, separadamente, dois **moderadores es
 **Acesso dinâmico por encargo:** designação ativa e vigente concede apenas as capacidades daquele encargo; término do período revoga automaticamente; entrega/destituição/revogação manual por administrador é efetiva imediatamente. O histórico da designação, da concessão e da revogação é preservado. Uma designação expirada jamais pode ser usada para autorizar uma requisição, mesmo antes da execução do job de limpeza.
 
 
-**Identidade e acesso:** `pessoas` é o cadastro institucional de base; cada servidor que utiliza o sistema possui seu próprio `usuario` (login e senha) vinculado à respectiva pessoa. Membros ou contatos sem atividade no painel não precisam de conta. A fundação Laravel será adaptada às regras do grupo, não preservará perfis comerciais `cliente`/`super_admin` como papéis normativos.
+**Identidade e acesso:** `pessoas` é o cadastro institucional de base; cada servidor que utiliza o sistema possui seu próprio `usuario` (login e senha) vinculado à respectiva pessoa. Membros ou contatos sem atividade no painel não precisam de conta. A fundação Laravel foi integrada à `dev` pela Issue #33 / PR #34 (`4ad7814`), com identidade pessoal mínima e sem perfis comerciais `cliente`/`super_admin`. Autorizações por encargo, elevação root e fluxos operacionais permanecem por implementar nas Stories; a homologação da fundação não comprova o produto completo.
 
 **Elevação `root`:** após login pessoal, um usuário pode realizar a **segunda autenticação institucional como root**, que eleva temporariamente **sua própria sessão**, com acesso irrestrito a todos os módulos e operações. A credencial de elevação não constitui uma conta humana compartilhada nem substitui a autoria identificada. Não existe login direto e anônimo como root; o operador permanece identificado e as operações são rastreadas. A elevação não é rotina de trabalho nem substitui identidades pessoais; exige MFA, credencial institucional sob guarda segura, justificativa, alerta, prazo curto e registro associado ao operador autenticado. Sessão `root` **não deve ser caminho normal de edição de tesouraria ou kit**.
 

@@ -5,8 +5,8 @@ artifact: prd
 method: "BMAD 6.12.4 — artefato canônico de planejamento"
 status: "APROVADO"
 date: "2026-10-18"
-updated: "2026-10-19"
-revision: "Integração de contratos e auditoria cruzada BMAD 6.12.4"
+updated: "2026-10-22"
+revision: "Issue #35: delimitação de RF-AUDITORIA-001 e bootstrap institucional aprovados; demais IDs e contratos preservados"
 source_window: "2026-03 a 2026-05"
 ---
 
@@ -252,13 +252,15 @@ flowchart TB
 | `RF-ACESSO-012` | Root institucional excepcional | Permitir ao usuário pessoal já autenticado ativar elevação `root` temporária por segunda autenticação forte, com MFA, justificativa, aviso e auditoria; não permitir login direto como root; com elevação ativa, acesso integral inclusive a Kit e Tesouraria. |
 | `RF-ACESSO-013` | Segregação de encargos | Coordenador Geral e Secretário Geral administram acessos e integrações, mas não herdam edição financeira nem acesso operacional ao kit; tesoureiro edita finanças; Coordenador Kit é o único que vê e gere dados privados do kit. |
 
+**Inicialização institucional — decisão aprovada na Issue #35:** a primeira designação de CG ou SG pode usar procedimento CLI excepcional de primeira instalação, não o fluxo ordinário de concessão. Exigir conta pessoal existente/ativa e pessoa válida, reautenticação real com senha interativa oculta e autorização institucional externa comprovável, identificando aprovador independente e referência da decisão; shell ou referência autodeclarada não bastam. Registrar operador, beneficiário, encargo, início/fim, motivo e autorização. Designação, auditoria e estado permanente de bootstrap realizado são atômicos, com proteção PostgreSQL contra repetição/concorrência. O estado não é removível/rearmável pelo fluxo administrativo comum e não reabre por expiração, entrega, revogação ou recuperação de conta. Não concede root ou permissão permanente: capacidades ordinárias dependem da designação vigente e das Policies correspondentes. Concessões posteriores seguem fluxo institucional; recuperação extraordinária exige procedimento próprio autorizado. A aprovação da diretriz não autoriza cadastrar pessoa real, executar a primeira designação em produção ou presumir as Policies futuras implementadas. O meio técnico de comprovação será submetido no aceite específico da Story, sem aceitar mera posse do servidor como autorização.
+
 
 ### RF-AUDITORIA — Auditoria (9)
 
 
 | ID | Capacidade | Condição/requisito da fonte consolidada |
 |---|---|---|
-| `RF-AUDITORIA-001` | Auditar toda modificação | Toda operação que altere o banco de dados deve gerar registro de auditoria. |
+| `RF-AUDITORIA-001` | Auditar mutações persistentes de negócio e controles institucionais | Toda mutação persistente de negócio, identidade, mandatos, permissões e configurações deve gerar auditoria, seja humana, CLI, job ou integração. Gravações técnicas mecânicas de sessão, cache, filas e inserções da própria trilha não geram auditoria por gravação nem recursão; eventos relevantes de segurança associados a esses componentes continuam sujeitos a registro próprio. Alteração de negócio e auditoria são atômicas, com rollback integral se a trilha falhar. |
 | `RF-AUDITORIA-002` | Dados mínimos do log | Cada log deve registrar: ; usuário responsável; data e hora; IP ou origem da requisição quando disponível; user-agent quando disponível; módulo; entidade; id do registro; ação realizada; valores anteriores; valores novos; justificativa quando aplicável. |
 | `RF-AUDITORIA-003` | Justificativa em edição posterior | Edições em registros oficiais já enviados, como atas enviadas, devem exigir justificativa. |
 | `RF-AUDITORIA-004` | Consulta de auditoria | Coordenador Geral e Secretário Geral consultam auditoria institucional; root elevado pessoalmente consulta tudo durante a elevação; Tesoureiro consulta registros financeiros pertinentes ao serviço. Logs do Kit permanecem sem PII para terceiros. |
@@ -267,6 +269,8 @@ flowchart TB
 | `RF-AUDITORIA-007` | Inserção, atualização, correção, exclusão lógica, alteração de permissões e configuração são auditadas independentemente de serem humanas ou automatizadas. | Ator do tipo usuário/sistema, timestamp UTC, correlação, origem, entidade, antes/depois redigidos e operação em uma transação. |
 | `RF-AUDITORIA-008` | Auditoria de leitura de segredo Zoom, dados pessoais Kit e acesso de elevação root. | Registro suficiente para reconstruir quem consultou, sem copiar os próprios segredos para logs. |
 | `RF-AUDITORIA-009` | Não eliminar destrutivamente registros institucionais no fluxo comum; usar versionamento/exclusão lógica. | Retificações e reversões preservam razão, autoria e valores; retenção pessoal sujeita à eventual necessidade de anonimização/expurgo legal. |
+
+**Delimitação aprovada na Issue #35 para RF-AUDITORIA-001/007/008:** além das mutações de domínio, registrar eventos próprios relevantes de autenticação/login, tentativas de acesso negadas, autorização, leitura sensível e elevação root, mesmo sem alteração de negócio. Credenciais/integrações/configurações são auditadas sem copiar senhas, tokens, chaves ou PII desnecessária. A exclusão da escrita mecânica não exclui eventos de segurança: renovar uma sessão ou avançar o estado técnico de uma fila não cria auditoria por linha; uma revogação de acesso ou efeito de negócio de um job continua auditável. A inserção da trilha não dispara outra trilha de si mesma. Falha de negócio/trilha não deixa alteração parcial nem sucesso aparente; eventos de segurança de uma tentativa rejeitada não representam uma mutação de negócio confirmada. Esta precisão substitui a formulação absoluta anterior de RF-AUDITORIA-001, preserva seu ID e mantém RF-AUDITORIA-007/008 e os demais requisitos sem renumeração. Histórico da decisão: Issue #35 e diff deste planejamento, não evidência de implementação.
 
 
 ### RF-ATA — Ata das reuniões regulares (28)
@@ -927,9 +931,9 @@ Este é o **único documento `PRD.md`**. Cada ID é único e permanente dentro d
 | PRD | Funcionalidades com IDs, regras, RNFs e casos de aceite | **APROVADO** |
 | Validação técnica do PRD | Testabilidade, segurança, rastreabilidade e contratos | A executar no gate BMAD, sem reabrir aprovação do escopo |
 | UX Design | Fluxos/telas e acessibilidade de áreas público e admin | **APROVADO** em `UX-Design.md`; testes práticos integram homologação |
-| Arquitetura | Decisões de runtime, banco, APIs, permissão, deploy, webhooks e recuperação | **APROVADA** em `Arquitetura.md`; migrations/infra ainda não executadas |
-| Epics/stories | Slicing de ponta a ponta a partir de PRD **aprovado** | Não gerados nesta entrega |
-| Implementation | Construção, testes, migração e cutover | Não iniciada por estes artefatos |
+| Arquitetura | Decisões de runtime, banco, APIs, permissão, deploy, webhooks e recuperação | **APROVADA** em `Arquitetura.md`; fundação mínima integrada pela #33 / PR #34 (`4ad7814`); demais migrations e infraestrutura de produção não comprovadas por essa entrega |
+| Epics/stories | Slicing de ponta a ponta a partir de PRD **aprovado** | Epics 1–15 detalhados e revisados em estrutura B (`epics.md` + `epics/epic-NN.md`); 101 Stories aprovadas como planejamento condicionado em 23–24/10/2026, mantendo decisões institucionais e gates operacionais. Aprovação documental não equivale a implementação, readiness, homologação do runtime ou autorização de produção. |
+| Implementation | Construção, testes, migração e cutover | Fundação mínima homologada na #33; módulos de negócio, migração e cutover permanecem futuros |
 
 
-**Método e fontes:** [Pacote 6.12.4](https://www.npmjs.com/package/bmad-method/v/6.12.4), [documentação oficial](https://docs.bmad-method.org/) e [repositório](https://github.com/bmad-code-org/BMAD-METHOD). Usaram-se princípios de separação Analysis → Requirements → UX/Architecture → Stories e revisão explícita de divergências; o pacote não foi instalado nem executado.
+**Método e fontes:** [Pacote 6.12.4](https://www.npmjs.com/package/bmad-method/v/6.12.4), [documentação oficial](https://docs.bmad-method.org/) e [repositório](https://github.com/bmad-code-org/BMAD-METHOD). Na elaboração original deste PRD usaram-se princípios de separação Analysis → Requirements → UX/Architecture → Stories e revisão explícita de divergências, sem execução do pacote naquela etapa. Posteriormente, BMAD 6.12.4 foi instalado e verificado na #33; a #35 inicia o workflow de Epics/Stories, sem atribuir retroativamente execução oficial aos documentos aprovados.
