@@ -1,0 +1,37 @@
+name: "Tarefa BMAD / desenvolvimento"
+description: "Feature, Story, correção ou manutenção — um escopo revisável."
+title: "[Tarefa] "
+assignees:
+  - grupoquarentena
+  - cirinho
+body:
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: "Problema e objetivo"
+      description: "Contexto sintético; não copiar todo o PRD."
+      placeholder: "O que precisa mudar e por quê?"
+    validations:
+      required: true
+  - type: textarea
+    id: escopo
+    attributes:
+      label: "Escopo, limites e referências"
+      description: "Epic/Story/RF, relações, dependências e limites quando aplicáveis."
+      placeholder: "Story ...; RF ...; depende de #...; fora do escopo ..."
+    validations:
+      required: true
+  - type: textarea
+    id: aceite
+    attributes:
+      label: "Aceite e verificação"
+      description: "Resultado verificável, testes e casos de erro relevantes."
+      placeholder: "Dado ... quando ... então ...; teste negativo ..."
+    validations:
+      required: true
+  - type: textarea
+    id: observacoes
+    attributes:
+      label: "Riscos ou observações (opcional)"
+    validations:
+      required: false

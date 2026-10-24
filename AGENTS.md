@@ -1,38 +1,12 @@
-# AGENTS.md — Grupo QuarenteNA
+# Agentes — Grupo QuarenteNA
 
-## Contexto
-
-- Idioma: português brasileiro.
-- Método: BMAD 6.12.4, com OpenCode.
-- Utilizar somente os cinco documentos canônicos em `_bmad-output/planning-artifacts/`.
-- O MVP antigo não entrou em produção e não representa a arquitetura da nova plataforma.
-
-## Hierarquia de conhecimento
-
-- `QuarenteNA.md`: contexto histórico e funcionamento do legado.
-- `ProductBrief.md`: visão, objetivos e escopo estratégico.
-- `PRD.md`: requisitos funcionais e regras aprovadas.
-- `UX-Design.md`: comportamento e experiência.
-- `Arquitetura.md`: decisões técnicas e modelo de dados.
-- Código e migrations: implementação executável, quando existirem.
-
-Em caso de divergência, não presumir qual documento está correto: identificar o conflito e propor reconciliação.
-
-## Desenvolvimento
-
-- Respeitar o template Laravel adotado, suas migrations, testes e documentação.
-- Utilizar Laravel Boost para consultar APIs, padrões e runtime do Laravel.
-- Não duplicar regras de negócio ou fontes de dados.
-- Alterações em requisitos devem atualizar o PRD; mudanças arquiteturais devem atualizar a Arquitetura.
-- Mudanças no banco exigem migrations, testes e sincronização da documentação do esquema.
-- Preservar anonimato, rastreabilidade e controle de acesso por encargo vigente.
-
-## Artefatos e agentes
-
-- Não gerar documentação redundante, versões paralelas ou relatórios permanentes sem necessidade.
-- Atualizar arquivos existentes preferencialmente a criar novos.
-- Auditorias experimentais devem usar `tmp/`, sem commits.
-- Gerar Specs, Stories e artefatos operacionais BMAD somente quando a etapa exigir.
-- Utilizar Git para registrar histórico e justificativas, sem replicar changelogs nos documentos.
-
-O desenvolvimento não pode considerar uma Story concluída sem testes e atualização das fontes afetadas.
+- Idioma `pt-BR`; fuso `America/Bahia`. Aplicação e governança no repositório `grupoquarentena/site`.
+- **Git e revisões:** seguir [`docs/git-workflow-bmad.md`](docs/git-workflow-bmad.md). `main` é padrão/congelada; desenvolvimento em branch de `dev` via Issue e PR; merge só com aprovação humana.
+- **Fontes normativas:** `_bmad-output/planning-artifacts/{ProductBrief,PRD,UX-Design,Arquitetura}.md`; `QuarenteNA.md` é inventário AS-IS. Consultar apenas trechos necessários da tarefa.
+- **BMAD 6.12.4** já instalado: não reinstalar; Epics/Stories somente após integrar a fundação. **Laravel Boost** orienta implementação via runtime Docker, sem substituir requisitos.
+- **Backlog B:** `_bmad-output/planning-artifacts/epics.md` é índice/estado global; `_bmad-output/planning-artifacts/epics/epic-NN.md` é fonte exclusiva das Stories/AC/gates daquele Epic. Seguir o contrato e a entrada local `quarentena-backlog` em [`docs/git-workflow-bmad.md`, §4.1](docs/git-workflow-bmad.md#backlog-b). Nunca anexar Stories ao índice ou recriar arquivo existente. Help/agentes consultam índice + Epic pertinente; aprovação condicionada não autoriza build.
+- **Menos artefatos:** não gerar relatórios/ADR/documentos por Story; manter backlog distribuído sem cópia monolítica e arquivos operacionais exigidos pelo BMAD. Atualizar documentos existentes quando mudar requisitos, UX ou arquitetura; resumir mudanças relevantes no `CHANGELOG.md` único do projeto.
+- Pessoas existem sem login; cada `usuario` humano pertence a uma `pessoa` (`pessoa_id NOT NULL UNIQUE`). Sem conta root compartilhada, perfis comerciais, permissões implícitas ou usuário fictício para webhook.
+- Respeitar anonimato, segregação de kit/tesouraria, encargos vigentes e PII mínima; testar acessos negados. Não antecipar os demais módulos antes das Stories.
+- Não versionar segredos, `.env`, logs, dados reais, backups nem `tmp/`. Limpar temporários da própria tarefa após uso, sem apagar trabalhos alheios.
+- Validar testes/CI e diff completo antes do review independente; `review` até aprovação/merge, `done` depois. Nunca afirmar testes que não foram executados.
