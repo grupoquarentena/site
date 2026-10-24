@@ -3,17 +3,17 @@ title: "Arquitetura — Grupo QuarenteNA"
 project: Grupo QuarenteNA — Plataforma Web
 artifact: architecture
 method: "BMAD 6.12.4 — Architecture Spine + detalhamento de dados"
-status: "APROVADO PELO RESPONSÁVEL DO PROJETO — implementação e schema físico ainda não executados"
+status: "APROVADO PELO RESPONSÁVEL DO PROJETO — fundação mínima integrada; demais domínios propostos"
 date: "2026-10-18"
-updated: "2026-10-19"
-revision: "Integração de contratos e auditoria cruzada BMAD 6.12.4"
+updated: "2026-10-24"
+revision: "Issue #35: 15 Epics e 101 Stories aprovados como planejamento condicionado; readiness com gates abertos"
 ---
 
 
 # Arquitetura — Grupo QuarenteNA
 
 
-> O **Brief**, o **PRD** e o **inventário QuarenteNA** estão **APROVADOS**. Esta arquitetura **foi aprovada pelo responsável do projeto**, com os ajustes de governança e integrações descritos aqui. O schema abaixo é **proposta lógica/física de referência**, não dump PostgreSQL gerado, migrations executadas ou homologação de produção. A fundação Laravel será incorporada de forma seletiva a `grupoquarentena/site` na branch vinculada à Issue #33, mediante testes e PR para `dev`, preservando estes contratos.
+> O **Brief** e o **PRD** estão **APROVADOS**; o inventário QuarenteNA é evidência histórica, não fonte normativa. Esta arquitetura **foi aprovada pelo responsável do projeto**, com os ajustes de governança e integrações descritos aqui. O dicionário completo abaixo permanece **proposta lógica/física de referência**, não prova de implementação de todos os domínios nem homologação de produção. A fundação Laravel mínima foi incorporada a `grupoquarentena/site` pela Issue #33 / PR #34, integrada à `dev` no commit `4ad7814bca49b89ffbb39f19b60c6c389f68ccd8`; seu subconjunto físico está nas migrations, em `database/schema/pgsql-schema.sql` e em `docs/banco/db.md`.
 
 
 ## 1. Objetivos, restrições e princípios
@@ -37,6 +37,10 @@ revision: "Integração de contratos e auditoria cruzada BMAD 6.12.4"
 
 
 **Referência de fundação:** PHP `^8.5`, Laravel 13, PostgreSQL 17, PHPUnit e Laravel Boost no ambiente de desenvolvimento. O projeto **não importa** clientes, pivots comerciais, permissões comerciais nem Sanctum sem uma Story de API. A fundação cria `pessoas`, `usuarios` pessoais e tabelas técnicas de sessão/cache/fila; os demais domínios seguem este planejamento e serão concretizados por Story.
+
+**Baseline homologada (#33 / PR #34):** autenticação pessoal, logout, inativação de pessoa/usuário, vínculo `usuarios.pessoa_id NOT NULL UNIQUE`, provisionamento CLI, três migrations e dez tabelas no snapshot (incluindo `migrations`), Docker, lockfile, gates e CI. Os resultados registrados na #33 são evidências históricas, não reexecução na #35. Não há ainda Policies por encargo, root elevado, auditoria de negócio, atas, Kit, Tesouraria, integrações funcionais ou migração. A restauração do snapshot estrutural nos testes não equivale a restore operacional de dados/arquivos. Workers e scheduler precisam de homologação antes dos primeiros jobs reais.
+
+**Checkout de continuidade (#35):** o responsável escolheu `C:\backup\Documentos\repositorios\Sites\quarentena`, equivalente a `/mnt/c/backup/Documentos/repositorios/Sites/quarentena` no WSL, e removeu o checkout Linux anterior. Validar caminhos Docker/MCP, mounts, permissões, arquivos ignorados e preservação dos recursos locais antes da futura implementação; não presumir que a homologação no checkout anterior comprova o runtime neste caminho. Essa verificação não bloqueia a elaboração de `epics.md` nem autoriza recriar o clone removido ou reinstalar dependências.
 
 
 **Confirmado no rastreador escolhido:** `opastorello/correios-rastreamento` implementa serviço Python/FastAPI que disponibiliza REST e MCP; rotas `POST /rastreamento/objeto`, `/rastreamento/multiplos`, `/health` e histórico interno. Usa scraping e resolução de CAPTCHA, portanto sua disponibilidade depende de mudanças dos Correios e requer monitoramento e alternativa de consulta manual. Não incorporar o Python ao processo PHP.
@@ -135,7 +139,7 @@ flowchart TD
 ### Estrutura definida para a fundação Laravel no mesmo repositório (preservar convenções do framework)
 
 
-**Decisão de arquitetura:** integrar a fundação Laravel **no próprio repositório `grupoquarentena/site`**, via branch `chore/issue-33-fundacao-laravel` originada de `dev` e PR revisado; manter `main` congelada e preservar o template como referência externa. Esta é a estrutura alvo obrigatória, com diretórios criados **quando sua primeira classe/feature existir**; não gerar pastas vazias, arquivos placeholder ou “um documento por componente”.
+**Decisão de arquitetura:** fundação Laravel integrada **no próprio repositório `grupoquarentena/site`**, pela branch histórica `chore/issue-33-fundacao-laravel` originada de `dev` e PR #34; manter `main` congelada e preservar o template como referência externa. A árvore abaixo é a estrutura alvo, não inventário de diretórios já implementados: criar cada diretório **quando sua primeira classe/feature existir**; não gerar pastas vazias, arquivos placeholder ou “um documento por componente”.
 
 
 ```text
@@ -147,7 +151,9 @@ grupoquarentena/site/
 │   ├── ProductBrief.md            # visão aprovada
 │   ├── PRD.md                     # requisitos aprovados e IDs estáveis
 │   ├── UX-Design.md               # DESIGN + EXPERIENCE aprovados num só documento
-│   └── Arquitetura.md             # decisões + dicionário lógico/relacional
+│   ├── Arquitetura.md             # decisões + dicionário lógico/relacional
+│   ├── epics.md                   # estado e catálogo global do backlog BMAD
+│   └── epics/                     # arquivos epic-NN.md, criados por Epic detalhado
 ├── app/
 │   ├── Funcionalidades/           # domínio (regras, consultas, eventos e serviços)
 │   │   ├── Identidade/            # usuários, mandatos, permissões, root excepcional
@@ -196,7 +202,7 @@ grupoquarentena/site/
 | Implementação de Story | Código, testes e **Story ativa** de BMAD; não reescrever stories históricas |
 
 
-**Artefatos BMAD mínimos:** somente os cinco documentos acima permanecem canônicos de planejamento do produto; Specs individuais só quando o BMAD exigir um contrato de Epic que não possa ser expresso pela Story, e Stories detalhadas **just in time**, próximas da implementação. `sprint-status.yaml` apenas quando o gate de readiness estiver satisfatório. É proibido criar versões concorrentes `-atualizado`, `-detalhado` ou múltiplos relatórios repetindo decisões. A ferramenta BMAD poderá gerar saídas operacionais temporárias, mas devem ser consolidadas/descartadas ao término da etapa, respeitando os contratos do workflow.
+**Artefatos BMAD mínimos:** os documentos acima preservam seus papéis de fontes aprovadas e inventário histórico. A #35 organiza o backlog como **índice global em `_bmad-output/planning-artifacts/epics.md`** (inventário, mapa e 15 Epics macro) e **detalhamento autoritativo por Epic em `_bmad-output/planning-artifacts/epics/epic-NN.md`** (Stories, AC, matriz RF → Story → AC e gates). Não duplicar Stories no índice. Os arquivos individuais de Story para implementação continuam **just in time**, somente quando o fluxo de implementação exigir. O BMAD 6.12.4 passo 03 normalmente escreve no monolítico; a convenção exige orientação/customização versionada e validação dos consumidores antes da próxima geração. Specs individuais só quando o BMAD exigir contrato que não possa ser expresso pela Story. `sprint-status.yaml` apenas após aprovação do backlog e gate de readiness permitido. É proibido criar versões concorrentes `-atualizado`, `-detalhado` ou múltiplos relatórios repetindo decisões. Não descartar artefatos ativos necessários à continuidade/review.
 
 
 ## 4. Adaptação correta do template Laravel BMAD
@@ -236,7 +242,13 @@ A fundação **não importa** papéis comerciais `super_admin`, `admin` ou `clie
 **Acesso:** na gravação da designação, concessão automática; no fim da vigência, policy nega **mesmo se o scheduler estiver atrasado**, e o job remove cache/flags/tokens; entrega ou destituição revoga instantaneamente, termina sessões privilegiadas quando necessário e registra motivo, responsável e instante. Evitar dar permissão perpetuamente em `permissoes_usuario` se derivada de `designacoes_servico`.
 
 
-**Migrações iniciais:** no próprio `grupoquarentena/site`, criar as migrations de `pessoas` e `usuarios` corretas **antes da primeira instalação em banco descartável**, com revisão explícita. Se migrations já tiverem sido aplicadas em ambiente compartilhado, manter histórico e criar novas migrations (não reescrever as existentes), como exigem `AGENTS.md` e o README da fundação.
+**Migrações iniciais:** as migrations de `pessoas`, `usuarios` e runtime foram criadas e homologadas na #33, antes da integração pelo PR #34. Reutilizar esse subconjunto; evoluções exigem novas migrations, mantendo o histórico aplicado (não reescrever as existentes), como exigem `AGENTS.md` e o README da fundação.
+
+**Bootstrap inaugural aprovado na #35:** somente a primeira designação institucional de CG ou SG pode usar CLI excepcional. A conta pessoal do operador e a conta beneficiária precisam existir, estar ativas e vinculadas a pessoas válidas; reautenticar explicitamente no CLI com senha interativa oculta, reaproveitando o mecanismo de verificação de credenciais, sem presumir sessão web ou autorização pelo shell. Comprovar aprovação institucional externa independente, vinculada à operação e com aprovador/referência rastreáveis; referência digitada ou evidência autodeclarada não bastam. Operador pode ser beneficiário somente com autorização independente comprovada. Meio técnico dessa prova é proposta sujeita ao aceite específico da Story, não um serviço de aprovação já existente.
+
+Na execução inaugural, persistir **designação + auditoria + consumo irreversível da marca de inicialização** na mesma transação PostgreSQL. Exigir exclusão mútua efetiva no banco, unicidade da marca e proteção contra escrita concorrente/replay, com revalidação sob bloqueio antes de conceder. A marca é independente da vigência/status do mandato e não pode ser removida/rearmada pelo fluxo administrativo comum; ausência inesperada, inconsistência ou evidência inválida falham fechadas, sem reconstruí-la automaticamente no comando. Inicialização/migrations estruturais não designam pessoas nem concedem privilégios. Operações extraordinárias de recuperação/restore não autorizam reabrir o bootstrap automaticamente.
+
+Não criar root compartilhado, papel comercial, ID humano privilegiado fixo ou bypass permanente. Registrar operador, beneficiário, encargo CG/SG, vigência, motivo, aprovador/referência e correlação, sem segredos. A concessão decorre exclusivamente da designação vigente e das Policies que forem implementadas/testadas; executar o comando não eleva a sessão nem substitui as Policies futuras. Após o bootstrap, designações usam o fluxo institucional ordinário. A aprovação deste contrato não autoriza execução em produção ou uso de dados reais. Materializar somente as entidades/constraints do procedimento quando sua Story for aprovada para implementação; a marca técnica não implica gerar o dicionário completo nem alterar o snapshot agora.
 
 
 ## 5. Estratégia de PostgreSQL e modelagem
@@ -1235,7 +1247,7 @@ O **Google Drive é a integração documental principal** para atas de serviço,
 | Ler dados do grupo | Query por serviço interno com Policy | Sem usar respostas públicas para dados do kit/PII |
 | Enviar mensagem | `mensagens_saida` (outbox) + job | Sem envio dentro de transação de banco; idempotência |
 | Término de mandato | scheduler e regras de data | Notificações por política; evitar mensagem duplicada |
-| Resumo de ata | `resumos_ata` aprovado | Nunca publicar pessoas ou lista de Zoom |
+| Resumo de ata | `resumos_ata` aprovado | Não divulgar identidades/lista Zoom, contatos ou dados privados; primeiro nome/apelido só quando autorizado pela política editorial de publicação mínima e opt-out, após revisão aplicável |
 | Erro permanente | Status falha + painel de reenvio | Trilha e intervenção manual |
 
 
@@ -1452,7 +1464,7 @@ A base normativa da proteção de dados pessoais inclui a **LGPD** (Lei 13.709/2
 | Docker para produção | **Definida pelo usuário** | Brief/PRD aprovados |
 | BMAD 6.12.4 e Laravel Boost | **Definida pelo usuário** | Template e método |
 | Correios `opastorello/correios-rastreamento` | **Definida pelo usuário** | Repositório do serviço |
-| PHP 8.5, Laravel 13, PostgreSQL 17 | **Herdada do template inspecionado** | Conferir commit/lock na criação do projeto |
+| PHP 8.5, Laravel 13, PostgreSQL 17 | **Fundação homologada na #33 / PR #34** | Baseline `4ad7814`; versões travadas no lock, runtime e evidências da #33; revalidar ambiente local antes da implementação |
 | Modular monolith e banco único | **Recomendação técnica** | Evita complexidade distribuída precoce |
 | Queue via PostgreSQL inicialmente | **Recomendação técnica** | Reavaliar por volume e confiabilidade |
 | **63 entidades de domínio candidatas** | **Modelo lógico aprovado, sujeito a materialização por Story** | Tabelas físicas só existem após migrations executadas e testes PostgreSQL; não gerar todas antecipadamente |
@@ -1466,7 +1478,7 @@ A base normativa da proteção de dados pessoais inclui a **LGPD** (Lei 13.709/2
 `Arquitetura.md` constitui o **spine aprovado** e catálogo de dados para alimentar os próximos contratos de implementação, mas **não é resultado de executar `bmad-architecture` dentro do repositório**. Em implementação, a saída oficial do workflow deve herdar as decisões transversais aqui registradas, fazer inspeção do commit do template efetivamente adotado e citar as migrations geradas.
 
 
-Na sequência: consolidar/validar UX em interação com usuários → revisar arquitetura e segurança → executar `bmad-spec` para contratos de Epic (sem replicar todo este catálogo) → `bmad-create-epics-and-stories` → gate `bmad-sprint-planning` com resultado PASS/CONCERNS/FAIL. Não iniciar deploy nem migração definitiva só pela aprovação documental.
+Continuidade após a fundação: conferência cruzada dirigida na #35 → entrada local explícita `quarentena-backlog`, com critérios metodológicos de `bmad-create-epics-and-stories`, índice `epics.md` e detalhamento em `epics/epic-NN.md`, conforme [contrato operacional B](../../docs/git-workflow-bmad.md#backlog-b). Os overrides oficiais carregam o contrato, mas não substituem os passos monolíticos do pacote; não invocar o criador original para regenerar o índice. Os 15 Epics e 101 Stories estão aprovados como planejamento condicionado (1–5 em 23/10 e 6–15 em 24/10/2026); a elaboração documental está encerrada, sem declarar prontidão global enquanto os gates pertinentes permanecem abertos. A avaliação de prontidão utiliza `bmad-sprint-planning`, na intenção exclusivamente de readiness: avaliar, apresentar o parecer e encerrar sem gerar `sprint-status.yaml`, Stories de implementação ou iniciar build. Sprint planning e geração de tracking dependem de decisão posterior e do gate aplicável. Homologar runtime/Boost do checkout escolhido antes da implementação; aceite documental não resolve decisões institucionais pendentes. `bmad-spec` é opcional quando necessário ao contrato de execução, não um documento obrigatório por Epic. Não iniciar deploy nem migração definitiva só pela aprovação documental.
 
 
 **Referências:** [BMAD 6.12.4 — arquitetura e UX](https://github.com/bmad-code-org/BMAD-METHOD/blob/v6.12.4/docs/plan/design-ux-and-architecture.md), [requisitos/specs](https://github.com/bmad-code-org/BMAD-METHOD/blob/v6.12.4/docs/plan/define-requirements-and-a-specification.md), [readiness](https://github.com/bmad-code-org/BMAD-METHOD/blob/v6.12.4/docs/plan/break-work-into-stories-and-track-it.md), [template](https://github.com/cirinho/template-laravel-bmad), [Correios rastreamento](https://github.com/opastorello/correios-rastreamento).
@@ -1495,6 +1507,10 @@ erDiagram
 - Elevação root: usuário autenticado + segredo institucional protegido + MFA + justificativa + TTL curto configurável + identificação vinculada à sessão; acesso integral excepcional incluindo Tesouraria e Kit; grava auditoria de leitura de dados sensíveis, mudanças e entrada/saída da elevação. Impedir sessão root anônima ou login direto. Não usar concessão persistente de papel root ao usuário.
 
 ### 2. Auditoria forte e proteção de dados
+
+**Alcance aprovado na #35 (RF-AUDITORIA-001/007/008):** auditar todas as mutações persistentes de negócio, identidade, mandatos, permissões, configurações/credenciais/integrações, em HTTP, CLI, jobs ou provedores. O contexto diferencia ator pessoal autenticado e ator técnico identificado; não fabricar usuário humano para automação. Registrar eventos próprios de autenticação/login, negações relevantes, autorização, leitura sensível e elevação mesmo sem mutação de negócio, sem registrar os valores secretos.
+
+Não auditar por linha as atualizações mecânicas de sessões/cache/filas, nem fazer a inserção de `auditorias` disparar auditoria recursiva. Isso não dispensa eventos de segurança nesses componentes nem a auditoria do efeito de negócio produzido por um job. Aplicar o escopo explicitamente aos serviços/entradas e às gravações relevantes fora do ORM, não um observador recursivo de qualquer escrita SQL. As mutações de negócio e suas trilhas falham juntas: rollback integral se a auditoria não persistir, inclusive no bootstrap com sua marca permanente. Eventos de tentativa negada devem refletir rejeição, não uma alteração confirmada que sofreu rollback. O detalhe de autenticação/autorização negada e sua finalidade/retenção pertence ao contexto de segurança, sem carregar PII ou senha para mensagens/logs.
 
 ```mermaid
 sequenceDiagram

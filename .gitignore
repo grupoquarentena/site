@@ -23,8 +23,23 @@
 /.vscode/
 /tmp/
 /.DS_Store
-/_bmad/
-/.agents/
+# Pacote BMAD local ignorado; somente overrides de equipe explicitamente permitidos.
+/_bmad/*
+!/_bmad/custom/
+/_bmad/custom/*
+!/_bmad/custom/bmad-create-epics-and-stories.toml
+!/_bmad/custom/bmad-sprint-planning.toml
+!/_bmad/custom/bmad-build.toml
+!/_bmad/custom/bmad-code-review.toml
+!/_bmad/custom/bmad-review.toml
+!/_bmad/custom/bmad-correct-course.toml
+# Skills distribuídas ignoradas; adaptador do projeto tem fonte versionável.
+/.agents/*
+!/.agents/skills/
+/.agents/skills/*
+!/.agents/skills/quarentena-backlog/
+/.agents/skills/quarentena-backlog/*
+!/.agents/skills/quarentena-backlog/SKILL.md
 /.opencode/
 /.mcp.json
 /opencode.json
